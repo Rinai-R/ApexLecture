@@ -1,4 +1,4 @@
-[ApexLecture](./img/ApexLecture.png)
+![ApexLecture](./img/ApexLecture.png)
 # ApexLecture
 An online live classroom
 
