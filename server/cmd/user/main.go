@@ -1,12 +1,19 @@
 package main
 
 import (
-	user "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/user/userservice"
 	"log"
+
+	"github.com/Rinai-R/ApexLecture/server/cmd/user/dao"
+	"github.com/Rinai-R/ApexLecture/server/cmd/user/initialize"
+	user "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/user/userservice"
 )
 
 func main() {
-	svr := user.NewServer(new(UserServiceImpl))
+	initialize.InitConfig()
+	db := initialize.InitDB()
+	svr := user.NewServer(&UserServiceImpl{
+		MysqlManager: dao.NewDM(db),
+	})
 
 	err := svr.Run()
 

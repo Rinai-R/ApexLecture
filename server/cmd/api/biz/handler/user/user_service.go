@@ -6,6 +6,7 @@ import (
 	"context"
 
 	user "github.com/Rinai-R/ApexLecture/server/cmd/api/biz/model/user"
+	"github.com/Rinai-R/ApexLecture/server/shared/rsp"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -17,13 +18,11 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	var req user.RegisterRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		c.JSON(consts.StatusBadRequest, rsp.ErrorUsernameOrPasswordLength())
 		return
 	}
 
-	resp := new(user.RegisterResponse)
-
-	c.JSON(consts.StatusOK, resp)
+	c.JSON(consts.StatusOK, nil)
 }
 
 // Login .
@@ -33,11 +32,9 @@ func Login(ctx context.Context, c *app.RequestContext) {
 	var req user.LoginRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		c.JSON(consts.StatusBadRequest, rsp.ErrorUsernameOrPasswordLength())
 		return
 	}
 
-	resp := new(user.LoginResponse)
-
-	c.JSON(consts.StatusOK, resp)
+	c.JSON(consts.StatusOK, nil)
 }

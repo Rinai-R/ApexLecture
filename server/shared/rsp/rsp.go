@@ -1,4 +1,4 @@
-package error
+package rsp
 
 type Response struct {
 	Code    int         `json:"code"`
