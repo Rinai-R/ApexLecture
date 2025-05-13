@@ -1,11 +1,23 @@
 package consts
 
-// rpc ServerConfig
+// ApiConfig
 const (
-	Host     = "localhost"
+	SrvLen    = 2
+	UserSrvno = 0
+	AuthSrvno = 1
+)
+
+// ServerConfig
+const (
+	Host     = "0.0.0.0"
+	ApiPort  = "10000"
 	UserPort = "10001"
 
+	ApiConfig  = "./server/cmd/api/config.yaml"
 	UserConfig = "./server/cmd/user/config.yaml"
+
+	ApiSrvPrefix  = "api"
+	UserSrvPrefix = "user"
 )
 
 // MysqlConfig
@@ -16,4 +28,13 @@ const (
 	MysqlPassword = "123456"
 	MysqlDatabase = "apex_db"
 	MysqlPort     = "3306"
+)
+
+// Other
+const (
+	HlogFilePath = "./tmp/hlog/"
+	KlogFilePath = "./tmp/klog/"
+
+	UserSrvSnowFlakeNode = 1
+	UserIDSnowFlakeNode  = 2
 )

@@ -1,10 +1,6 @@
 package rsp
 
-type Response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
+import "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/base"
 
 const (
 	Success                  = 20000
@@ -14,37 +10,36 @@ const (
 	UnAuthorized             = 40004
 )
 
-func OK(data interface{}) Response {
-	return Response{
+func OK(data interface{}) base.BaseResponse {
+	return base.BaseResponse{
 		Code:    Success,
 		Message: "OK",
-		Data:    data,
 	}
 }
 
-func ErrorUsernameOrPasswordLength() Response {
-	return Response{
+func ErrorUsernameOrPasswordLength() base.BaseResponse {
+	return base.BaseResponse{
 		Code:    UsernameOrPasswordLength,
 		Message: "Username or password length should be between 4 and 20 characters",
 	}
 }
 
-func ErrorUsernameNotExists() Response {
-	return Response{
+func ErrorUsernameNotExists() base.BaseResponse {
+	return base.BaseResponse{
 		Code:    UsernameNotExists,
 		Message: "Username not exists",
 	}
 }
 
-func ErrorPasswordError() Response {
-	return Response{
+func ErrorPasswordError() base.BaseResponse {
+	return base.BaseResponse{
 		Code:    PasswordError,
 		Message: "Password error",
 	}
 }
 
-func ErrorUnAuthorized() Response {
-	return Response{
+func ErrorUnAuthorized() base.BaseResponse {
+	return base.BaseResponse{
 		Code:    UnAuthorized,
 		Message: "Unauthorized",
 	}

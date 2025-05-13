@@ -3,12 +3,21 @@
 package main
 
 import (
+	"net"
+
+	"github.com/Rinai-R/ApexLecture/server/cmd/api/config"
+	"github.com/Rinai-R/ApexLecture/server/cmd/api/initialize"
+	"github.com/Rinai-R/ApexLecture/server/cmd/api/initialize/rpc"
 	"github.com/cloudwego/hertz/pkg/app/server"
 )
 
 func main() {
-	h := server.Default()
-
+	initialize.Initlogger()
+	initialize.InitConfig()
+	h := server.New(
+		server.WithHostPorts(net.JoinHostPort(config.GlobalServerConfig.Host, config.GlobalServerConfig.Port)),
+	)
+	rpc.Initrpc()
 	register(h)
 	h.Spin()
 }

@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/Rinai-R/ApexLecture/server/cmd/user/config"
+	"github.com/Rinai-R/ApexLecture/server/cmd/api/config"
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
 	"github.com/bytedance/sonic"
-	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/spf13/viper"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
@@ -22,14 +22,14 @@ func InitConfig() {
 
 	// 初始化配置
 	conf = viper.New()
-	conf.SetConfigFile(consts.UserConfig)
+	conf.SetConfigFile(consts.ApiConfig)
 	err = conf.ReadInConfig()
 	if err != nil {
-		klog.Fatalf("initialize: Error reading config file: %v", err)
+		hlog.Fatalf("initialize: Error reading config file: %v", err)
 	}
 	err = conf.Unmarshal(&config.GlobalEtcdConfig)
 	if err != nil {
-		klog.Fatalf("initialize: Error unmarshalling etcd config: %v", err)
+		hlog.Fatalf("initialize: Error unmarshalling etcd config: %v", err)
 	}
 
 	// 初始化etcd
@@ -38,21 +38,21 @@ func InitConfig() {
 		DialTimeout: 5 * time.Second,
 	})
 	if err != nil {
-		klog.Fatalf("initialize: Error connecting to etcd: %v", err)
+		hlog.Fatalf("initialize: Error connecting to etcd: %v", err)
 	}
 
 	// 从etcd获取配置
 	content, err = Registry.Get(context.Background(), config.GlobalEtcdConfig.Key)
 	if err != nil {
-		klog.Fatalf("initialize: Error getting config from etcd: %v", err)
+		hlog.Fatalf("initialize: Error getting config from etcd: %v", err)
 	}
 	byteData = []byte(content.Kvs[0].Value)
 	err = sonic.Unmarshal(byteData, &config.GlobalServerConfig)
 	if err != nil {
-		klog.Fatalf("initialize: Error unmarshalling server config: %v", err)
+		hlog.Fatalf("initialize: Error unmarshalling server config: %v", err)
 	}
 
 	// 关闭etcd连接
 	Registry.Close()
-	klog.Info("initialize: Config initialized successfully")
+	hlog.Info("initialize: Config initialized successfully")
 }

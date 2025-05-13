@@ -5,6 +5,7 @@ import (
 
 	"github.com/Rinai-R/ApexLecture/server/cmd/user/config"
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
+	"github.com/cloudwego/kitex/pkg/klog"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -30,7 +31,8 @@ func InitDB() *gorm.DB {
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
-		panic(err)
+		klog.Fatalf("initialize db failed: %v", err)
 	}
+	klog.Info("initialize: initialize db success")
 	return db
 }

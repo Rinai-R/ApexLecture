@@ -1,0 +1,9 @@
+{"level":"info","msg":"initialize: initialize logger success","time":"2025-05-13T22:12:25+08:00"}
+{"level":"info","msg":"initialize: Config initialized successfully","time":"2025-05-13T22:12:25+08:00"}
+{"level":"info","msg":"initialize: initialize db success","time":"2025-05-13T22:12:26+08:00"}
+{"level":"info","msg":"initialize: registering service OK","time":"2025-05-13T22:12:26+08:00"}
+{"level":"info","msg":"KITEX: server listen at addr=127.0.0.1:10001","time":"2025-05-13T22:12:26+08:00"}
+{"level":"info","msg":"start keepalive lease 694d96c9fc1fc110 for etcd registry","time":"2025-05-13T22:12:27+08:00"}
+{"level":"info","msg":"stop keep register service kitex/registry-etcd/user/127.0.0.1:10001","time":"2025-05-13T22:24:13+08:00"}
+{"level":"info","msg":"KITEX: gRPC GracefulShutdown starts","time":"2025-05-13T22:24:13+08:00"}
+{"level":"info","msg":"KITEX: gRPC GracefulShutdown ends","time":"2025-05-13T22:24:13+08:00"}

@@ -4,8 +4,12 @@ package user
 
 import (
 	"context"
+	"fmt"
 
-	user "github.com/Rinai-R/ApexLecture/server/cmd/api/biz/model/user"
+	"github.com/Rinai-R/ApexLecture/server/cmd/api/biz/model/user"
+	model "github.com/Rinai-R/ApexLecture/server/cmd/api/biz/model/user"
+	"github.com/Rinai-R/ApexLecture/server/cmd/api/config"
+	rpc "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/user"
 	"github.com/Rinai-R/ApexLecture/server/shared/rsp"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -15,13 +19,16 @@ import (
 // @router /user/register [POST]
 func Register(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req user.RegisterRequest
+	var req model.RegisterRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
 		c.JSON(consts.StatusBadRequest, rsp.ErrorUsernameOrPasswordLength())
 		return
 	}
-
+	config.UserClient.Register(ctx, &rpc.RegisterRequest{
+		Username: req.Username,
+		Password: req.Password,
+	})
 	c.JSON(consts.StatusOK, nil)
 }
 
@@ -35,6 +42,15 @@ func Login(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusBadRequest, rsp.ErrorUsernameOrPasswordLength())
 		return
 	}
-
-	c.JSON(consts.StatusOK, nil)
+	fmt.Println(req)
+	rsp, _ := config.UserClient.Login(ctx, &rpc.LoginRequest{
+		Username: req.Username,
+		Password: req.Password,
+	})
+	switch rsp.Base.Code {
+	case 20000:
+		c.JSON(consts.StatusOK, rsp)
+	default:
+		c.JSON(consts.StatusBadRequest, rsp)
+	}
 }
