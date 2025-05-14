@@ -16,8 +16,11 @@ jobs:
       - name: Download dependencies
         run: go mod download
 
-      - name: Format & Vet
+      - name: Vet
         run: |
           go vet -stdmethods=false $(go list ./...)
+
+      - name: Format
+        run: |
           go install mvdan.cc/gofumpt@v0.2.0
           test -z "$(gofumpt -l -extra .)"
