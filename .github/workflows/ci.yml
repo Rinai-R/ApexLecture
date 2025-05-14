@@ -19,6 +19,7 @@ jobs:
       - name: Vet
         run: |
           go vet -stdmethods=false $(go list ./...)
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
       - name: Format
         run: |
