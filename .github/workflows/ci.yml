@@ -19,9 +19,9 @@ jobs:
       - name: Vet
         run: |
           go vet -stdmethods=false $(go list ./...)
-          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
       - name: Format
         run: |
           go install mvdan.cc/gofumpt@v0.2.0
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
           test -z "$(gofumpt -l -extra .)"
