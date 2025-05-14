@@ -8,6 +8,8 @@ const (
 	UsernameNotExists        = 40002
 	PasswordError            = 40003
 	UnAuthorized             = 40004
+	SnowFalkeError           = 40005
+	UserCreateError          = 40006
 )
 
 func OK(data interface{}) base.BaseResponse {
@@ -42,5 +44,12 @@ func ErrorUnAuthorized() base.BaseResponse {
 	return base.BaseResponse{
 		Code:    UnAuthorized,
 		Message: "Unauthorized",
+	}
+}
+
+func ErrorSnowFalkeError() base.BaseResponse {
+	return base.BaseResponse{
+		Code:    SnowFalkeError,
+		Message: "Snowflake error",
 	}
 }

@@ -19,9 +19,12 @@ func NewDM(db *gorm.DB) *DM {
 	return &DM{db: db}
 }
 
-func (d *DM) CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
-	d.db.Create(user)
-	return user, nil
+func (d *DM) CreateUser(ctx context.Context, user *model.User) error {
+	res := d.db.Create(user)
+	if res.Error != nil {
+		return res.Error
+	}
+	return nil
 }
 
 func (d *DM) GetUserByUsername(ctx context.Context, username string) (*model.User, error) {

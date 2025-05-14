@@ -48,6 +48,7 @@ var fieldIDToName_RegisterRequest = map[int16]string{
 
 type RegisterResponse struct {
 	Base *base.BaseResponse `thrift:"base,1,required" frugal:"1,required,base.BaseResponse" json:"base"`
+	Id   int64              `thrift:"id,2,required" frugal:"2,required,i64" json:"id"`
 }
 
 func NewRegisterResponse() *RegisterResponse {
@@ -65,8 +66,15 @@ func (p *RegisterResponse) GetBase() (v *base.BaseResponse) {
 	}
 	return p.Base
 }
+
+func (p *RegisterResponse) GetId() (v int64) {
+	return p.Id
+}
 func (p *RegisterResponse) SetBase(val *base.BaseResponse) {
 	p.Base = val
+}
+func (p *RegisterResponse) SetId(val int64) {
+	p.Id = val
 }
 
 func (p *RegisterResponse) IsSetBase() bool {
@@ -82,6 +90,7 @@ func (p *RegisterResponse) String() string {
 
 var fieldIDToName_RegisterResponse = map[int16]string{
 	1: "base",
+	2: "id",
 }
 
 type LoginRequest struct {
@@ -169,10 +178,60 @@ var fieldIDToName_LoginResponse = map[int16]string{
 	2: "token",
 }
 
+type GetPublicKeyRequest struct {
+}
+
+func NewGetPublicKeyRequest() *GetPublicKeyRequest {
+	return &GetPublicKeyRequest{}
+}
+
+func (p *GetPublicKeyRequest) InitDefault() {
+}
+
+func (p *GetPublicKeyRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetPublicKeyRequest(%+v)", *p)
+}
+
+var fieldIDToName_GetPublicKeyRequest = map[int16]string{}
+
+type GetPublicKeyResponse struct {
+	PublicKey string `thrift:"publicKey,1,required" frugal:"1,required,string" json:"publicKey"`
+}
+
+func NewGetPublicKeyResponse() *GetPublicKeyResponse {
+	return &GetPublicKeyResponse{}
+}
+
+func (p *GetPublicKeyResponse) InitDefault() {
+}
+
+func (p *GetPublicKeyResponse) GetPublicKey() (v string) {
+	return p.PublicKey
+}
+func (p *GetPublicKeyResponse) SetPublicKey(val string) {
+	p.PublicKey = val
+}
+
+func (p *GetPublicKeyResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetPublicKeyResponse(%+v)", *p)
+}
+
+var fieldIDToName_GetPublicKeyResponse = map[int16]string{
+	1: "publicKey",
+}
+
 type UserService interface {
 	Register(ctx context.Context, request *RegisterRequest) (r *RegisterResponse, err error)
 
 	Login(ctx context.Context, request *LoginRequest) (r *LoginResponse, err error)
+
+	GetPublicKey(ctx context.Context, request *GetPublicKeyRequest) (r *GetPublicKeyResponse, err error)
 }
 
 type UserServiceRegisterArgs struct {
@@ -324,5 +383,81 @@ func (p *UserServiceLoginResult) String() string {
 }
 
 var fieldIDToName_UserServiceLoginResult = map[int16]string{
+	0: "success",
+}
+
+type UserServiceGetPublicKeyArgs struct {
+	Request *GetPublicKeyRequest `thrift:"request,1" frugal:"1,default,GetPublicKeyRequest" json:"request"`
+}
+
+func NewUserServiceGetPublicKeyArgs() *UserServiceGetPublicKeyArgs {
+	return &UserServiceGetPublicKeyArgs{}
+}
+
+func (p *UserServiceGetPublicKeyArgs) InitDefault() {
+}
+
+var UserServiceGetPublicKeyArgs_Request_DEFAULT *GetPublicKeyRequest
+
+func (p *UserServiceGetPublicKeyArgs) GetRequest() (v *GetPublicKeyRequest) {
+	if !p.IsSetRequest() {
+		return UserServiceGetPublicKeyArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+func (p *UserServiceGetPublicKeyArgs) SetRequest(val *GetPublicKeyRequest) {
+	p.Request = val
+}
+
+func (p *UserServiceGetPublicKeyArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *UserServiceGetPublicKeyArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceGetPublicKeyArgs(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceGetPublicKeyArgs = map[int16]string{
+	1: "request",
+}
+
+type UserServiceGetPublicKeyResult struct {
+	Success *GetPublicKeyResponse `thrift:"success,0,optional" frugal:"0,optional,GetPublicKeyResponse" json:"success,omitempty"`
+}
+
+func NewUserServiceGetPublicKeyResult() *UserServiceGetPublicKeyResult {
+	return &UserServiceGetPublicKeyResult{}
+}
+
+func (p *UserServiceGetPublicKeyResult) InitDefault() {
+}
+
+var UserServiceGetPublicKeyResult_Success_DEFAULT *GetPublicKeyResponse
+
+func (p *UserServiceGetPublicKeyResult) GetSuccess() (v *GetPublicKeyResponse) {
+	if !p.IsSetSuccess() {
+		return UserServiceGetPublicKeyResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *UserServiceGetPublicKeyResult) SetSuccess(x interface{}) {
+	p.Success = x.(*GetPublicKeyResponse)
+}
+
+func (p *UserServiceGetPublicKeyResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UserServiceGetPublicKeyResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UserServiceGetPublicKeyResult(%+v)", *p)
+}
+
+var fieldIDToName_UserServiceGetPublicKeyResult = map[int16]string{
 	0: "success",
 }

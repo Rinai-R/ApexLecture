@@ -25,11 +25,16 @@ func Register(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusBadRequest, rsp.ErrorUsernameOrPasswordLength())
 		return
 	}
-	config.UserClient.Register(ctx, &rpc.RegisterRequest{
+	resp, _ := config.UserClient.Register(ctx, &rpc.RegisterRequest{
 		Username: req.Username,
 		Password: req.Password,
 	})
-	c.JSON(consts.StatusOK, nil)
+	switch resp.Base.Code {
+	case rsp.Success:
+		c.JSON(consts.StatusOK, resp)
+	default:
+		c.JSON(consts.StatusBadRequest, resp)
+	}
 }
 
 // Login .
@@ -43,14 +48,14 @@ func Login(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	fmt.Println(req)
-	rsp, _ := config.UserClient.Login(ctx, &rpc.LoginRequest{
+	resp, _ := config.UserClient.Login(ctx, &rpc.LoginRequest{
 		Username: req.Username,
 		Password: req.Password,
 	})
-	switch rsp.Base.Code {
-	case 20000:
-		c.JSON(consts.StatusOK, rsp)
+	switch resp.Base.Code {
+	case rsp.Success:
+		c.JSON(consts.StatusOK, resp)
 	default:
-		c.JSON(consts.StatusBadRequest, rsp)
+		c.JSON(consts.StatusBadRequest, resp)
 	}
 }

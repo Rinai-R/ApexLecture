@@ -13,6 +13,7 @@ import (
 type Client interface {
 	Register(ctx context.Context, request *user.RegisterRequest, callOptions ...callopt.Option) (r *user.RegisterResponse, err error)
 	Login(ctx context.Context, request *user.LoginRequest, callOptions ...callopt.Option) (r *user.LoginResponse, err error)
+	GetPublicKey(ctx context.Context, request *user.GetPublicKeyRequest, callOptions ...callopt.Option) (r *user.GetPublicKeyResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -52,4 +53,9 @@ func (p *kUserServiceClient) Register(ctx context.Context, request *user.Registe
 func (p *kUserServiceClient) Login(ctx context.Context, request *user.LoginRequest, callOptions ...callopt.Option) (r *user.LoginResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.Login(ctx, request)
+}
+
+func (p *kUserServiceClient) GetPublicKey(ctx context.Context, request *user.GetPublicKeyRequest, callOptions ...callopt.Option) (r *user.GetPublicKeyResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetPublicKey(ctx, request)
 }

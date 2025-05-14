@@ -30,6 +30,12 @@ const (
 	MysqlPort     = "3306"
 )
 
+// key
+const (
+	PrivateKey = "./server/cmd/user/keys/private_key.pem"
+	PublicKey  = "./server/cmd/user/keys/public_key.pem"
+)
+
 // Other
 const (
 	HlogFilePath = "./tmp/hlog/"

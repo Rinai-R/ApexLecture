@@ -17,9 +17,12 @@ func main() {
 
 	db := initialize.InitDB()
 	r, i := initialize.InitRegistry()
+	private, public := initialize.InitKey()
 
 	svr := user.NewServer(&UserServiceImpl{
 		MysqlManager: dao.NewDM(db),
+		PrivateKey:   private,
+		PublicKey:    public,
 	},
 		server.WithRegistry(r),
 		server.WithRegistryInfo(i),

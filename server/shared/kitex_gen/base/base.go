@@ -43,3 +43,22 @@ var fieldIDToName_BaseResponse = map[int16]string{
 	1: "code",
 	2: "message",
 }
+
+type NilResponse struct {
+}
+
+func NewNilResponse() *NilResponse {
+	return &NilResponse{}
+}
+
+func (p *NilResponse) InitDefault() {
+}
+
+func (p *NilResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("NilResponse(%+v)", *p)
+}
+
+var fieldIDToName_NilResponse = map[int16]string{}

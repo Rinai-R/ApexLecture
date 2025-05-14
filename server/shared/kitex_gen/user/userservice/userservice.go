@@ -27,6 +27,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"getPublicKey": kitex.NewMethodInfo(
+		getPublicKeyHandler,
+		newUserServiceGetPublicKeyArgs,
+		newUserServiceGetPublicKeyResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -129,6 +136,24 @@ func newUserServiceLoginResult() interface{} {
 	return user.NewUserServiceLoginResult()
 }
 
+func getPublicKeyHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*user.UserServiceGetPublicKeyArgs)
+	realResult := result.(*user.UserServiceGetPublicKeyResult)
+	success, err := handler.(user.UserService).GetPublicKey(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newUserServiceGetPublicKeyArgs() interface{} {
+	return user.NewUserServiceGetPublicKeyArgs()
+}
+
+func newUserServiceGetPublicKeyResult() interface{} {
+	return user.NewUserServiceGetPublicKeyResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -154,6 +179,16 @@ func (p *kClient) Login(ctx context.Context, request *user.LoginRequest) (r *use
 	_args.Request = request
 	var _result user.UserServiceLoginResult
 	if err = p.c.Call(ctx, "login", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetPublicKey(ctx context.Context, request *user.GetPublicKeyRequest) (r *user.GetPublicKeyResponse, err error) {
+	var _args user.UserServiceGetPublicKeyArgs
+	_args.Request = request
+	var _result user.UserServiceGetPublicKeyResult
+	if err = p.c.Call(ctx, "getPublicKey", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
