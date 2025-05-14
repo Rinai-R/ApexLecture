@@ -7,11 +7,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-            go-version: 1.24.3
-      - name: Format
+          go-version: '1.24.3'
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Format & Vet
         run: |
           go vet -stdmethods=false $(go list ./...)
           go install mvdan.cc/gofumpt@v0.2.0
