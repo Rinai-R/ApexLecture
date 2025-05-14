@@ -18,11 +18,11 @@ func InitRegistry() (registry.Registry, *registry.Info) {
 		config.GlobalEtcdConfig.Port,
 	)})
 	if err != nil {
-		klog.Fatalf("failed to create etcd resolver: %v", err)
+		klog.Fatal("failed to create etcd resolver: ", err)
 	}
 	suf, err := snowflake.NewNode(consts.UserSrvSnowFlakeNode)
 	if err != nil {
-		klog.Fatalf("failed to create snowflake node: %v", err)
+		klog.Fatal("failed to create snowflake node: ", err)
 	}
 	info := &registry.Info{
 		ServiceName: consts.UserSrvPrefix,
@@ -37,6 +37,6 @@ func InitRegistry() (registry.Registry, *registry.Info) {
 			"ID": suf.Generate().Base36(),
 		},
 	}
-	klog.Infof("initialize: registering service OK")
+	klog.Info("initialize: registering service OK")
 	return r, info
 }

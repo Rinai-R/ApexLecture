@@ -4,7 +4,6 @@ package user
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Rinai-R/ApexLecture/server/cmd/api/biz/model/user"
 	model "github.com/Rinai-R/ApexLecture/server/cmd/api/biz/model/user"
@@ -47,7 +46,6 @@ func Login(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusBadRequest, rsp.ErrorUsernameOrPasswordLength())
 		return
 	}
-	fmt.Println(req)
 	resp, _ := config.UserClient.Login(ctx, &rpc.LoginRequest{
 		Username: req.Username,
 		Password: req.Password,

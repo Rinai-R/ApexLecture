@@ -1,0 +1,98 @@
+services:
+    mysql:
+        image: mysql:latest
+        container_name: mysql
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: 123456
+            MYSQL_DATABASE: apex_db
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./data/mysql/data:/var/lib/mysql:rw
+    redis:
+        image: redis:latest
+        container_name: redis
+        restart: always
+        ports:
+        - "6379:6379"
+        volumes:
+        - ./data/redis_data:/data:rw
+        command: ["redis-server", "--requirepass", "123456"]
+
+    elasticsearch:
+        image: elasticsearch:8.17.0
+        container_name: elasticsearch
+        restart: always
+        environment:
+        - discovery.type=single-node
+        - xpack.security.enabled=false
+        - xpack.security.enrollment.enabled=false
+        ports:
+        - "9200:9200"
+        - "9300:9300"
+        volumes:
+        - ./data/es_data:/usr/share/elasticsearch/data:rw
+        command: >
+            sh -c "bin/elasticsearch-plugin install --batch https://release.infinilabs.com/analysis-ik/stable/elasticsearch-analysis-ik-8.17.0.zip && exec bin/elasticsearch"
+        networks:
+            - ELK
+    kibana:
+        image: kibana:8.17.0
+        container_name: kibana
+        restart: always
+        ports:
+        - "5601:5601"
+        environment:
+        - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+        depends_on:
+        - elasticsearch
+        networks:
+            - ELK
+    logstash:
+        image: logstash:8.17.0
+        container_name: logstash
+        restart: always
+        volumes:
+        - ./tmp/klog:/usr/share/logstash/logs/klog:ro
+        - ./tmp/hlog:/usr/share/logstash/logs/hlog:ro
+        - ./data/logstash/pipeline:/usr/share/logstash/pipeline:rw
+        depends_on:
+        - elasticsearch
+        networks:
+            - ELK
+    jaeger:
+        image: jaegertracing/all-in-one:1.45
+        container_name: jaeger
+        environment:
+        - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+        - COLLECTOR_OTLP_ENABLED=true
+        ports:
+        - "6831:6831/udp"
+        - "6832:6832/udp"
+        - "5778:5778"
+        - "16686:16686"
+        - "4317:4317"
+        - "4318:4318"
+        - "14250:14250"
+        - "14268:14268"
+        - "14269:14269"
+        - "9411:9411"
+        restart: always
+    etcd-server:
+        image: bitnami/etcd:latest
+        container_name: etcd
+        environment:
+        - ALLOW_NONE_AUTHENTICATION=yes
+        ports:
+        - "2379:2379"
+        - "2380:2380"
+        restart: always
+volumes:
+  mysql_data:
+  redis_data:
+  es_data:
+  logstash_data:
+networks:
+  ELK:
+    driver: bridge

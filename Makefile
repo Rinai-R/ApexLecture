@@ -12,6 +12,9 @@ user-run:
 
 
 # 更新脚手架文件
+hz-update:
+	make hz-update service=user
+
 hz-new:
 	cd 	./server/cmd/api && \
 	hz new -idl ../../idl/api/$(service).thrift \
@@ -55,6 +58,3 @@ rpc-all:
 hz-update:
 	cd 	./server/cmd/api && \
 	hz update -idl ../../idl/api/$(service).thrift \
-
-hz-user:
-	make hz-update service=user

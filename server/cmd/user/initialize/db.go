@@ -31,7 +31,7 @@ func InitDB() *gorm.DB {
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
-		klog.Fatalf("initialize db failed: %v", err)
+		klog.Fatal("initialize db failed: ", err)
 	}
 	klog.Info("initialize: initialize db success")
 	return db

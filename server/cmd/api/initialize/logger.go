@@ -33,7 +33,7 @@ func Initlogger() {
 		Compress:   true,
 	}
 	logger.SetOutput(lumberjackLogger)
-	logger.SetLevel(hlog.LevelDebug)
+	logger.SetLevel(hlog.LevelInfo)
 	hlog.SetLogger(logger)
 	hlog.Info("initialize: logger initialized")
 }

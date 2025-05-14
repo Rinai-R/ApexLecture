@@ -18,7 +18,7 @@ func InitKey() (*rsa.PrivateKey, string) {
 	block, _ := pem.Decode(privatePEM)
 	privateKey, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
-		klog.Fatalf("initialize: 解析私钥失败: %v", err)
+		klog.Fatal("initialize: 解析私钥失败: ", err)
 	}
 
 	publicPEM, _ := os.ReadFile(consts.PublicKey)

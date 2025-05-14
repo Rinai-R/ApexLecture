@@ -58,7 +58,7 @@ func (s *UserServiceImpl) Register(ctx context.Context, request *user.RegisterRe
 		resp := &user.RegisterResponse{
 			Base: &base.BaseResponse{
 				Code:    rsp.UserCreateError,
-				Message: "create user failed",
+				Message: "create user failed, maybe username already exists",
 			},
 		}
 		return resp, nil

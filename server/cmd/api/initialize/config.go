@@ -25,11 +25,11 @@ func InitConfig() {
 	conf.SetConfigFile(consts.ApiConfig)
 	err = conf.ReadInConfig()
 	if err != nil {
-		hlog.Fatalf("initialize: Error reading config file: %v", err)
+		hlog.Fatal("initialize: Error reading config file:", err)
 	}
 	err = conf.Unmarshal(&config.GlobalEtcdConfig)
 	if err != nil {
-		hlog.Fatalf("initialize: Error unmarshalling etcd config: %v", err)
+		hlog.Fatal("initialize: Error unmarshalling etcd config:", err)
 	}
 
 	// 初始化etcd
@@ -38,18 +38,18 @@ func InitConfig() {
 		DialTimeout: 5 * time.Second,
 	})
 	if err != nil {
-		hlog.Fatalf("initialize: Error connecting to etcd: %v", err)
+		hlog.Fatal("initialize: Error connecting to etcd: ", err)
 	}
 
 	// 从etcd获取配置
 	content, err = Registry.Get(context.Background(), config.GlobalEtcdConfig.Key)
 	if err != nil {
-		hlog.Fatalf("initialize: Error getting config from etcd: %v", err)
+		hlog.Fatal("initialize: Error getting config from etcd: ", err)
 	}
 	byteData = []byte(content.Kvs[0].Value)
 	err = sonic.Unmarshal(byteData, &config.GlobalServerConfig)
 	if err != nil {
-		hlog.Fatalf("initialize: Error unmarshalling server config: %v", err)
+		hlog.Fatal("initialize: Error unmarshalling server config:", err)
 	}
 
 	// 关闭etcd连接

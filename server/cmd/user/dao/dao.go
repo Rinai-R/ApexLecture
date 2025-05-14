@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/Rinai-R/ApexLecture/server/cmd/user/model"
+	"github.com/cloudwego/kitex/pkg/klog"
 	"gorm.io/gorm"
 )
 
@@ -14,7 +15,7 @@ type DM struct {
 func NewDM(db *gorm.DB) *DM {
 	err := db.AutoMigrate(&model.User{})
 	if err != nil {
-		panic("failed to migrate user table " + err.Error())
+		klog.Fatal("failed to migrate user table: ", err.Error())
 	}
 	return &DM{db: db}
 }
