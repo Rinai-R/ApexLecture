@@ -6,3 +6,5 @@ struct BaseResponse {
 }
 
 struct NilResponse {}
+
+struct NilRequest {}

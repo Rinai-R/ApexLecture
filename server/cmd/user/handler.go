@@ -33,6 +33,7 @@ var _ MysqlManager = (*dao.DM)(nil)
 
 // Register implements the UserServiceImpl interface.
 func (s *UserServiceImpl) Register(ctx context.Context, request *user.RegisterRequest) (*user.RegisterResponse, error) {
+	// 创建雪花算法节点
 	sf, err := snowflake.NewNode(consts.UserIDSnowFlakeNode)
 	if err != nil {
 		klog.Errorf("user register: create snowflake node failed: %v", err)
@@ -48,6 +49,7 @@ func (s *UserServiceImpl) Register(ctx context.Context, request *user.RegisterRe
 	userid := sf.Generate().Int64()
 	// 加密密码
 	password := encrypt.EncryptPassword(request.Password)
+	// 数据库操作
 	err = s.CreateUser(ctx, &model.User{
 		ID:       userid,
 		Username: request.Username,
@@ -63,7 +65,7 @@ func (s *UserServiceImpl) Register(ctx context.Context, request *user.RegisterRe
 		}
 		return resp, nil
 	}
-
+	// 返回注册成功响应
 	resp := &user.RegisterResponse{
 		Base: &base.BaseResponse{
 			Code:    rsp.Success,
@@ -76,6 +78,7 @@ func (s *UserServiceImpl) Register(ctx context.Context, request *user.RegisterRe
 
 // Login implements the UserServiceImpl interface.
 func (s *UserServiceImpl) Login(ctx context.Context, request *user.LoginRequest) (*user.LoginResponse, error) {
+	// 数据库查询
 	userInfo, err := s.GetUserByUsername(ctx, request.Username)
 	if err != nil {
 		klog.Errorf("user login: get user by username failed: %v", err)
@@ -108,12 +111,13 @@ func (s *UserServiceImpl) Login(ctx context.Context, request *user.LoginRequest)
 }
 
 func (a *UserServiceImpl) GenerateToken(uid int64) string {
+	// 产生 Token
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
-		"sub": "user",
+		"sub": "ID",
 		"exp": time.Now().Add(time.Hour * 2).Unix(),
 		"uid": uid,
 	})
-
+	// 私钥加密
 	tokenString, err := token.SignedString(a.PrivateKey)
 	if err != nil {
 		return ""

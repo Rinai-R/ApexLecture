@@ -13,11 +13,12 @@ user-run:
 
 # 更新脚手架文件
 hz-update:
-	make hz-update service=user
+	make api-update service=user
+	make api-update service=lecture
 
 hz-new:
-	cd 	./server/cmd/api && \
-	hz new -idl ../../idl/api/$(service).thrift \
+	make api-new service=user
+	make api-new service=lecture
 
 user-rpc:
 	cd 	./server/cmd/user && \
@@ -28,6 +29,16 @@ user-rpc:
 user-gen:
 	cd 	./server/shared && \
 	kitex -module github.com/Rinai-R/ApexLecture ../idl/rpc/user.thrift
+
+lecture-rpc:
+	cd 	./server/cmd/lecture && \
+	kitex -module $(MODULE_NAME) -service lecture \
+	-use github.com/Rinai-R/ApexLecture/server/shared/kitex_gen \
+	../../idl/rpc/lecture.thrift
+
+lecture-gen:
+	cd 	./server/shared && \
+	kitex -module github.com/Rinai-R/ApexLecture ../idl/rpc/lecture.thrift
 
 
 # 更新配置文件
@@ -55,6 +66,10 @@ rpc-all:
 
 
 # 杂项，给其他 make 指令用的
-hz-update:
+api-update:
 	cd 	./server/cmd/api && \
 	hz update -idl ../../idl/api/$(service).thrift \
+
+api-new:
+	cd 	./server/cmd/api && \
+	hz new -idl ../../idl/api/$(service).thrift \

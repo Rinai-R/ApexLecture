@@ -15,6 +15,6 @@ struct LoginRequest {
 
 
 service UserService {
-    base.NilResponse   register(1: RegisterRequest request) (api.post="/user/register");
+    base.NilResponse   register (1: RegisterRequest request) (api.post="/user/register");
     base.NilResponse   login   (1: LoginRequest   request) (api.post="/user/login");
 }
