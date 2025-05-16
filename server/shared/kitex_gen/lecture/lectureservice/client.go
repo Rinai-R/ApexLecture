@@ -11,7 +11,7 @@ import (
 
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.
 type Client interface {
-	CreateLecture(ctx context.Context, request *lecture.CreareLectureRequest, callOptions ...callopt.Option) (r *lecture.CreareLectureResponse, err error)
+	Start(ctx context.Context, request *lecture.StartRequest, callOptions ...callopt.Option) (r *lecture.StartResponse, err error)
 	Attend(ctx context.Context, request *lecture.AttendRequest, callOptions ...callopt.Option) (r *lecture.AttendResponse, err error)
 }
 
@@ -44,9 +44,9 @@ type kLectureServiceClient struct {
 	*kClient
 }
 
-func (p *kLectureServiceClient) CreateLecture(ctx context.Context, request *lecture.CreareLectureRequest, callOptions ...callopt.Option) (r *lecture.CreareLectureResponse, err error) {
+func (p *kLectureServiceClient) Start(ctx context.Context, request *lecture.StartRequest, callOptions ...callopt.Option) (r *lecture.StartResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.CreateLecture(ctx, request)
+	return p.kClient.Start(ctx, request)
 }
 
 func (p *kLectureServiceClient) Attend(ctx context.Context, request *lecture.AttendRequest, callOptions ...callopt.Option) (r *lecture.AttendResponse, err error) {

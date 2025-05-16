@@ -19,7 +19,7 @@ import (
 // @router lecture/ [POST]
 func CreateLecture(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req lecture.CreareLectureRequest
+	var req lecture.StartRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
 		c.JSON(consts.StatusBadRequest, rsp.ErrorParameterError())
@@ -31,12 +31,11 @@ func CreateLecture(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	hostid, _ := strconv.ParseInt(id, 10, 64)
-	resp, _ := config.LectureClient.CreateLecture(ctx, &rpc.CreareLectureRequest{
+	resp, _ := config.LectureClient.Start(ctx, &rpc.StartRequest{
 		HostId:      hostid,
 		Title:       req.Title,
 		Description: req.Description,
 		Speaker:     req.Speaker,
-		Date:        req.Date,
 		Sdp:         req.Sdp,
 	})
 	switch resp.Response.Code {
@@ -76,6 +75,22 @@ func Inroom(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(base.NilResponse)
+
+	c.JSON(consts.StatusOK, resp)
+}
+
+// StartLecture .
+// @router lecture/ [POST]
+func StartLecture(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req lecture.StartRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp := new(lecture.StartResponse)
 
 	c.JSON(consts.StatusOK, resp)
 }

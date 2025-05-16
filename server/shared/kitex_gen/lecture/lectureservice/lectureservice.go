@@ -13,10 +13,10 @@ import (
 var errInvalidMessageType = errors.New("invalid message type for service method handler")
 
 var serviceMethods = map[string]kitex.MethodInfo{
-	"createLecture": kitex.NewMethodInfo(
-		createLectureHandler,
-		newLectureServiceCreateLectureArgs,
-		newLectureServiceCreateLectureResult,
+	"start": kitex.NewMethodInfo(
+		startHandler,
+		newLectureServiceStartArgs,
+		newLectureServiceStartResult,
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
@@ -93,22 +93,22 @@ func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreami
 	return svcInfo
 }
 
-func createLectureHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*lecture.LectureServiceCreateLectureArgs)
-	realResult := result.(*lecture.LectureServiceCreateLectureResult)
-	success, err := handler.(lecture.LectureService).CreateLecture(ctx, realArg.Request)
+func startHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*lecture.LectureServiceStartArgs)
+	realResult := result.(*lecture.LectureServiceStartResult)
+	success, err := handler.(lecture.LectureService).Start(ctx, realArg.Request)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newLectureServiceCreateLectureArgs() interface{} {
-	return lecture.NewLectureServiceCreateLectureArgs()
+func newLectureServiceStartArgs() interface{} {
+	return lecture.NewLectureServiceStartArgs()
 }
 
-func newLectureServiceCreateLectureResult() interface{} {
-	return lecture.NewLectureServiceCreateLectureResult()
+func newLectureServiceStartResult() interface{} {
+	return lecture.NewLectureServiceStartResult()
 }
 
 func attendHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -139,11 +139,11 @@ func newServiceClient(c client.Client) *kClient {
 	}
 }
 
-func (p *kClient) CreateLecture(ctx context.Context, request *lecture.CreareLectureRequest) (r *lecture.CreareLectureResponse, err error) {
-	var _args lecture.LectureServiceCreateLectureArgs
+func (p *kClient) Start(ctx context.Context, request *lecture.StartRequest) (r *lecture.StartResponse, err error) {
+	var _args lecture.LectureServiceStartArgs
 	_args.Request = request
-	var _result lecture.LectureServiceCreateLectureResult
-	if err = p.c.Call(ctx, "createLecture", &_args, &_result); err != nil {
+	var _result lecture.LectureServiceStartResult
+	if err = p.c.Call(ctx, "start", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

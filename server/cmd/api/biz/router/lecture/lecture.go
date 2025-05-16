@@ -19,7 +19,7 @@ func Register(r *server.Hertz) {
 	root := r.Group("/", rootMw()...)
 	{
 		_lecture := root.Group("/lecture", _lectureMw()...)
-		_lecture.POST("/", append(_createlectureMw(), lecture.CreateLecture)...)
+		_lecture.POST("/", append(_startlectureMw(), lecture.StartLecture)...)
 		{
 			_roomid := _lecture.Group("/:roomid", _roomidMw()...)
 			_roomid.POST("/attend", append(_attendlectureMw(), lecture.AttendLecture)...)

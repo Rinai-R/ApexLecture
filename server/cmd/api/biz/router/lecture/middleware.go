@@ -40,3 +40,8 @@ func _inroomMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _startlectureMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

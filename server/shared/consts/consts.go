@@ -44,6 +44,8 @@ const (
 	HlogFilePath = "./tmp/hlog/"
 	KlogFilePath = "./tmp/klog/"
 
-	UserSrvSnowFlakeNode = 1
-	UserIDSnowFlakeNode  = 2
+	UserSrvSnowFlakeNode   = 1
+	UserIDSnowFlakeNode    = 2
+	LectureSnowFlakeNode   = 3
+	LectureIDSnowFlakeNode = 4
 )

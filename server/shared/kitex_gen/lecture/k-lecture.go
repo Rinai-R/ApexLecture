@@ -26,7 +26,7 @@ var (
 	_ = thrift.STOP
 )
 
-func (p *CreareLectureRequest) FastRead(buf []byte) (int, error) {
+func (p *StartRequest) FastRead(buf []byte) (int, error) {
 
 	var err error
 	var offset int
@@ -37,7 +37,6 @@ func (p *CreareLectureRequest) FastRead(buf []byte) (int, error) {
 	var issetTitle bool = false
 	var issetDescription bool = false
 	var issetSpeaker bool = false
-	var issetDate bool = false
 	var issetSdp bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
@@ -116,21 +115,6 @@ func (p *CreareLectureRequest) FastRead(buf []byte) (int, error) {
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetDate = true
-			} else {
-				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
-				offset += l
-				if err != nil {
-					goto SkipFieldError
-				}
-			}
-		case 6:
-			if fieldTypeId == thrift.STRING {
-				l, err = p.FastReadField6(buf[offset:])
-				offset += l
-				if err != nil {
-					goto ReadFieldError
-				}
 				issetSdp = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
@@ -168,27 +152,22 @@ func (p *CreareLectureRequest) FastRead(buf []byte) (int, error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetDate {
-		fieldId = 5
-		goto RequiredFieldNotSetError
-	}
-
 	if !issetSdp {
-		fieldId = 6
+		fieldId = 5
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CreareLectureRequest[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_StartRequest[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 RequiredFieldNotSetError:
-	return offset, thrift.NewProtocolException(thrift.INVALID_DATA, fmt.Sprintf("required field %s is not set", fieldIDToName_CreareLectureRequest[fieldId]))
+	return offset, thrift.NewProtocolException(thrift.INVALID_DATA, fmt.Sprintf("required field %s is not set", fieldIDToName_StartRequest[fieldId]))
 }
 
-func (p *CreareLectureRequest) FastReadField1(buf []byte) (int, error) {
+func (p *StartRequest) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 
 	var _field int64
@@ -202,7 +181,7 @@ func (p *CreareLectureRequest) FastReadField1(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *CreareLectureRequest) FastReadField2(buf []byte) (int, error) {
+func (p *StartRequest) FastReadField2(buf []byte) (int, error) {
 	offset := 0
 
 	var _field string
@@ -216,7 +195,7 @@ func (p *CreareLectureRequest) FastReadField2(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *CreareLectureRequest) FastReadField3(buf []byte) (int, error) {
+func (p *StartRequest) FastReadField3(buf []byte) (int, error) {
 	offset := 0
 
 	var _field string
@@ -230,7 +209,7 @@ func (p *CreareLectureRequest) FastReadField3(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *CreareLectureRequest) FastReadField4(buf []byte) (int, error) {
+func (p *StartRequest) FastReadField4(buf []byte) (int, error) {
 	offset := 0
 
 	var _field string
@@ -244,21 +223,7 @@ func (p *CreareLectureRequest) FastReadField4(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *CreareLectureRequest) FastReadField5(buf []byte) (int, error) {
-	offset := 0
-
-	var _field string
-	if v, l, err := thrift.Binary.ReadString(buf[offset:]); err != nil {
-		return offset, err
-	} else {
-		offset += l
-		_field = v
-	}
-	p.Date = _field
-	return offset, nil
-}
-
-func (p *CreareLectureRequest) FastReadField6(buf []byte) (int, error) {
+func (p *StartRequest) FastReadField5(buf []byte) (int, error) {
 	offset := 0
 
 	var _field string
@@ -272,11 +237,11 @@ func (p *CreareLectureRequest) FastReadField6(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *CreareLectureRequest) FastWrite(buf []byte) int {
+func (p *StartRequest) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
 
-func (p *CreareLectureRequest) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+func (p *StartRequest) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], w)
@@ -284,13 +249,12 @@ func (p *CreareLectureRequest) FastWriteNocopy(buf []byte, w thrift.NocopyWriter
 		offset += p.fastWriteField3(buf[offset:], w)
 		offset += p.fastWriteField4(buf[offset:], w)
 		offset += p.fastWriteField5(buf[offset:], w)
-		offset += p.fastWriteField6(buf[offset:], w)
 	}
 	offset += thrift.Binary.WriteFieldStop(buf[offset:])
 	return offset
 }
 
-func (p *CreareLectureRequest) BLength() int {
+func (p *StartRequest) BLength() int {
 	l := 0
 	if p != nil {
 		l += p.field1Length()
@@ -298,97 +262,82 @@ func (p *CreareLectureRequest) BLength() int {
 		l += p.field3Length()
 		l += p.field4Length()
 		l += p.field5Length()
-		l += p.field6Length()
 	}
 	l += thrift.Binary.FieldStopLength()
 	return l
 }
 
-func (p *CreareLectureRequest) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+func (p *StartRequest) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 1)
 	offset += thrift.Binary.WriteI64(buf[offset:], p.HostId)
 	return offset
 }
 
-func (p *CreareLectureRequest) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
+func (p *StartRequest) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 2)
 	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Title)
 	return offset
 }
 
-func (p *CreareLectureRequest) fastWriteField3(buf []byte, w thrift.NocopyWriter) int {
+func (p *StartRequest) fastWriteField3(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 3)
 	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Description)
 	return offset
 }
 
-func (p *CreareLectureRequest) fastWriteField4(buf []byte, w thrift.NocopyWriter) int {
+func (p *StartRequest) fastWriteField4(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 4)
 	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Speaker)
 	return offset
 }
 
-func (p *CreareLectureRequest) fastWriteField5(buf []byte, w thrift.NocopyWriter) int {
+func (p *StartRequest) fastWriteField5(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 5)
-	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Date)
-	return offset
-}
-
-func (p *CreareLectureRequest) fastWriteField6(buf []byte, w thrift.NocopyWriter) int {
-	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 6)
 	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Sdp)
 	return offset
 }
 
-func (p *CreareLectureRequest) field1Length() int {
+func (p *StartRequest) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.I64Length()
 	return l
 }
 
-func (p *CreareLectureRequest) field2Length() int {
+func (p *StartRequest) field2Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.StringLengthNocopy(p.Title)
 	return l
 }
 
-func (p *CreareLectureRequest) field3Length() int {
+func (p *StartRequest) field3Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.StringLengthNocopy(p.Description)
 	return l
 }
 
-func (p *CreareLectureRequest) field4Length() int {
+func (p *StartRequest) field4Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.StringLengthNocopy(p.Speaker)
 	return l
 }
 
-func (p *CreareLectureRequest) field5Length() int {
-	l := 0
-	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.StringLengthNocopy(p.Date)
-	return l
-}
-
-func (p *CreareLectureRequest) field6Length() int {
+func (p *StartRequest) field5Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.StringLengthNocopy(p.Sdp)
 	return l
 }
 
-func (p *CreareLectureResponse) FastRead(buf []byte) (int, error) {
+func (p *StartResponse) FastRead(buf []byte) (int, error) {
 
 	var err error
 	var offset int
@@ -480,14 +429,14 @@ func (p *CreareLectureResponse) FastRead(buf []byte) (int, error) {
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CreareLectureResponse[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_StartResponse[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 RequiredFieldNotSetError:
-	return offset, thrift.NewProtocolException(thrift.INVALID_DATA, fmt.Sprintf("required field %s is not set", fieldIDToName_CreareLectureResponse[fieldId]))
+	return offset, thrift.NewProtocolException(thrift.INVALID_DATA, fmt.Sprintf("required field %s is not set", fieldIDToName_StartResponse[fieldId]))
 }
 
-func (p *CreareLectureResponse) FastReadField1(buf []byte) (int, error) {
+func (p *StartResponse) FastReadField1(buf []byte) (int, error) {
 	offset := 0
 	_field := base.NewBaseResponse()
 	if l, err := _field.FastRead(buf[offset:]); err != nil {
@@ -499,7 +448,7 @@ func (p *CreareLectureResponse) FastReadField1(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *CreareLectureResponse) FastReadField2(buf []byte) (int, error) {
+func (p *StartResponse) FastReadField2(buf []byte) (int, error) {
 	offset := 0
 
 	var _field int64
@@ -513,7 +462,7 @@ func (p *CreareLectureResponse) FastReadField2(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *CreareLectureResponse) FastReadField3(buf []byte) (int, error) {
+func (p *StartResponse) FastReadField3(buf []byte) (int, error) {
 	offset := 0
 
 	var _field string
@@ -527,11 +476,11 @@ func (p *CreareLectureResponse) FastReadField3(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *CreareLectureResponse) FastWrite(buf []byte) int {
+func (p *StartResponse) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
 
-func (p *CreareLectureResponse) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+func (p *StartResponse) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p != nil {
 		offset += p.fastWriteField2(buf[offset:], w)
@@ -542,7 +491,7 @@ func (p *CreareLectureResponse) FastWriteNocopy(buf []byte, w thrift.NocopyWrite
 	return offset
 }
 
-func (p *CreareLectureResponse) BLength() int {
+func (p *StartResponse) BLength() int {
 	l := 0
 	if p != nil {
 		l += p.field1Length()
@@ -553,42 +502,42 @@ func (p *CreareLectureResponse) BLength() int {
 	return l
 }
 
-func (p *CreareLectureResponse) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+func (p *StartResponse) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRUCT, 1)
 	offset += p.Response.FastWriteNocopy(buf[offset:], w)
 	return offset
 }
 
-func (p *CreareLectureResponse) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
+func (p *StartResponse) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 2)
 	offset += thrift.Binary.WriteI64(buf[offset:], p.RoomId)
 	return offset
 }
 
-func (p *CreareLectureResponse) fastWriteField3(buf []byte, w thrift.NocopyWriter) int {
+func (p *StartResponse) fastWriteField3(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRING, 3)
 	offset += thrift.Binary.WriteStringNocopy(buf[offset:], w, p.Answer)
 	return offset
 }
 
-func (p *CreareLectureResponse) field1Length() int {
+func (p *StartResponse) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += p.Response.BLength()
 	return l
 }
 
-func (p *CreareLectureResponse) field2Length() int {
+func (p *StartResponse) field2Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.I64Length()
 	return l
 }
 
-func (p *CreareLectureResponse) field3Length() int {
+func (p *StartResponse) field3Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += thrift.Binary.StringLengthNocopy(p.Answer)
@@ -960,7 +909,7 @@ func (p *AttendResponse) field2Length() int {
 	return l
 }
 
-func (p *LectureServiceCreateLectureArgs) FastRead(buf []byte) (int, error) {
+func (p *LectureServiceStartArgs) FastRead(buf []byte) (int, error) {
 
 	var err error
 	var offset int
@@ -1004,14 +953,14 @@ func (p *LectureServiceCreateLectureArgs) FastRead(buf []byte) (int, error) {
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_LectureServiceCreateLectureArgs[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_LectureServiceStartArgs[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 }
 
-func (p *LectureServiceCreateLectureArgs) FastReadField1(buf []byte) (int, error) {
+func (p *LectureServiceStartArgs) FastReadField1(buf []byte) (int, error) {
 	offset := 0
-	_field := NewCreareLectureRequest()
+	_field := NewStartRequest()
 	if l, err := _field.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -1021,11 +970,11 @@ func (p *LectureServiceCreateLectureArgs) FastReadField1(buf []byte) (int, error
 	return offset, nil
 }
 
-func (p *LectureServiceCreateLectureArgs) FastWrite(buf []byte) int {
+func (p *LectureServiceStartArgs) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
 
-func (p *LectureServiceCreateLectureArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+func (p *LectureServiceStartArgs) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], w)
@@ -1034,7 +983,7 @@ func (p *LectureServiceCreateLectureArgs) FastWriteNocopy(buf []byte, w thrift.N
 	return offset
 }
 
-func (p *LectureServiceCreateLectureArgs) BLength() int {
+func (p *LectureServiceStartArgs) BLength() int {
 	l := 0
 	if p != nil {
 		l += p.field1Length()
@@ -1043,21 +992,21 @@ func (p *LectureServiceCreateLectureArgs) BLength() int {
 	return l
 }
 
-func (p *LectureServiceCreateLectureArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
+func (p *LectureServiceStartArgs) fastWriteField1(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRUCT, 1)
 	offset += p.Request.FastWriteNocopy(buf[offset:], w)
 	return offset
 }
 
-func (p *LectureServiceCreateLectureArgs) field1Length() int {
+func (p *LectureServiceStartArgs) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
 	l += p.Request.BLength()
 	return l
 }
 
-func (p *LectureServiceCreateLectureResult) FastRead(buf []byte) (int, error) {
+func (p *LectureServiceStartResult) FastRead(buf []byte) (int, error) {
 
 	var err error
 	var offset int
@@ -1101,14 +1050,14 @@ func (p *LectureServiceCreateLectureResult) FastRead(buf []byte) (int, error) {
 ReadFieldBeginError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_LectureServiceCreateLectureResult[fieldId]), err)
+	return offset, thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_LectureServiceStartResult[fieldId]), err)
 SkipFieldError:
 	return offset, thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 }
 
-func (p *LectureServiceCreateLectureResult) FastReadField0(buf []byte) (int, error) {
+func (p *LectureServiceStartResult) FastReadField0(buf []byte) (int, error) {
 	offset := 0
-	_field := NewCreareLectureResponse()
+	_field := NewStartResponse()
 	if l, err := _field.FastRead(buf[offset:]); err != nil {
 		return offset, err
 	} else {
@@ -1118,11 +1067,11 @@ func (p *LectureServiceCreateLectureResult) FastReadField0(buf []byte) (int, err
 	return offset, nil
 }
 
-func (p *LectureServiceCreateLectureResult) FastWrite(buf []byte) int {
+func (p *LectureServiceStartResult) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
 
-func (p *LectureServiceCreateLectureResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
+func (p *LectureServiceStartResult) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p != nil {
 		offset += p.fastWriteField0(buf[offset:], w)
@@ -1131,7 +1080,7 @@ func (p *LectureServiceCreateLectureResult) FastWriteNocopy(buf []byte, w thrift
 	return offset
 }
 
-func (p *LectureServiceCreateLectureResult) BLength() int {
+func (p *LectureServiceStartResult) BLength() int {
 	l := 0
 	if p != nil {
 		l += p.field0Length()
@@ -1140,7 +1089,7 @@ func (p *LectureServiceCreateLectureResult) BLength() int {
 	return l
 }
 
-func (p *LectureServiceCreateLectureResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
+func (p *LectureServiceStartResult) fastWriteField0(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p.IsSetSuccess() {
 		offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.STRUCT, 0)
@@ -1149,7 +1098,7 @@ func (p *LectureServiceCreateLectureResult) fastWriteField0(buf []byte, w thrift
 	return offset
 }
 
-func (p *LectureServiceCreateLectureResult) field0Length() int {
+func (p *LectureServiceStartResult) field0Length() int {
 	l := 0
 	if p.IsSetSuccess() {
 		l += thrift.Binary.FieldBeginLength()
@@ -1356,11 +1305,11 @@ func (p *LectureServiceAttendResult) field0Length() int {
 	return l
 }
 
-func (p *LectureServiceCreateLectureArgs) GetFirstArgument() interface{} {
+func (p *LectureServiceStartArgs) GetFirstArgument() interface{} {
 	return p.Request
 }
 
-func (p *LectureServiceCreateLectureResult) GetResult() interface{} {
+func (p *LectureServiceStartResult) GetResult() interface{} {
 	return p.Success
 }
 

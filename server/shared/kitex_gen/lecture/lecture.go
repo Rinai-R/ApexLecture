@@ -8,131 +8,122 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/base"
 )
 
-type CreareLectureRequest struct {
+type StartRequest struct {
 	HostId      int64  `thrift:"hostId,1,required" frugal:"1,required,i64" json:"hostId"`
 	Title       string `thrift:"title,2,required" frugal:"2,required,string" json:"title"`
 	Description string `thrift:"description,3,required" frugal:"3,required,string" json:"description"`
 	Speaker     string `thrift:"speaker,4,required" frugal:"4,required,string" json:"speaker"`
-	Date        string `thrift:"date,5,required" frugal:"5,required,string" json:"date"`
-	Sdp         string `thrift:"sdp,6,required" frugal:"6,required,string" json:"sdp"`
+	Sdp         string `thrift:"sdp,5,required" frugal:"5,required,string" json:"sdp"`
 }
 
-func NewCreareLectureRequest() *CreareLectureRequest {
-	return &CreareLectureRequest{}
+func NewStartRequest() *StartRequest {
+	return &StartRequest{}
 }
 
-func (p *CreareLectureRequest) InitDefault() {
+func (p *StartRequest) InitDefault() {
 }
 
-func (p *CreareLectureRequest) GetHostId() (v int64) {
+func (p *StartRequest) GetHostId() (v int64) {
 	return p.HostId
 }
 
-func (p *CreareLectureRequest) GetTitle() (v string) {
+func (p *StartRequest) GetTitle() (v string) {
 	return p.Title
 }
 
-func (p *CreareLectureRequest) GetDescription() (v string) {
+func (p *StartRequest) GetDescription() (v string) {
 	return p.Description
 }
 
-func (p *CreareLectureRequest) GetSpeaker() (v string) {
+func (p *StartRequest) GetSpeaker() (v string) {
 	return p.Speaker
 }
 
-func (p *CreareLectureRequest) GetDate() (v string) {
-	return p.Date
-}
-
-func (p *CreareLectureRequest) GetSdp() (v string) {
+func (p *StartRequest) GetSdp() (v string) {
 	return p.Sdp
 }
-func (p *CreareLectureRequest) SetHostId(val int64) {
+func (p *StartRequest) SetHostId(val int64) {
 	p.HostId = val
 }
-func (p *CreareLectureRequest) SetTitle(val string) {
+func (p *StartRequest) SetTitle(val string) {
 	p.Title = val
 }
-func (p *CreareLectureRequest) SetDescription(val string) {
+func (p *StartRequest) SetDescription(val string) {
 	p.Description = val
 }
-func (p *CreareLectureRequest) SetSpeaker(val string) {
+func (p *StartRequest) SetSpeaker(val string) {
 	p.Speaker = val
 }
-func (p *CreareLectureRequest) SetDate(val string) {
-	p.Date = val
-}
-func (p *CreareLectureRequest) SetSdp(val string) {
+func (p *StartRequest) SetSdp(val string) {
 	p.Sdp = val
 }
 
-func (p *CreareLectureRequest) String() string {
+func (p *StartRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("CreareLectureRequest(%+v)", *p)
+	return fmt.Sprintf("StartRequest(%+v)", *p)
 }
 
-var fieldIDToName_CreareLectureRequest = map[int16]string{
+var fieldIDToName_StartRequest = map[int16]string{
 	1: "hostId",
 	2: "title",
 	3: "description",
 	4: "speaker",
-	5: "date",
-	6: "sdp",
+	5: "sdp",
 }
 
-type CreareLectureResponse struct {
+type StartResponse struct {
 	Response *base.BaseResponse `thrift:"response,1,required" frugal:"1,required,base.BaseResponse" json:"response"`
 	RoomId   int64              `thrift:"roomId,2,required" frugal:"2,required,i64" json:"roomId"`
 	Answer   string             `thrift:"answer,3,required" frugal:"3,required,string" json:"answer"`
 }
 
-func NewCreareLectureResponse() *CreareLectureResponse {
-	return &CreareLectureResponse{}
+func NewStartResponse() *StartResponse {
+	return &StartResponse{}
 }
 
-func (p *CreareLectureResponse) InitDefault() {
+func (p *StartResponse) InitDefault() {
 }
 
-var CreareLectureResponse_Response_DEFAULT *base.BaseResponse
+var StartResponse_Response_DEFAULT *base.BaseResponse
 
-func (p *CreareLectureResponse) GetResponse() (v *base.BaseResponse) {
+func (p *StartResponse) GetResponse() (v *base.BaseResponse) {
 	if !p.IsSetResponse() {
-		return CreareLectureResponse_Response_DEFAULT
+		return StartResponse_Response_DEFAULT
 	}
 	return p.Response
 }
 
-func (p *CreareLectureResponse) GetRoomId() (v int64) {
+func (p *StartResponse) GetRoomId() (v int64) {
 	return p.RoomId
 }
 
-func (p *CreareLectureResponse) GetAnswer() (v string) {
+func (p *StartResponse) GetAnswer() (v string) {
 	return p.Answer
 }
-func (p *CreareLectureResponse) SetResponse(val *base.BaseResponse) {
+func (p *StartResponse) SetResponse(val *base.BaseResponse) {
 	p.Response = val
 }
-func (p *CreareLectureResponse) SetRoomId(val int64) {
+func (p *StartResponse) SetRoomId(val int64) {
 	p.RoomId = val
 }
-func (p *CreareLectureResponse) SetAnswer(val string) {
+func (p *StartResponse) SetAnswer(val string) {
 	p.Answer = val
 }
 
-func (p *CreareLectureResponse) IsSetResponse() bool {
+func (p *StartResponse) IsSetResponse() bool {
 	return p.Response != nil
 }
 
-func (p *CreareLectureResponse) String() string {
+func (p *StartResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("CreareLectureResponse(%+v)", *p)
+	return fmt.Sprintf("StartResponse(%+v)", *p)
 }
 
-var fieldIDToName_CreareLectureResponse = map[int16]string{
+var fieldIDToName_StartResponse = map[int16]string{
 	1: "response",
 	2: "roomId",
 	3: "answer",
@@ -233,84 +224,84 @@ var fieldIDToName_AttendResponse = map[int16]string{
 }
 
 type LectureService interface {
-	CreateLecture(ctx context.Context, request *CreareLectureRequest) (r *CreareLectureResponse, err error)
+	Start(ctx context.Context, request *StartRequest) (r *StartResponse, err error)
 
 	Attend(ctx context.Context, request *AttendRequest) (r *AttendResponse, err error)
 }
 
-type LectureServiceCreateLectureArgs struct {
-	Request *CreareLectureRequest `thrift:"request,1" frugal:"1,default,CreareLectureRequest" json:"request"`
+type LectureServiceStartArgs struct {
+	Request *StartRequest `thrift:"request,1" frugal:"1,default,StartRequest" json:"request"`
 }
 
-func NewLectureServiceCreateLectureArgs() *LectureServiceCreateLectureArgs {
-	return &LectureServiceCreateLectureArgs{}
+func NewLectureServiceStartArgs() *LectureServiceStartArgs {
+	return &LectureServiceStartArgs{}
 }
 
-func (p *LectureServiceCreateLectureArgs) InitDefault() {
+func (p *LectureServiceStartArgs) InitDefault() {
 }
 
-var LectureServiceCreateLectureArgs_Request_DEFAULT *CreareLectureRequest
+var LectureServiceStartArgs_Request_DEFAULT *StartRequest
 
-func (p *LectureServiceCreateLectureArgs) GetRequest() (v *CreareLectureRequest) {
+func (p *LectureServiceStartArgs) GetRequest() (v *StartRequest) {
 	if !p.IsSetRequest() {
-		return LectureServiceCreateLectureArgs_Request_DEFAULT
+		return LectureServiceStartArgs_Request_DEFAULT
 	}
 	return p.Request
 }
-func (p *LectureServiceCreateLectureArgs) SetRequest(val *CreareLectureRequest) {
+func (p *LectureServiceStartArgs) SetRequest(val *StartRequest) {
 	p.Request = val
 }
 
-func (p *LectureServiceCreateLectureArgs) IsSetRequest() bool {
+func (p *LectureServiceStartArgs) IsSetRequest() bool {
 	return p.Request != nil
 }
 
-func (p *LectureServiceCreateLectureArgs) String() string {
+func (p *LectureServiceStartArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("LectureServiceCreateLectureArgs(%+v)", *p)
+	return fmt.Sprintf("LectureServiceStartArgs(%+v)", *p)
 }
 
-var fieldIDToName_LectureServiceCreateLectureArgs = map[int16]string{
+var fieldIDToName_LectureServiceStartArgs = map[int16]string{
 	1: "request",
 }
 
-type LectureServiceCreateLectureResult struct {
-	Success *CreareLectureResponse `thrift:"success,0,optional" frugal:"0,optional,CreareLectureResponse" json:"success,omitempty"`
+type LectureServiceStartResult struct {
+	Success *StartResponse `thrift:"success,0,optional" frugal:"0,optional,StartResponse" json:"success,omitempty"`
 }
 
-func NewLectureServiceCreateLectureResult() *LectureServiceCreateLectureResult {
-	return &LectureServiceCreateLectureResult{}
+func NewLectureServiceStartResult() *LectureServiceStartResult {
+	return &LectureServiceStartResult{}
 }
 
-func (p *LectureServiceCreateLectureResult) InitDefault() {
+func (p *LectureServiceStartResult) InitDefault() {
 }
 
-var LectureServiceCreateLectureResult_Success_DEFAULT *CreareLectureResponse
+var LectureServiceStartResult_Success_DEFAULT *StartResponse
 
-func (p *LectureServiceCreateLectureResult) GetSuccess() (v *CreareLectureResponse) {
+func (p *LectureServiceStartResult) GetSuccess() (v *StartResponse) {
 	if !p.IsSetSuccess() {
-		return LectureServiceCreateLectureResult_Success_DEFAULT
+		return LectureServiceStartResult_Success_DEFAULT
 	}
 	return p.Success
 }
-func (p *LectureServiceCreateLectureResult) SetSuccess(x interface{}) {
-	p.Success = x.(*CreareLectureResponse)
+func (p *LectureServiceStartResult) SetSuccess(x interface{}) {
+	p.Success = x.(*StartResponse)
 }
 
-func (p *LectureServiceCreateLectureResult) IsSetSuccess() bool {
+func (p *LectureServiceStartResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *LectureServiceCreateLectureResult) String() string {
+func (p *LectureServiceStartResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("LectureServiceCreateLectureResult(%+v)", *p)
+	return fmt.Sprintf("LectureServiceStartResult(%+v)", *p)
 }
 
-var fieldIDToName_LectureServiceCreateLectureResult = map[int16]string{
+var fieldIDToName_LectureServiceStartResult = map[int16]string{
 	0: "success",
 }
 

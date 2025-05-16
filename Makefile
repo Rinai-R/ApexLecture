@@ -10,6 +10,11 @@ hz-run:
 user-run:
 	go run $(CMD_PATH)/user/
 
+lecture-run:
+	go run $(CMD_PATH)/lecture/
+
+
+
 
 # 更新脚手架文件
 hz-update:
@@ -48,9 +53,13 @@ hz-conf:
 user-conf:
 	go run $(CMD_PATH)/user/script/preprocess.go
 
+lecture-conf:
+	go run $(CMD_PATH)/lecture/script/preprocess.go
+
 conf:
 	make hz-conf
 	make user-conf
+	make lecture-conf
 
 
 # 一站式服务
