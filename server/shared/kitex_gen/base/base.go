@@ -62,3 +62,22 @@ func (p *NilResponse) String() string {
 }
 
 var fieldIDToName_NilResponse = map[int16]string{}
+
+type NilRequest struct {
+}
+
+func NewNilRequest() *NilRequest {
+	return &NilRequest{}
+}
+
+func (p *NilRequest) InitDefault() {
+}
+
+func (p *NilRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("NilRequest(%+v)", *p)
+}
+
+var fieldIDToName_NilRequest = map[int16]string{}

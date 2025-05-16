@@ -2,22 +2,25 @@ package consts
 
 // ApiConfig
 const (
-	SrvLen    = 2
-	UserSrvno = 0
-	AuthSrvno = 1
+	SrvLen       = 2
+	UserSrvno    = 0
+	LectureSrvno = 1
 )
 
 // ServerConfig
 const (
-	Host     = "0.0.0.0"
-	ApiPort  = "10000"
-	UserPort = "10001"
+	Host        = "0.0.0.0"
+	ApiPort     = "10000"
+	UserPort    = "10001"
+	LecturePort = "10002"
 
-	ApiConfig  = "./server/cmd/api/config.yaml"
-	UserConfig = "./server/cmd/user/config.yaml"
+	ApiConfig     = "./server/cmd/api/config.yaml"
+	UserConfig    = "./server/cmd/user/config.yaml"
+	LectureConfig = "./server/cmd/lecture/config.yaml"
 
-	ApiSrvPrefix  = "api"
-	UserSrvPrefix = "user"
+	ApiSrvPrefix     = "api"
+	UserSrvPrefix    = "user"
+	LectureSrvPrefix = "lecture"
 )
 
 // MysqlConfig

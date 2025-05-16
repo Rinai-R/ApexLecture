@@ -9,64 +9,57 @@ import (
 	"github.com/apache/thrift/lib/go/thrift"
 )
 
-type Lecture struct {
-	Roomid      int64  `thrift:"roomid,1,required" form:"roomid,required" json:"roomid,required" query:"roomid,required"`
-	Title       string `thrift:"title,2,required" form:"title,required" json:"title,required" query:"title,required"`
-	Description string `thrift:"description,3,required" form:"description,required" json:"description,required" query:"description,required"`
-	Speaker     string `thrift:"speaker,4,required" form:"speaker,required" json:"speaker,required" query:"speaker,required"`
-	Date        string `thrift:"date,5,required" form:"date,required" json:"date,required" query:"date,required"`
-	Status      string `thrift:"status,6,required" form:"status,required" json:"status,required" query:"status,required"`
+type CreareLectureRequest struct {
+	Title       string `thrift:"title,1,required" form:"title,required" json:"title,required" query:"title,required"`
+	Description string `thrift:"description,2,required" form:"description,required" json:"description,required" query:"description,required"`
+	Speaker     string `thrift:"speaker,3,required" form:"speaker,required" json:"speaker,required" query:"speaker,required"`
+	Date        string `thrift:"date,4,required" form:"date,required" json:"date,required" query:"date,required"`
+	Sdp         string `thrift:"sdp,5,required" form:"sdp,required" json:"sdp,required" query:"sdp,required"`
 }
 
-func NewLecture() *Lecture {
-	return &Lecture{}
+func NewCreareLectureRequest() *CreareLectureRequest {
+	return &CreareLectureRequest{}
 }
 
-func (p *Lecture) InitDefault() {
+func (p *CreareLectureRequest) InitDefault() {
 }
 
-func (p *Lecture) GetRoomid() (v int64) {
-	return p.Roomid
-}
-
-func (p *Lecture) GetTitle() (v string) {
+func (p *CreareLectureRequest) GetTitle() (v string) {
 	return p.Title
 }
 
-func (p *Lecture) GetDescription() (v string) {
+func (p *CreareLectureRequest) GetDescription() (v string) {
 	return p.Description
 }
 
-func (p *Lecture) GetSpeaker() (v string) {
+func (p *CreareLectureRequest) GetSpeaker() (v string) {
 	return p.Speaker
 }
 
-func (p *Lecture) GetDate() (v string) {
+func (p *CreareLectureRequest) GetDate() (v string) {
 	return p.Date
 }
 
-func (p *Lecture) GetStatus() (v string) {
-	return p.Status
+func (p *CreareLectureRequest) GetSdp() (v string) {
+	return p.Sdp
 }
 
-var fieldIDToName_Lecture = map[int16]string{
-	1: "roomid",
-	2: "title",
-	3: "description",
-	4: "speaker",
-	5: "date",
-	6: "status",
+var fieldIDToName_CreareLectureRequest = map[int16]string{
+	1: "title",
+	2: "description",
+	3: "speaker",
+	4: "date",
+	5: "sdp",
 }
 
-func (p *Lecture) Read(iprot thrift.TProtocol) (err error) {
+func (p *CreareLectureRequest) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetRoomid bool = false
 	var issetTitle bool = false
 	var issetDescription bool = false
 	var issetSpeaker bool = false
 	var issetDate bool = false
-	var issetStatus bool = false
+	var issetSdp bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -83,11 +76,11 @@ func (p *Lecture) Read(iprot thrift.TProtocol) (err error) {
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetRoomid = true
+				issetTitle = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -96,7 +89,7 @@ func (p *Lecture) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetTitle = true
+				issetDescription = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -105,7 +98,7 @@ func (p *Lecture) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetDescription = true
+				issetSpeaker = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -114,7 +107,7 @@ func (p *Lecture) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetSpeaker = true
+				issetDate = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -123,16 +116,7 @@ func (p *Lecture) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetDate = true
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 6:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField6(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetStatus = true
+				issetSdp = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -149,33 +133,28 @@ func (p *Lecture) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetRoomid {
+	if !issetTitle {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetTitle {
+	if !issetDescription {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetDescription {
+	if !issetSpeaker {
 		fieldId = 3
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetSpeaker {
+	if !issetDate {
 		fieldId = 4
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetDate {
+	if !issetSdp {
 		fieldId = 5
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetStatus {
-		fieldId = 6
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -184,7 +163,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_Lecture[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CreareLectureRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -193,21 +172,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_Lecture[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_CreareLectureRequest[fieldId]))
 }
 
-func (p *Lecture) ReadField1(iprot thrift.TProtocol) error {
-
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.Roomid = _field
-	return nil
-}
-func (p *Lecture) ReadField2(iprot thrift.TProtocol) error {
+func (p *CreareLectureRequest) ReadField1(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -218,7 +186,7 @@ func (p *Lecture) ReadField2(iprot thrift.TProtocol) error {
 	p.Title = _field
 	return nil
 }
-func (p *Lecture) ReadField3(iprot thrift.TProtocol) error {
+func (p *CreareLectureRequest) ReadField2(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -229,7 +197,7 @@ func (p *Lecture) ReadField3(iprot thrift.TProtocol) error {
 	p.Description = _field
 	return nil
 }
-func (p *Lecture) ReadField4(iprot thrift.TProtocol) error {
+func (p *CreareLectureRequest) ReadField3(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -240,7 +208,7 @@ func (p *Lecture) ReadField4(iprot thrift.TProtocol) error {
 	p.Speaker = _field
 	return nil
 }
-func (p *Lecture) ReadField5(iprot thrift.TProtocol) error {
+func (p *CreareLectureRequest) ReadField4(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -251,7 +219,7 @@ func (p *Lecture) ReadField5(iprot thrift.TProtocol) error {
 	p.Date = _field
 	return nil
 }
-func (p *Lecture) ReadField6(iprot thrift.TProtocol) error {
+func (p *CreareLectureRequest) ReadField5(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -259,13 +227,13 @@ func (p *Lecture) ReadField6(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.Status = _field
+	p.Sdp = _field
 	return nil
 }
 
-func (p *Lecture) Write(oprot thrift.TProtocol) (err error) {
+func (p *CreareLectureRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("Lecture"); err != nil {
+	if err = oprot.WriteStructBegin("CreareLectureRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -289,10 +257,6 @@ func (p *Lecture) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 5
 			goto WriteFieldError
 		}
-		if err = p.writeField6(oprot); err != nil {
-			fieldId = 6
-			goto WriteFieldError
-		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -311,11 +275,11 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *Lecture) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("roomid", thrift.I64, 1); err != nil {
+func (p *CreareLectureRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("title", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.Roomid); err != nil {
+	if err := oprot.WriteString(p.Title); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -327,11 +291,11 @@ WriteFieldBeginError:
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
-func (p *Lecture) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("title", thrift.STRING, 2); err != nil {
+func (p *CreareLectureRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("description", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Title); err != nil {
+	if err := oprot.WriteString(p.Description); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -343,11 +307,11 @@ WriteFieldBeginError:
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
-func (p *Lecture) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("description", thrift.STRING, 3); err != nil {
+func (p *CreareLectureRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("speaker", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Description); err != nil {
+	if err := oprot.WriteString(p.Speaker); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -359,11 +323,11 @@ WriteFieldBeginError:
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
-func (p *Lecture) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("speaker", thrift.STRING, 4); err != nil {
+func (p *CreareLectureRequest) writeField4(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("date", thrift.STRING, 4); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Speaker); err != nil {
+	if err := oprot.WriteString(p.Date); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -375,11 +339,11 @@ WriteFieldBeginError:
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
-func (p *Lecture) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("date", thrift.STRING, 5); err != nil {
+func (p *CreareLectureRequest) writeField5(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("sdp", thrift.STRING, 5); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Date); err != nil {
+	if err := oprot.WriteString(p.Sdp); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -391,61 +355,45 @@ WriteFieldBeginError:
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
-func (p *Lecture) writeField6(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("status", thrift.STRING, 6); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.Status); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
-}
 
-func (p *Lecture) String() string {
+func (p *CreareLectureRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("Lecture(%+v)", *p)
+	return fmt.Sprintf("CreareLectureRequest(%+v)", *p)
 
 }
 
-type OfferRequest struct {
-	Type string `thrift:"type,1,required" form:"type,required" json:"type,required" query:"type,required"`
-	Sdp  string `thrift:"sdp,2,required" form:"sdp,required" json:"sdp,required" query:"sdp,required"`
+type CreareLectureResponse struct {
+	Roomid string `thrift:"roomid,1,required" form:"roomid,required" json:"roomid,required" query:"roomid,required"`
+	Answer string `thrift:"answer,2,required" form:"answer,required" json:"answer,required" query:"answer,required"`
 }
 
-func NewOfferRequest() *OfferRequest {
-	return &OfferRequest{}
+func NewCreareLectureResponse() *CreareLectureResponse {
+	return &CreareLectureResponse{}
 }
 
-func (p *OfferRequest) InitDefault() {
+func (p *CreareLectureResponse) InitDefault() {
 }
 
-func (p *OfferRequest) GetType() (v string) {
-	return p.Type
+func (p *CreareLectureResponse) GetRoomid() (v string) {
+	return p.Roomid
 }
 
-func (p *OfferRequest) GetSdp() (v string) {
-	return p.Sdp
+func (p *CreareLectureResponse) GetAnswer() (v string) {
+	return p.Answer
 }
 
-var fieldIDToName_OfferRequest = map[int16]string{
-	1: "type",
-	2: "sdp",
+var fieldIDToName_CreareLectureResponse = map[int16]string{
+	1: "roomid",
+	2: "answer",
 }
 
-func (p *OfferRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *CreareLectureResponse) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetType bool = false
-	var issetSdp bool = false
+	var issetRoomid bool = false
+	var issetAnswer bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -466,7 +414,7 @@ func (p *OfferRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetType = true
+				issetRoomid = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -475,7 +423,7 @@ func (p *OfferRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetSdp = true
+				issetAnswer = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -492,12 +440,12 @@ func (p *OfferRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetType {
+	if !issetRoomid {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetSdp {
+	if !issetAnswer {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
@@ -507,7 +455,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_OfferRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_CreareLectureResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -516,10 +464,10 @@ ReadFieldEndError:
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_OfferRequest[fieldId]))
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_CreareLectureResponse[fieldId]))
 }
 
-func (p *OfferRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *CreareLectureResponse) ReadField1(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -527,10 +475,10 @@ func (p *OfferRequest) ReadField1(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.Type = _field
+	p.Roomid = _field
 	return nil
 }
-func (p *OfferRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *CreareLectureResponse) ReadField2(iprot thrift.TProtocol) error {
 
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
@@ -538,13 +486,13 @@ func (p *OfferRequest) ReadField2(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.Sdp = _field
+	p.Answer = _field
 	return nil
 }
 
-func (p *OfferRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *CreareLectureResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("OfferRequest"); err != nil {
+	if err = oprot.WriteStructBegin("CreareLectureResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -574,11 +522,11 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *OfferRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("type", thrift.STRING, 1); err != nil {
+func (p *CreareLectureResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("roomid", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Type); err != nil {
+	if err := oprot.WriteString(p.Roomid); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -590,11 +538,11 @@ WriteFieldBeginError:
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
-func (p *OfferRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("sdp", thrift.STRING, 2); err != nil {
+func (p *CreareLectureResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("answer", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Sdp); err != nil {
+	if err := oprot.WriteString(p.Answer); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -607,163 +555,16 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *OfferRequest) String() string {
+func (p *CreareLectureResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("OfferRequest(%+v)", *p)
-
-}
-
-type OfferResponse struct {
-	Answer string `thrift:"answer,1,required" form:"answer,required" json:"answer,required" query:"answer,required"`
-}
-
-func NewOfferResponse() *OfferResponse {
-	return &OfferResponse{}
-}
-
-func (p *OfferResponse) InitDefault() {
-}
-
-func (p *OfferResponse) GetAnswer() (v string) {
-	return p.Answer
-}
-
-var fieldIDToName_OfferResponse = map[int16]string{
-	1: "answer",
-}
-
-func (p *OfferResponse) Read(iprot thrift.TProtocol) (err error) {
-	var fieldTypeId thrift.TType
-	var fieldId int16
-	var issetAnswer bool = false
-
-	if _, err = iprot.ReadStructBegin(); err != nil {
-		goto ReadStructBeginError
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
-		if err != nil {
-			goto ReadFieldBeginError
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-
-		switch fieldId {
-		case 1:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField1(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetAnswer = true
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		default:
-			if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		}
-		if err = iprot.ReadFieldEnd(); err != nil {
-			goto ReadFieldEndError
-		}
-	}
-	if err = iprot.ReadStructEnd(); err != nil {
-		goto ReadStructEndError
-	}
-
-	if !issetAnswer {
-		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-	return nil
-ReadStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
-ReadFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_OfferResponse[fieldId]), err)
-SkipFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
-
-ReadFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
-ReadStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_OfferResponse[fieldId]))
-}
-
-func (p *OfferResponse) ReadField1(iprot thrift.TProtocol) error {
-
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.Answer = _field
-	return nil
-}
-
-func (p *OfferResponse) Write(oprot thrift.TProtocol) (err error) {
-	var fieldId int16
-	if err = oprot.WriteStructBegin("OfferResponse"); err != nil {
-		goto WriteStructBeginError
-	}
-	if p != nil {
-		if err = p.writeField1(oprot); err != nil {
-			fieldId = 1
-			goto WriteFieldError
-		}
-	}
-	if err = oprot.WriteFieldStop(); err != nil {
-		goto WriteFieldStopError
-	}
-	if err = oprot.WriteStructEnd(); err != nil {
-		goto WriteStructEndError
-	}
-	return nil
-WriteStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-WriteFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
-WriteFieldStopError:
-	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
-WriteStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
-}
-
-func (p *OfferResponse) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("answer", thrift.STRING, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.Answer); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *OfferResponse) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("OfferResponse(%+v)", *p)
+	return fmt.Sprintf("CreareLectureResponse(%+v)", *p)
 
 }
 
 type AttendRequest struct {
-	Answer string `thrift:"answer,1,required" form:"answer,required" json:"answer,required" query:"answer,required"`
+	Sdp string `thrift:"sdp,1,required" form:"sdp,required" json:"sdp,required" query:"sdp,required"`
 }
 
 func NewAttendRequest() *AttendRequest {
@@ -773,18 +574,18 @@ func NewAttendRequest() *AttendRequest {
 func (p *AttendRequest) InitDefault() {
 }
 
-func (p *AttendRequest) GetAnswer() (v string) {
-	return p.Answer
+func (p *AttendRequest) GetSdp() (v string) {
+	return p.Sdp
 }
 
 var fieldIDToName_AttendRequest = map[int16]string{
-	1: "answer",
+	1: "sdp",
 }
 
 func (p *AttendRequest) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
-	var issetAnswer bool = false
+	var issetSdp bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -805,7 +606,7 @@ func (p *AttendRequest) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetAnswer = true
+				issetSdp = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -822,7 +623,7 @@ func (p *AttendRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
-	if !issetAnswer {
+	if !issetSdp {
 		fieldId = 1
 		goto RequiredFieldNotSetError
 	}
@@ -852,7 +653,7 @@ func (p *AttendRequest) ReadField1(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.Answer = _field
+	p.Sdp = _field
 	return nil
 }
 
@@ -885,10 +686,10 @@ WriteStructEndError:
 }
 
 func (p *AttendRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("answer", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("sdp", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Answer); err != nil {
+	if err := oprot.WriteString(p.Sdp); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -909,14 +710,217 @@ func (p *AttendRequest) String() string {
 
 }
 
+type AttendResponse struct {
+	Response *base.BaseResponse `thrift:"response,1,required" form:"response,required" json:"response,required" query:"response,required"`
+	Answer   string             `thrift:"answer,2,required" form:"answer,required" json:"answer,required" query:"answer,required"`
+}
+
+func NewAttendResponse() *AttendResponse {
+	return &AttendResponse{}
+}
+
+func (p *AttendResponse) InitDefault() {
+}
+
+var AttendResponse_Response_DEFAULT *base.BaseResponse
+
+func (p *AttendResponse) GetResponse() (v *base.BaseResponse) {
+	if !p.IsSetResponse() {
+		return AttendResponse_Response_DEFAULT
+	}
+	return p.Response
+}
+
+func (p *AttendResponse) GetAnswer() (v string) {
+	return p.Answer
+}
+
+var fieldIDToName_AttendResponse = map[int16]string{
+	1: "response",
+	2: "answer",
+}
+
+func (p *AttendResponse) IsSetResponse() bool {
+	return p.Response != nil
+}
+
+func (p *AttendResponse) Read(iprot thrift.TProtocol) (err error) {
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetResponse bool = false
+	var issetAnswer bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetResponse = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetAnswer = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetResponse {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetAnswer {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_AttendResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_AttendResponse[fieldId]))
+}
+
+func (p *AttendResponse) ReadField1(iprot thrift.TProtocol) error {
+	_field := base.NewBaseResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Response = _field
+	return nil
+}
+func (p *AttendResponse) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Answer = _field
+	return nil
+}
+
+func (p *AttendResponse) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("AttendResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *AttendResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("response", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Response.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+func (p *AttendResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("answer", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Answer); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *AttendResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("AttendResponse(%+v)", *p)
+
+}
+
 type LectureService interface {
-	CreateLecture(ctx context.Context, response *base.NilResponse) (r *base.NilResponse, err error)
+	CreateLecture(ctx context.Context, request *CreareLectureRequest) (r *CreareLectureResponse, err error)
 
-	OfferLecture(ctx context.Context, request *OfferRequest) (r *OfferResponse, err error)
+	AttendLecture(ctx context.Context, request *AttendRequest) (r *AttendResponse, err error)
 
-	AttendLecture(ctx context.Context, request *AttendRequest) (r *base.BaseResponse, err error)
-
-	Inroom(ctx context.Context, response *base.NilResponse) (r *base.NilResponse, err error)
+	Inroom(ctx context.Context, request *base.NilResponse) (r *base.NilResponse, err error)
 }
 
 type LectureServiceClient struct {
@@ -945,25 +949,16 @@ func (p *LectureServiceClient) Client_() thrift.TClient {
 	return p.c
 }
 
-func (p *LectureServiceClient) CreateLecture(ctx context.Context, response *base.NilResponse) (r *base.NilResponse, err error) {
+func (p *LectureServiceClient) CreateLecture(ctx context.Context, request *CreareLectureRequest) (r *CreareLectureResponse, err error) {
 	var _args LectureServiceCreateLectureArgs
-	_args.Response = response
+	_args.Request = request
 	var _result LectureServiceCreateLectureResult
 	if err = p.Client_().Call(ctx, "createLecture", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *LectureServiceClient) OfferLecture(ctx context.Context, request *OfferRequest) (r *OfferResponse, err error) {
-	var _args LectureServiceOfferLectureArgs
-	_args.Request = request
-	var _result LectureServiceOfferLectureResult
-	if err = p.Client_().Call(ctx, "offerLecture", &_args, &_result); err != nil {
-		return
-	}
-	return _result.GetSuccess(), nil
-}
-func (p *LectureServiceClient) AttendLecture(ctx context.Context, request *AttendRequest) (r *base.BaseResponse, err error) {
+func (p *LectureServiceClient) AttendLecture(ctx context.Context, request *AttendRequest) (r *AttendResponse, err error) {
 	var _args LectureServiceAttendLectureArgs
 	_args.Request = request
 	var _result LectureServiceAttendLectureResult
@@ -972,9 +967,9 @@ func (p *LectureServiceClient) AttendLecture(ctx context.Context, request *Atten
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *LectureServiceClient) Inroom(ctx context.Context, response *base.NilResponse) (r *base.NilResponse, err error) {
+func (p *LectureServiceClient) Inroom(ctx context.Context, request *base.NilResponse) (r *base.NilResponse, err error) {
 	var _args LectureServiceInroomArgs
-	_args.Response = response
+	_args.Request = request
 	var _result LectureServiceInroomResult
 	if err = p.Client_().Call(ctx, "inroom", &_args, &_result); err != nil {
 		return
@@ -1003,7 +998,6 @@ func (p *LectureServiceProcessor) ProcessorMap() map[string]thrift.TProcessorFun
 func NewLectureServiceProcessor(handler LectureService) *LectureServiceProcessor {
 	self := &LectureServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
 	self.AddToProcessorMap("createLecture", &lectureServiceProcessorCreateLecture{handler: handler})
-	self.AddToProcessorMap("offerLecture", &lectureServiceProcessorOfferLecture{handler: handler})
 	self.AddToProcessorMap("attendLecture", &lectureServiceProcessorAttendLecture{handler: handler})
 	self.AddToProcessorMap("inroom", &lectureServiceProcessorInroom{handler: handler})
 	return self
@@ -1045,8 +1039,8 @@ func (p *lectureServiceProcessorCreateLecture) Process(ctx context.Context, seqI
 	iprot.ReadMessageEnd()
 	var err2 error
 	result := LectureServiceCreateLectureResult{}
-	var retval *base.NilResponse
-	if retval, err2 = p.handler.CreateLecture(ctx, args.Response); err2 != nil {
+	var retval *CreareLectureResponse
+	if retval, err2 = p.handler.CreateLecture(ctx, args.Request); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing createLecture: "+err2.Error())
 		oprot.WriteMessageBegin("createLecture", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
@@ -1057,54 +1051,6 @@ func (p *lectureServiceProcessorCreateLecture) Process(ctx context.Context, seqI
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("createLecture", thrift.REPLY, seqId); err2 != nil {
-		err = err2
-	}
-	if err2 = result.Write(oprot); err == nil && err2 != nil {
-		err = err2
-	}
-	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
-		err = err2
-	}
-	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
-		err = err2
-	}
-	if err != nil {
-		return
-	}
-	return true, err
-}
-
-type lectureServiceProcessorOfferLecture struct {
-	handler LectureService
-}
-
-func (p *lectureServiceProcessorOfferLecture) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := LectureServiceOfferLectureArgs{}
-	if err = args.Read(iprot); err != nil {
-		iprot.ReadMessageEnd()
-		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("offerLecture", thrift.EXCEPTION, seqId)
-		x.Write(oprot)
-		oprot.WriteMessageEnd()
-		oprot.Flush(ctx)
-		return false, err
-	}
-
-	iprot.ReadMessageEnd()
-	var err2 error
-	result := LectureServiceOfferLectureResult{}
-	var retval *OfferResponse
-	if retval, err2 = p.handler.OfferLecture(ctx, args.Request); err2 != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing offerLecture: "+err2.Error())
-		oprot.WriteMessageBegin("offerLecture", thrift.EXCEPTION, seqId)
-		x.Write(oprot)
-		oprot.WriteMessageEnd()
-		oprot.Flush(ctx)
-		return true, err2
-	} else {
-		result.Success = retval
-	}
-	if err2 = oprot.WriteMessageBegin("offerLecture", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -1141,7 +1087,7 @@ func (p *lectureServiceProcessorAttendLecture) Process(ctx context.Context, seqI
 	iprot.ReadMessageEnd()
 	var err2 error
 	result := LectureServiceAttendLectureResult{}
-	var retval *base.BaseResponse
+	var retval *AttendResponse
 	if retval, err2 = p.handler.AttendLecture(ctx, args.Request); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing attendLecture: "+err2.Error())
 		oprot.WriteMessageBegin("attendLecture", thrift.EXCEPTION, seqId)
@@ -1190,7 +1136,7 @@ func (p *lectureServiceProcessorInroom) Process(ctx context.Context, seqId int32
 	var err2 error
 	result := LectureServiceInroomResult{}
 	var retval *base.NilResponse
-	if retval, err2 = p.handler.Inroom(ctx, args.Response); err2 != nil {
+	if retval, err2 = p.handler.Inroom(ctx, args.Request); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing inroom: "+err2.Error())
 		oprot.WriteMessageBegin("inroom", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
@@ -1219,7 +1165,7 @@ func (p *lectureServiceProcessorInroom) Process(ctx context.Context, seqId int32
 }
 
 type LectureServiceCreateLectureArgs struct {
-	Response *base.NilResponse `thrift:"response,1"`
+	Request *CreareLectureRequest `thrift:"request,1"`
 }
 
 func NewLectureServiceCreateLectureArgs() *LectureServiceCreateLectureArgs {
@@ -1229,21 +1175,21 @@ func NewLectureServiceCreateLectureArgs() *LectureServiceCreateLectureArgs {
 func (p *LectureServiceCreateLectureArgs) InitDefault() {
 }
 
-var LectureServiceCreateLectureArgs_Response_DEFAULT *base.NilResponse
+var LectureServiceCreateLectureArgs_Request_DEFAULT *CreareLectureRequest
 
-func (p *LectureServiceCreateLectureArgs) GetResponse() (v *base.NilResponse) {
-	if !p.IsSetResponse() {
-		return LectureServiceCreateLectureArgs_Response_DEFAULT
+func (p *LectureServiceCreateLectureArgs) GetRequest() (v *CreareLectureRequest) {
+	if !p.IsSetRequest() {
+		return LectureServiceCreateLectureArgs_Request_DEFAULT
 	}
-	return p.Response
+	return p.Request
 }
 
 var fieldIDToName_LectureServiceCreateLectureArgs = map[int16]string{
-	1: "response",
+	1: "request",
 }
 
-func (p *LectureServiceCreateLectureArgs) IsSetResponse() bool {
-	return p.Response != nil
+func (p *LectureServiceCreateLectureArgs) IsSetRequest() bool {
+	return p.Request != nil
 }
 
 func (p *LectureServiceCreateLectureArgs) Read(iprot thrift.TProtocol) (err error) {
@@ -1302,11 +1248,11 @@ ReadStructEndError:
 }
 
 func (p *LectureServiceCreateLectureArgs) ReadField1(iprot thrift.TProtocol) error {
-	_field := base.NewNilResponse()
+	_field := NewCreareLectureRequest()
 	if err := _field.Read(iprot); err != nil {
 		return err
 	}
-	p.Response = _field
+	p.Request = _field
 	return nil
 }
 
@@ -1339,10 +1285,10 @@ WriteStructEndError:
 }
 
 func (p *LectureServiceCreateLectureArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("response", thrift.STRUCT, 1); err != nil {
+	if err = oprot.WriteFieldBegin("request", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.Response.Write(oprot); err != nil {
+	if err := p.Request.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1364,7 +1310,7 @@ func (p *LectureServiceCreateLectureArgs) String() string {
 }
 
 type LectureServiceCreateLectureResult struct {
-	Success *base.NilResponse `thrift:"success,0,optional"`
+	Success *CreareLectureResponse `thrift:"success,0,optional"`
 }
 
 func NewLectureServiceCreateLectureResult() *LectureServiceCreateLectureResult {
@@ -1374,9 +1320,9 @@ func NewLectureServiceCreateLectureResult() *LectureServiceCreateLectureResult {
 func (p *LectureServiceCreateLectureResult) InitDefault() {
 }
 
-var LectureServiceCreateLectureResult_Success_DEFAULT *base.NilResponse
+var LectureServiceCreateLectureResult_Success_DEFAULT *CreareLectureResponse
 
-func (p *LectureServiceCreateLectureResult) GetSuccess() (v *base.NilResponse) {
+func (p *LectureServiceCreateLectureResult) GetSuccess() (v *CreareLectureResponse) {
 	if !p.IsSetSuccess() {
 		return LectureServiceCreateLectureResult_Success_DEFAULT
 	}
@@ -1447,7 +1393,7 @@ ReadStructEndError:
 }
 
 func (p *LectureServiceCreateLectureResult) ReadField0(iprot thrift.TProtocol) error {
-	_field := base.NewNilResponse()
+	_field := NewCreareLectureResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
 	}
@@ -1507,298 +1453,6 @@ func (p *LectureServiceCreateLectureResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("LectureServiceCreateLectureResult(%+v)", *p)
-
-}
-
-type LectureServiceOfferLectureArgs struct {
-	Request *OfferRequest `thrift:"request,1"`
-}
-
-func NewLectureServiceOfferLectureArgs() *LectureServiceOfferLectureArgs {
-	return &LectureServiceOfferLectureArgs{}
-}
-
-func (p *LectureServiceOfferLectureArgs) InitDefault() {
-}
-
-var LectureServiceOfferLectureArgs_Request_DEFAULT *OfferRequest
-
-func (p *LectureServiceOfferLectureArgs) GetRequest() (v *OfferRequest) {
-	if !p.IsSetRequest() {
-		return LectureServiceOfferLectureArgs_Request_DEFAULT
-	}
-	return p.Request
-}
-
-var fieldIDToName_LectureServiceOfferLectureArgs = map[int16]string{
-	1: "request",
-}
-
-func (p *LectureServiceOfferLectureArgs) IsSetRequest() bool {
-	return p.Request != nil
-}
-
-func (p *LectureServiceOfferLectureArgs) Read(iprot thrift.TProtocol) (err error) {
-	var fieldTypeId thrift.TType
-	var fieldId int16
-
-	if _, err = iprot.ReadStructBegin(); err != nil {
-		goto ReadStructBeginError
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
-		if err != nil {
-			goto ReadFieldBeginError
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-
-		switch fieldId {
-		case 1:
-			if fieldTypeId == thrift.STRUCT {
-				if err = p.ReadField1(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		default:
-			if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		}
-		if err = iprot.ReadFieldEnd(); err != nil {
-			goto ReadFieldEndError
-		}
-	}
-	if err = iprot.ReadStructEnd(); err != nil {
-		goto ReadStructEndError
-	}
-
-	return nil
-ReadStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
-ReadFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_LectureServiceOfferLectureArgs[fieldId]), err)
-SkipFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
-
-ReadFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
-ReadStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-}
-
-func (p *LectureServiceOfferLectureArgs) ReadField1(iprot thrift.TProtocol) error {
-	_field := NewOfferRequest()
-	if err := _field.Read(iprot); err != nil {
-		return err
-	}
-	p.Request = _field
-	return nil
-}
-
-func (p *LectureServiceOfferLectureArgs) Write(oprot thrift.TProtocol) (err error) {
-	var fieldId int16
-	if err = oprot.WriteStructBegin("offerLecture_args"); err != nil {
-		goto WriteStructBeginError
-	}
-	if p != nil {
-		if err = p.writeField1(oprot); err != nil {
-			fieldId = 1
-			goto WriteFieldError
-		}
-	}
-	if err = oprot.WriteFieldStop(); err != nil {
-		goto WriteFieldStopError
-	}
-	if err = oprot.WriteStructEnd(); err != nil {
-		goto WriteStructEndError
-	}
-	return nil
-WriteStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-WriteFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
-WriteFieldStopError:
-	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
-WriteStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
-}
-
-func (p *LectureServiceOfferLectureArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("request", thrift.STRUCT, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := p.Request.Write(oprot); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *LectureServiceOfferLectureArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("LectureServiceOfferLectureArgs(%+v)", *p)
-
-}
-
-type LectureServiceOfferLectureResult struct {
-	Success *OfferResponse `thrift:"success,0,optional"`
-}
-
-func NewLectureServiceOfferLectureResult() *LectureServiceOfferLectureResult {
-	return &LectureServiceOfferLectureResult{}
-}
-
-func (p *LectureServiceOfferLectureResult) InitDefault() {
-}
-
-var LectureServiceOfferLectureResult_Success_DEFAULT *OfferResponse
-
-func (p *LectureServiceOfferLectureResult) GetSuccess() (v *OfferResponse) {
-	if !p.IsSetSuccess() {
-		return LectureServiceOfferLectureResult_Success_DEFAULT
-	}
-	return p.Success
-}
-
-var fieldIDToName_LectureServiceOfferLectureResult = map[int16]string{
-	0: "success",
-}
-
-func (p *LectureServiceOfferLectureResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *LectureServiceOfferLectureResult) Read(iprot thrift.TProtocol) (err error) {
-	var fieldTypeId thrift.TType
-	var fieldId int16
-
-	if _, err = iprot.ReadStructBegin(); err != nil {
-		goto ReadStructBeginError
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
-		if err != nil {
-			goto ReadFieldBeginError
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-
-		switch fieldId {
-		case 0:
-			if fieldTypeId == thrift.STRUCT {
-				if err = p.ReadField0(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		default:
-			if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		}
-		if err = iprot.ReadFieldEnd(); err != nil {
-			goto ReadFieldEndError
-		}
-	}
-	if err = iprot.ReadStructEnd(); err != nil {
-		goto ReadStructEndError
-	}
-
-	return nil
-ReadStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
-ReadFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_LectureServiceOfferLectureResult[fieldId]), err)
-SkipFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
-
-ReadFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
-ReadStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-}
-
-func (p *LectureServiceOfferLectureResult) ReadField0(iprot thrift.TProtocol) error {
-	_field := NewOfferResponse()
-	if err := _field.Read(iprot); err != nil {
-		return err
-	}
-	p.Success = _field
-	return nil
-}
-
-func (p *LectureServiceOfferLectureResult) Write(oprot thrift.TProtocol) (err error) {
-	var fieldId int16
-	if err = oprot.WriteStructBegin("offerLecture_result"); err != nil {
-		goto WriteStructBeginError
-	}
-	if p != nil {
-		if err = p.writeField0(oprot); err != nil {
-			fieldId = 0
-			goto WriteFieldError
-		}
-	}
-	if err = oprot.WriteFieldStop(); err != nil {
-		goto WriteFieldStopError
-	}
-	if err = oprot.WriteStructEnd(); err != nil {
-		goto WriteStructEndError
-	}
-	return nil
-WriteStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-WriteFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
-WriteFieldStopError:
-	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
-WriteStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
-}
-
-func (p *LectureServiceOfferLectureResult) writeField0(oprot thrift.TProtocol) (err error) {
-	if p.IsSetSuccess() {
-		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := p.Success.Write(oprot); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
-}
-
-func (p *LectureServiceOfferLectureResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("LectureServiceOfferLectureResult(%+v)", *p)
 
 }
 
@@ -1948,7 +1602,7 @@ func (p *LectureServiceAttendLectureArgs) String() string {
 }
 
 type LectureServiceAttendLectureResult struct {
-	Success *base.BaseResponse `thrift:"success,0,optional"`
+	Success *AttendResponse `thrift:"success,0,optional"`
 }
 
 func NewLectureServiceAttendLectureResult() *LectureServiceAttendLectureResult {
@@ -1958,9 +1612,9 @@ func NewLectureServiceAttendLectureResult() *LectureServiceAttendLectureResult {
 func (p *LectureServiceAttendLectureResult) InitDefault() {
 }
 
-var LectureServiceAttendLectureResult_Success_DEFAULT *base.BaseResponse
+var LectureServiceAttendLectureResult_Success_DEFAULT *AttendResponse
 
-func (p *LectureServiceAttendLectureResult) GetSuccess() (v *base.BaseResponse) {
+func (p *LectureServiceAttendLectureResult) GetSuccess() (v *AttendResponse) {
 	if !p.IsSetSuccess() {
 		return LectureServiceAttendLectureResult_Success_DEFAULT
 	}
@@ -2031,7 +1685,7 @@ ReadStructEndError:
 }
 
 func (p *LectureServiceAttendLectureResult) ReadField0(iprot thrift.TProtocol) error {
-	_field := base.NewBaseResponse()
+	_field := NewAttendResponse()
 	if err := _field.Read(iprot); err != nil {
 		return err
 	}
@@ -2095,7 +1749,7 @@ func (p *LectureServiceAttendLectureResult) String() string {
 }
 
 type LectureServiceInroomArgs struct {
-	Response *base.NilResponse `thrift:"response,1"`
+	Request *base.NilResponse `thrift:"request,1"`
 }
 
 func NewLectureServiceInroomArgs() *LectureServiceInroomArgs {
@@ -2105,21 +1759,21 @@ func NewLectureServiceInroomArgs() *LectureServiceInroomArgs {
 func (p *LectureServiceInroomArgs) InitDefault() {
 }
 
-var LectureServiceInroomArgs_Response_DEFAULT *base.NilResponse
+var LectureServiceInroomArgs_Request_DEFAULT *base.NilResponse
 
-func (p *LectureServiceInroomArgs) GetResponse() (v *base.NilResponse) {
-	if !p.IsSetResponse() {
-		return LectureServiceInroomArgs_Response_DEFAULT
+func (p *LectureServiceInroomArgs) GetRequest() (v *base.NilResponse) {
+	if !p.IsSetRequest() {
+		return LectureServiceInroomArgs_Request_DEFAULT
 	}
-	return p.Response
+	return p.Request
 }
 
 var fieldIDToName_LectureServiceInroomArgs = map[int16]string{
-	1: "response",
+	1: "request",
 }
 
-func (p *LectureServiceInroomArgs) IsSetResponse() bool {
-	return p.Response != nil
+func (p *LectureServiceInroomArgs) IsSetRequest() bool {
+	return p.Request != nil
 }
 
 func (p *LectureServiceInroomArgs) Read(iprot thrift.TProtocol) (err error) {
@@ -2182,7 +1836,7 @@ func (p *LectureServiceInroomArgs) ReadField1(iprot thrift.TProtocol) error {
 	if err := _field.Read(iprot); err != nil {
 		return err
 	}
-	p.Response = _field
+	p.Request = _field
 	return nil
 }
 
@@ -2215,10 +1869,10 @@ WriteStructEndError:
 }
 
 func (p *LectureServiceInroomArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("response", thrift.STRUCT, 1); err != nil {
+	if err = oprot.WriteFieldBegin("request", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.Response.Write(oprot); err != nil {
+	if err := p.Request.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {

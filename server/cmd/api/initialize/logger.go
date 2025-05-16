@@ -1,6 +1,7 @@
 package initialize
 
 import (
+	"io"
 	"os"
 	"path"
 	"time"
@@ -32,7 +33,8 @@ func Initlogger() {
 		MaxAge:     10,
 		Compress:   true,
 	}
-	logger.SetOutput(lumberjackLogger)
+	fileWriter := io.MultiWriter(os.Stdout, lumberjackLogger)
+	logger.SetOutput(fileWriter)
 	logger.SetLevel(hlog.LevelInfo)
 	hlog.SetLogger(logger)
 	hlog.Info("initialize: logger initialized")

@@ -2,31 +2,30 @@ namespace go lecture
 
 include "../base/base.thrift"
 
-struct Lecture {
-    1: required i64 roomid,
-    2: required string title,
-    3: required string description,
-    4: required string speaker,
-    5: required string date,
-    6: required string status,
+
+struct CreareLectureRequest {
+    1: required string title,
+    2: required string description,
+    3: required string speaker,
+    4: required string date,
+    5: required string sdp,
 }
 
-struct OfferRequest {
-    1: required string type,
-    2: required string sdp,
-}
-
-struct OfferResponse {
-    1: required string answer,
+struct CreareLectureResponse {
+    1: required string roomid,
+    2: required string answer,
 }
     
 struct AttendRequest {
-    1: required string answer,
+    1: required string sdp,
 }
 
+struct AttendResponse {
+    1: required base.BaseResponse response,
+    2: required string answer,
+}
 service LectureService {
-    base.NilResponse createLecture(1: base.NilResponse response) (api.post = "lecture/"),
-    OfferResponse offerLecture(1: OfferRequest request) (api.post = "lecture/:roomid/offer"),
-    base.BaseResponse attendLecture(1: AttendRequest request) (api.post = "lecture/:roomid/attend"),
-    base.NilResponse inroom (1: base.NilResponse response) (api.get = "lecture/:roomid/ws"),
+    CreareLectureResponse createLecture(1: CreareLectureRequest request) (api.post = "lecture/"),
+    AttendResponse attendLecture(1: AttendRequest request) (api.post = "lecture/:roomid/attend"),
+    base.NilResponse inroom (1: base.NilResponse request) (api.get = "lecture/:roomid/ws"),
 }

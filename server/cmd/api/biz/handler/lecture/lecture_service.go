@@ -4,9 +4,13 @@ package lecture
 
 import (
 	"context"
+	"strconv"
 
 	base "github.com/Rinai-R/ApexLecture/server/cmd/api/biz/model/base"
 	lecture "github.com/Rinai-R/ApexLecture/server/cmd/api/biz/model/lecture"
+	"github.com/Rinai-R/ApexLecture/server/cmd/api/config"
+	rpc "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/lecture"
+	"github.com/Rinai-R/ApexLecture/server/shared/rsp"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -15,32 +19,32 @@ import (
 // @router lecture/ [POST]
 func CreateLecture(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req base.NilResponse
+	var req lecture.CreareLectureRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameterError())
 		return
 	}
-
-	resp := new(base.NilResponse)
-
-	c.JSON(consts.StatusOK, resp)
-}
-
-// OfferLecture .
-// @router lecture/:roomid/offer [POST]
-func OfferLecture(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req lecture.OfferRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+	id, ok := c.Params.Get("id")
+	if !ok {
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameterError())
 		return
 	}
-
-	resp := new(lecture.OfferResponse)
-
-	c.JSON(consts.StatusOK, resp)
+	hostid, _ := strconv.ParseInt(id, 10, 64)
+	resp, _ := config.LectureClient.CreateLecture(ctx, &rpc.CreareLectureRequest{
+		HostId:      hostid,
+		Title:       req.Title,
+		Description: req.Description,
+		Speaker:     req.Speaker,
+		Date:        req.Date,
+		Sdp:         req.Sdp,
+	})
+	switch resp.Response.Code {
+	case rsp.Success:
+		c.JSON(consts.StatusOK, resp)
+	default:
+		c.JSON(consts.StatusBadRequest, resp)
+	}
 }
 
 // AttendLecture .
@@ -50,7 +54,7 @@ func AttendLecture(ctx context.Context, c *app.RequestContext) {
 	var req lecture.AttendRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		c.JSON(consts.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -61,12 +65,13 @@ func AttendLecture(ctx context.Context, c *app.RequestContext) {
 
 // Inroom .
 // @router lecture/:roomid/ws [GET]
+// websocket 连接到聊天室，包括聊天，问题等服务。
 func Inroom(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req base.NilResponse
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		c.JSON(consts.StatusBadRequest, err.Error())
 		return
 	}
 

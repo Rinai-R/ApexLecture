@@ -6,7 +6,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/Rinai-R/ApexLecture/server/cmd/api/config"
+	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/config"
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
 	"github.com/bytedance/sonic"
 	"github.com/spf13/viper"
@@ -22,11 +22,10 @@ func main() {
 	var ServerConfig config.ServerConfig
 	var byteData []byte
 	var content *clientv3.GetResponse
-	var Services = [consts.SrvLen]string{}
 
 	// 读取配置文件
 	conf = viper.New()
-	conf.SetConfigFile(consts.ApiConfig)
+	conf.SetConfigFile(consts.LectureConfig)
 	err = conf.ReadInConfig()
 	if err != nil {
 		panic("PreProcess failed: ReadInConfig failed" + err.Error())
@@ -45,16 +44,19 @@ func main() {
 	if err != nil {
 		panic("PreProcess failed: New Etcd client failed" + err.Error())
 	}
-	// 填入 Services 服务名称
-	Services[consts.UserSrvno] = consts.UserSrvPrefix
-	Services[consts.LectureSrvno] = consts.LectureSrvPrefix
 
 	// 预先准备 ServerConfig 的数据
 	ServerConfig = config.ServerConfig{
-		Name:     consts.ApiSrvPrefix,
-		Host:     consts.Host,
-		Port:     consts.ApiPort,
-		Services: Services,
+		Name: consts.LectureSrvPrefix,
+		Host: consts.Host,
+		Port: consts.LecturePort,
+		Mysql: config.MysqlConfig{
+			Host:     consts.MysqlHost,
+			Port:     consts.MysqlPort,
+			Username: consts.MysqlUser,
+			Password: consts.MysqlPassword,
+			Database: consts.MysqlDatabase,
+		},
 	}
 	// 序列化 ServerConfig
 	byteData, err = sonic.Marshal(ServerConfig)

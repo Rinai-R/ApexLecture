@@ -10,6 +10,7 @@ const (
 	UnAuthorized             = 40004
 	SnowFalkeError           = 40005
 	UserCreateError          = 40006
+	ParameterError           = 40007
 )
 
 func OK(data interface{}) base.BaseResponse {
@@ -51,5 +52,12 @@ func ErrorSnowFalkeError() base.BaseResponse {
 	return base.BaseResponse{
 		Code:    SnowFalkeError,
 		Message: "Snowflake error",
+	}
+}
+
+func ErrorParameterError() base.BaseResponse {
+	return base.BaseResponse{
+		Code:    ParameterError,
+		Message: "Parameter error",
 	}
 }
