@@ -3,12 +3,15 @@
 package lecture
 
 import (
+	"github.com/Rinai-R/ApexLecture/server/cmd/api/middleware"
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
 func rootMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{
+		middleware.JwtAuth,
+	}
 }
 
 func _lectureMw() []app.HandlerFunc {

@@ -9,7 +9,6 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/cmd/user/model"
 	"github.com/Rinai-R/ApexLecture/server/cmd/user/pkg/encrypt"
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
-	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/base"
 	user "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/user"
 	"github.com/Rinai-R/ApexLecture/server/shared/rsp"
 	"github.com/bwmarrin/snowflake"
@@ -38,10 +37,7 @@ func (s *UserServiceImpl) Register(ctx context.Context, request *user.RegisterRe
 	if err != nil {
 		klog.Errorf("user register: create snowflake node failed: %v", err)
 		resp := &user.RegisterResponse{
-			Base: &base.BaseResponse{
-				Code:    rsp.SnowFalkeError,
-				Message: "create snowflake node failed",
-			},
+			Base: rsp.ErrorSnowFalke(err.Error()),
 		}
 		return resp, nil
 	}
@@ -58,20 +54,14 @@ func (s *UserServiceImpl) Register(ctx context.Context, request *user.RegisterRe
 	if err != nil {
 		klog.Errorf("user register: create user failed: %v", err)
 		resp := &user.RegisterResponse{
-			Base: &base.BaseResponse{
-				Code:    rsp.UserCreateError,
-				Message: "create user failed, maybe username already exists",
-			},
+			Base: rsp.ErrorUserCreate(err.Error()),
 		}
 		return resp, nil
 	}
 	// 返回注册成功响应
 	resp := &user.RegisterResponse{
-		Base: &base.BaseResponse{
-			Code:    rsp.Success,
-			Message: "register success",
-		},
-		Id: userid,
+		Base: rsp.OK(),
+		Id:   userid,
 	}
 	return resp, nil
 }
@@ -83,29 +73,20 @@ func (s *UserServiceImpl) Login(ctx context.Context, request *user.LoginRequest)
 	if err != nil {
 		klog.Errorf("user login: get user by username failed: %v", err)
 		resp := &user.LoginResponse{
-			Base: &base.BaseResponse{
-				Code:    rsp.UsernameNotExists,
-				Message: "get user by username failed",
-			},
+			Base: rsp.ErrorUsernameNotExists(),
 		}
 		return resp, nil
 	}
 	// 验证密码
 	if encrypt.ComparePasswords(userInfo.Password, request.Password) {
 		resp := &user.LoginResponse{
-			Base: &base.BaseResponse{
-				Code:    rsp.Success,
-				Message: "login success",
-			},
+			Base:  rsp.OK(),
 			Token: s.GenerateToken(userInfo.ID),
 		}
 		return resp, nil
 	}
 	resp := &user.LoginResponse{
-		Base: &base.BaseResponse{
-			Code:    rsp.PasswordError,
-			Message: "password error",
-		},
+		Base: rsp.ErrorPasswordError(),
 	}
 	return resp, nil
 }
@@ -113,9 +94,8 @@ func (s *UserServiceImpl) Login(ctx context.Context, request *user.LoginRequest)
 func (a *UserServiceImpl) GenerateToken(uid int64) string {
 	// 产生 Token
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
-		"sub": "ID",
+		"sub": uid,
 		"exp": time.Now().Add(time.Hour * 2).Unix(),
-		"uid": uid,
 	})
 	// 私钥加密
 	tokenString, err := token.SignedString(a.PrivateKey)

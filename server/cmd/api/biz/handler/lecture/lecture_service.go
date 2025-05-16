@@ -17,17 +17,17 @@ import (
 
 // CreateLecture .
 // @router lecture/ [POST]
-func CreateLecture(ctx context.Context, c *app.RequestContext) {
+func StartLecture(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req lecture.StartRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.JSON(consts.StatusBadRequest, rsp.ErrorParameterError())
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
 		return
 	}
 	id, ok := c.Params.Get("id")
 	if !ok {
-		c.JSON(consts.StatusBadRequest, rsp.ErrorParameterError())
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
 		return
 	}
 	hostid, _ := strconv.ParseInt(id, 10, 64)
@@ -56,15 +56,34 @@ func AttendLecture(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusBadRequest, err.Error())
 		return
 	}
+	roomid, ok := c.Params.Get("roomid")
+	if !ok {
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
+		return
+	}
+	RoomID, _ := strconv.ParseInt(roomid, 10, 64)
+	userid, ok := c.Get("userid")
+	if !ok {
+		c.JSON(consts.StatusUnauthorized, rsp.ErrorUnAuthorized(err.Error()))
+		return
+	}
+	UserID := userid.(int64)
+	resp, _ := config.LectureClient.Attend(ctx, &rpc.AttendRequest{
+		RoomId: RoomID,
+		UserId: UserID,
+		Sdp:    req.Sdp,
+	})
 
-	resp := new(base.BaseResponse)
-
-	c.JSON(consts.StatusOK, resp)
+	switch resp.Response.Code {
+	case rsp.Success:
+		c.JSON(consts.StatusOK, resp)
+	default:
+		c.JSON(consts.StatusBadRequest, resp)
+	}
 }
 
 // Inroom .
 // @router lecture/:roomid/ws [GET]
-// websocket 连接到聊天室，包括聊天，问题等服务。
 func Inroom(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req base.NilResponse
@@ -75,22 +94,6 @@ func Inroom(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp := new(base.NilResponse)
-
-	c.JSON(consts.StatusOK, resp)
-}
-
-// StartLecture .
-// @router lecture/ [POST]
-func StartLecture(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req lecture.StartRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
-		return
-	}
-
-	resp := new(lecture.StartResponse)
 
 	c.JSON(consts.StatusOK, resp)
 }
