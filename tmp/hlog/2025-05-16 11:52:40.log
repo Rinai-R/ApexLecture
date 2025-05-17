@@ -1,8 +1,0 @@
-{"level":"info","msg":"initialize: logger initialized","time":"2025-05-16T11:52:40+08:00"}
-{"level":"info","msg":"initialize: Config initialized successfully","time":"2025-05-16T11:52:40+08:00"}
-{"level":"info","msg":"initialize: user client initialized","time":"2025-05-16T11:52:40+08:00"}
-{"level":"info","msg":"HERTZ: Using network library=netpoll","time":"2025-05-16T11:52:40+08:00"}
-{"level":"info","msg":"HERTZ: HTTP server listening on address=[::]:10000","time":"2025-05-16T11:52:40+08:00"}
-{"level":"info","msg":"HERTZ: Received signal: interrupt\n","time":"2025-05-16T11:52:44+08:00"}
-{"level":"info","msg":"HERTZ: Begin graceful shutdown, wait at most 5s ...","time":"2025-05-16T11:52:44+08:00"}
-{"level":"info","msg":"HERTZ: Execute OnShutdownHooks finish","time":"2025-05-16T11:52:44+08:00"}

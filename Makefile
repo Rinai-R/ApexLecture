@@ -3,7 +3,7 @@ MODULE_NAME = github.com/Rinai-R/ApexLecture
 CMD_PATH = ./server/cmd
 KITEX_GEN = ./server/shared/kitex_gen
 
-# 运行程序
+# ================================== 运行程序 ============================
 hz-run:
 	go run $(CMD_PATH)/api/
 
@@ -15,8 +15,7 @@ lecture-run:
 
 
 
-
-# 更新脚手架文件
+# ============================= 更新 API 脚手架文件 ========================
 hz-update:
 	make api-update service=user
 	make api-update service=lecture
@@ -24,6 +23,12 @@ hz-update:
 hz-new:
 	make api-new service=user
 	make api-new service=lecture
+# ============================= 更新 rpc 脚手架文件 ========================
+rpc-all:
+	make user-gen
+	make user-rpc
+	make lecture-gen
+	make lecture-rpc
 
 user-rpc:
 	cd 	./server/cmd/user && \
@@ -46,7 +51,7 @@ lecture-gen:
 	kitex -module github.com/Rinai-R/ApexLecture ../idl/rpc/lecture.thrift
 
 
-# 更新配置文件
+# =================================== 更新配置文件 ==================================
 hz-conf:
 	go run $(CMD_PATH)/api/script/preprocess.go
 
@@ -61,20 +66,7 @@ conf:
 	make user-conf
 	make lecture-conf
 
-
-# 一站式服务
-hz-all:
-	make hz-user
-
-rpc-all:
-	make user-gen
-	make user-rpc
-
-
-
-
-
-# 杂项，给其他 make 指令用的
+# ============================ 杂项，给其他 make 指令用的 ==========================
 api-update:
 	cd 	./server/cmd/api && \
 	hz update -idl ../../idl/api/$(service).thrift \

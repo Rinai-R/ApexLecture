@@ -1,0 +1,10 @@
+{"level":"info","msg":"initialize: initialize logger success","time":"2025-05-17T14:42:32+08:00"}
+{"level":"info","msg":"initialize: Config initialized successfully","time":"2025-05-17T14:42:32+08:00"}
+{"level":"info","msg":"Connected to mysql","time":"2025-05-17T14:42:32+08:00"}
+{"level":"info","msg":"initialize: registering service OK","time":"2025-05-17T14:42:32+08:00"}
+{"level":"info","msg":"KITEX: server listen at addr=[::]:10002","time":"2025-05-17T14:42:32+08:00"}
+{"level":"info","msg":"start keepalive lease 694d96dc75bec0d6 for etcd registry","time":"2025-05-17T14:42:33+08:00"}
+{"level":"info","msg":"Audience ICE gathering complete","time":"2025-05-17T14:58:03+08:00"}
+{"level":"info","msg":"KITEX: gRPC GracefulShutdown starts","time":"2025-05-17T15:00:52+08:00"}
+{"level":"info","msg":"stop keep register service kitex/registry-etcd/lecture/192.168.64.128:10002","time":"2025-05-17T15:00:52+08:00"}
+{"level":"info","msg":"KITEX: gRPC GracefulShutdown ends","time":"2025-05-17T15:00:52+08:00"}

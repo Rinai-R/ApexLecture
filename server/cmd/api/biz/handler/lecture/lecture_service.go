@@ -25,12 +25,13 @@ func StartLecture(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
 		return
 	}
-	id, ok := c.Params.Get("id")
+	id, ok := c.Get("userid")
 	if !ok {
-		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
+		c.JSON(consts.StatusUnauthorized, rsp.ErrorUnAuthorized(""))
 		return
 	}
-	hostid, _ := strconv.ParseInt(id, 10, 64)
+	host := id.(float64)
+	hostid := int64(host)
 	resp, _ := config.LectureClient.Start(ctx, &rpc.StartRequest{
 		HostId:      hostid,
 		Title:       req.Title,
@@ -67,7 +68,8 @@ func AttendLecture(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusUnauthorized, rsp.ErrorUnAuthorized(err.Error()))
 		return
 	}
-	UserID := userid.(int64)
+	userId := userid.(float64)
+	UserID := int64(userId)
 	resp, _ := config.LectureClient.Attend(ctx, &rpc.AttendRequest{
 		RoomId: RoomID,
 		UserId: UserID,

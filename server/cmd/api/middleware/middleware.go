@@ -2,6 +2,9 @@ package middleware
 
 import (
 	"context"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 
 	"github.com/Rinai-R/ApexLecture/server/cmd/api/config"
 	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/user"
@@ -13,15 +16,15 @@ import (
 
 func JwtAuth(ctx context.Context, c *app.RequestContext) {
 	resp, _ := config.UserClient.GetPublicKey(ctx, &user.GetPublicKeyRequest{})
-
-	publickey := resp.PublicKey
+	block, _ := pem.Decode([]byte(resp.PublicKey))
+	publicKey, err := x509.ParsePKIXPublicKey(block.Bytes)
 	tokenString := c.Request.Header.Get("Authorization")
 	claims := jwt.MapClaims{}
 	token, err := jwt.ParseWithClaims(
 		tokenString,
 		claims,
 		func(token *jwt.Token) (interface{}, error) {
-			return publickey, nil
+			return publicKey.(*rsa.PublicKey), nil
 		},
 		jwt.WithValidMethods([]string{"RS256"}),
 	)
@@ -30,6 +33,12 @@ func JwtAuth(ctx context.Context, c *app.RequestContext) {
 		c.Abort()
 		return
 	}
-	c.Set("userid", claims["sub"])
+	userid, ok := claims["sub"]
+	if !ok {
+		c.JSON(consts.StatusUnauthorized, rsp.ErrorUnAuthorized("Invalid token"))
+		c.Abort()
+		return
+	}
+	c.Set("userid", userid)
 	c.Next(ctx)
 }

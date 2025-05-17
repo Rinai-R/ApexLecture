@@ -20,7 +20,7 @@ import (
 
 // LectureServiceImpl implements the last service interface defined in the IDL.
 type LectureServiceImpl struct {
-	Sessions             sync.Map
+	Sessions             *sync.Map
 	WebrtcAPI            *webrtc.API
 	peerConnectionConfig *webrtc.Configuration
 
@@ -29,16 +29,19 @@ type LectureServiceImpl struct {
 
 type MysqlManager interface {
 	CreateLecture(ctx context.Context, lecture *model.Lecture) error
+	RecordJoin(ctx context.Context, Attendance *model.Attendance) error
+	RecordLeft(ctx context.Context, id int64) error
 }
 
 var _ MysqlManager = (*dao.MysqlManagerImpl)(nil)
 
 // 房间号对应的 LectureSession 结构体
-// 每个结构体代表房间里面主播的轨道以及主播的 PeerConnection
+// 每个结构体代表房间里面主播的轨道以及主播的 PeerConnection 以及观众的连接状况
 type LectureSession struct {
 	PeerConnection *webrtc.PeerConnection
-	AudioTrack     *webrtc.TrackLocalStaticRTP
-	VideoTrack     *webrtc.TrackLocalStaticRTP
+	AudioTrack     chan *webrtc.TrackLocalStaticRTP
+	VideoTrack     chan *webrtc.TrackLocalStaticRTP
+	Audiences      *sync.Map
 }
 
 // CreateLecture implements the LectureServiceImpl interface.
@@ -77,6 +80,7 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 		}, nil
 	}
 	// 此处，数据库操作。
+	// 雪花算法生成唯一的房间号，作为 id
 	sf, err := snowflake.NewNode(consts.LectureIDSnowFlakeNode)
 	if err != nil {
 		klog.Error("Failed to create snowflake node: ", err)
@@ -140,6 +144,7 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 	})
 
 	// ------------ 完成与主播的握手  ------------
+
 	if err = peerConnection.SetRemoteDescription(offer); err != nil {
 		klog.Error("Failed to set remote description: ", err)
 		return &lecture.StartResponse{
@@ -159,13 +164,12 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 
 	}
 	<-gatherComplete // 等 ICE 候选收集完
-
-	s.Sessions.Store(roomid, LectureSession{
+	s.Sessions.Store(roomid, &LectureSession{
 		PeerConnection: peerConnection,
-		AudioTrack:     <-audioLocalTrackChan,
-		VideoTrack:     <-videoLocalTrackChan,
+		AudioTrack:     audioLocalTrackChan,
+		VideoTrack:     videoLocalTrackChan,
+		Audiences:      &sync.Map{},
 	})
-
 	return &lecture.StartResponse{
 		Response: rsp.OK(),
 		RoomId:   roomid,
@@ -197,8 +201,28 @@ func (s *LectureServiceImpl) Attend(ctx context.Context, request *lecture.Attend
 			Response: rsp.ErrorRoomNotFound(),
 		}, nil
 	}
-	Session := session.(LectureSession)
-	AudioRtcp, err := pc.AddTrack(Session.AudioTrack)
+	Session := session.(*LectureSession)
+	// 存储这个 PeerConnection 到 LectureSession 的 Audiences 哈希表中
+	// 便于后续可以扩展。
+	Session.Audiences.Store(request.UserId, pc)
+	sf, err := snowflake.NewNode(consts.AttendanceIDSnowFlakeNode)
+	AttendanceId := sf.Generate().Int64()
+	s.RecordJoin(ctx, &model.Attendance{
+		AttendanceId: AttendanceId,
+		RoomId:       request.RoomId,
+		UserId:       request.UserId,
+	})
+	// 监听 PeerConnection 的 ICE 连接状态
+	// 如果学生关闭网页，或者网络断开，就关闭这个 PeerConnection
+	// 并且记录退出时间，便于统计。
+	pc.OnICEConnectionStateChange(func(connectionState webrtc.ICEConnectionState) {
+		if connectionState == webrtc.ICEConnectionStateDisconnected || connectionState == webrtc.ICEConnectionStateFailed {
+			s.RecordLeft(ctx, AttendanceId)
+			Session.Audiences.Delete(request.UserId)
+			pc.Close()
+		}
+	})
+	AudioRtcp, err := pc.AddTrack(<-Session.AudioTrack)
 	if err != nil {
 		klog.Error("Failed to add audio track: ", err)
 		return &lecture.AttendResponse{
@@ -206,7 +230,7 @@ func (s *LectureServiceImpl) Attend(ctx context.Context, request *lecture.Attend
 		}, nil
 	}
 
-	VideoRtcp, err := pc.AddTrack(Session.VideoTrack)
+	VideoRtcp, err := pc.AddTrack(<-Session.VideoTrack)
 	if err != nil {
 		klog.Error("Failed to add video track: ", err)
 		return &lecture.AttendResponse{

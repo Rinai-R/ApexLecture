@@ -48,3 +48,13 @@ func _startlectureMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _attendMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _wsMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

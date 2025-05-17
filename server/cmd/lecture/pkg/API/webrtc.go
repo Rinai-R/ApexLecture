@@ -8,6 +8,7 @@ import (
 	"github.com/pion/webrtc/v4"
 )
 
+// 配置 WebRTC API，因为都是一样的配置。
 func NewWebrtcAPI() *webrtc.API {
 	// 设置多路复用 UDP 端口
 	settingEngine := webrtc.SettingEngine{}
@@ -50,7 +51,6 @@ func NewWebrtcAPI() *webrtc.API {
 	}
 	interceptorRegistry.Add(intervalPliFactory)
 
-	// ------------ 创建广播用的 PeerConnection  ------------
 	API := webrtc.NewAPI(
 		webrtc.WithMediaEngine(mediaEngine),
 		webrtc.WithInterceptorRegistry(interceptorRegistry),

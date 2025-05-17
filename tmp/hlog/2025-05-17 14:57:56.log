@@ -1,0 +1,9 @@
+{"level":"info","msg":"initialize: logger initialized","time":"2025-05-17T14:57:56+08:00"}
+{"level":"info","msg":"initialize: Config initialized successfully","time":"2025-05-17T14:57:56+08:00"}
+{"level":"info","msg":"initialize: user client initialized","time":"2025-05-17T14:57:56+08:00"}
+{"level":"info","msg":"initialize: lecture client initialized","time":"2025-05-17T14:57:56+08:00"}
+{"level":"info","msg":"HERTZ: Using network library=netpoll","time":"2025-05-17T14:57:56+08:00"}
+{"level":"info","msg":"HERTZ: HTTP server listening on address=[::]:10000","time":"2025-05-17T14:57:56+08:00"}
+{"level":"info","msg":"HERTZ: Received signal: interrupt\n","time":"2025-05-17T15:00:54+08:00"}
+{"level":"info","msg":"HERTZ: Begin graceful shutdown, wait at most 5s ...","time":"2025-05-17T15:00:54+08:00"}
+{"level":"info","msg":"HERTZ: Execute OnShutdownHooks timeout: error=context deadline exceeded","time":"2025-05-17T15:00:59+08:00"}

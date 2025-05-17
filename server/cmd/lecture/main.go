@@ -21,7 +21,7 @@ func main() {
 	r, i := initialize.InitRegistry()
 	svr := lecture.NewServer(&LectureServiceImpl{
 		MysqlManager: dao.NewDM(d),
-		Sessions:     sync.Map{},
+		Sessions:     &sync.Map{},
 		WebrtcAPI:    api.NewWebrtcAPI(),
 		peerConnectionConfig: &webrtc.Configuration{
 			ICEServers: []webrtc.ICEServer{
