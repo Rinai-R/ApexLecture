@@ -3,6 +3,21 @@ MODULE_NAME = github.com/Rinai-R/ApexLecture
 CMD_PATH = ./server/cmd
 KITEX_GEN = ./server/shared/kitex_gen
 
+# ============================== docker-compose =========================
+re:
+	make down
+	make up
+
+up:
+	docker-compose up -d
+	make conf
+
+down:
+	docker-compose down
+
+clear:
+	sudo aa-remove-unknown
+
 # ================================== 运行程序 ============================
 hz-run:
 	go run $(CMD_PATH)/api/
