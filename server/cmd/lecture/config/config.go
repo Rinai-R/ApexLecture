@@ -15,8 +15,9 @@ type EtcdConfig struct {
 }
 
 type ServerConfig struct {
-	Name  string      `json:"name"`
-	Host  string      `json:"host"`
-	Port  string      `json:"port"`
-	Mysql MysqlConfig `json:"mysql"`
+	Name         string      `json:"name"`
+	Host         string      `json:"host"`
+	Port         string      `json:"port"`
+	Mysql        MysqlConfig `json:"mysql"`
+	OtelEndpoint string      `json:"otel_endpoint"`
 }

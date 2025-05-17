@@ -46,18 +46,18 @@ type LectureSession struct {
 
 // CreateLecture implements the LectureServiceImpl interface.
 func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRequest) (*lecture.StartResponse, error) {
-	// ------------ 第一阶段：从主播那里拿到第一个 Offer  ------------
+	// 从主播那里拿到 Offer
 	offer := webrtc.SessionDescription{}
 	util.Decode(request.Sdp, &offer)
 
-	// ------------ 配置 PeerConnection 相关  ------------
+	// 配置 PeerConnection 相关
 	// ICE 协商要用的 STUN 服务器（帮助打 NAT 穿透洞）
 	peerConnectionConfig := webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
 			{URLs: []string{"stun:stun.l.google.com:19302"}},
 		},
 	}
-	// ------------ 创建广播用的 PeerConnection  ------------
+	// 创建主播用的 PeerConnection
 	peerConnection, err := s.WebrtcAPI.NewPeerConnection(peerConnectionConfig)
 	if err != nil {
 		klog.Error("Failed to create PeerConnection: ", err)
@@ -143,8 +143,7 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 		}
 	})
 
-	// ------------ 完成与主播的握手  ------------
-
+	// 完成与主播的握手
 	if err = peerConnection.SetRemoteDescription(offer); err != nil {
 		klog.Error("Failed to set remote description: ", err)
 		return &lecture.StartResponse{
@@ -164,6 +163,7 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 
 	}
 	<-gatherComplete // 等 ICE 候选收集完
+	// 存储转发音频轨道和视频轨道的管道，便于用户来的时候获取音视频的轨道。
 	s.Sessions.Store(roomid, &LectureSession{
 		PeerConnection: peerConnection,
 		AudioTrack:     audioLocalTrackChan,
@@ -178,7 +178,8 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 }
 
 // Attend implements the LectureServiceImpl interface.
-// 学生出席课程的逻辑部分，首先通过房间号获取讲师的轨道，然后和学生的 PeerConnection 做一次 Offer/Answer + ICE 协商，
+// 学生出席课程的逻辑部分，首先通过房间号获取讲师的轨道，
+// 然后和学生的 PeerConnection 做一次 Offer/Answer + ICE 协商，
 // 最后把 Answer 返回给前端处理。
 func (s *LectureServiceImpl) Attend(ctx context.Context, request *lecture.AttendRequest) (*lecture.AttendResponse, error) {
 	// 收到下一个观众发来的 Offer（Base64）
@@ -214,7 +215,7 @@ func (s *LectureServiceImpl) Attend(ctx context.Context, request *lecture.Attend
 	})
 	// 监听 PeerConnection 的 ICE 连接状态
 	// 如果学生关闭网页，或者网络断开，就关闭这个 PeerConnection
-	// 并且记录退出时间，便于统计。
+	// 并且记录退出时间，如果后续扩展，可以便于统计。
 	pc.OnICEConnectionStateChange(func(connectionState webrtc.ICEConnectionState) {
 		if connectionState == webrtc.ICEConnectionStateDisconnected || connectionState == webrtc.ICEConnectionStateFailed {
 			s.RecordLeft(ctx, AttendanceId)

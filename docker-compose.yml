@@ -1,4 +1,5 @@
 services:
+# ========================= DB =======================
     mysql:
         image: mysql:latest
         container_name: mysql
@@ -19,7 +20,7 @@ services:
         volumes:
         - ./data/redis_data:/data:rw
         command: ["redis-server", "--requirepass", "123456"]
-
+# ============================= ELK ===============================
     elasticsearch:
         image: elasticsearch:8.17.0
         container_name: elasticsearch
@@ -61,24 +62,7 @@ services:
         - elasticsearch
         networks:
             - ELK
-    jaeger:
-        image: jaegertracing/all-in-one:1.45
-        container_name: jaeger
-        environment:
-        - COLLECTOR_ZIPKIN_HOST_PORT=:9411
-        - COLLECTOR_OTLP_ENABLED=true
-        ports:
-        - "6831:6831/udp"
-        - "6832:6832/udp"
-        - "5778:5778"
-        - "16686:16686"
-        - "4317:4317"
-        - "4318:4318"
-        - "14250:14250"
-        - "14268:14268"
-        - "14269:14269"
-        - "9411:9411"
-        restart: always
+# ============================ Registry ==========================
     etcd-server:
         image: bitnami/etcd:latest
         container_name: etcd
@@ -88,11 +72,61 @@ services:
         - "2379:2379"
         - "2380:2380"
         restart: always
+# ========================= 可观测性 ===============================
+    otel-collector:
+        image: otel/opentelemetry-collector-contrib:latest
+        container_name: otel-collector
+        command: [ "--config=/etc/otel-collector-config.yaml" ]
+        volumes:
+        - ./data/opentelemetry/otel-collector-config.yaml:/etc/otel-collector-config.yaml:rw
+        ports:
+        - "4317:4317"     # OTLP gRPC
+        - "4318:4318"     # OTLP HTTP
+        - "55679:55679"   # zPages (调试页面)
+        - "8888:8888"     # Prometheus metrics
+        - "8889:8889"     # Prometheus exporter
+        - "13133:13133"   # 健康检查
+        depends_on:
+        - jaeger
+
+    jaeger:
+        image: jaegertracing/all-in-one:latest
+        container_name: jaeger
+        environment:
+        - COLLECTOR_OTLP_ENABLED=true
+        ports:
+        - "16686:16686"   # Jaeger UI
+        - "14268:14268"   # Jaeger HTTP 接口
+        - "14250:14250"   # gRPC 接口（Collector）
+        - "6831:6831/udp" # Agent 接口
+    prometheus:
+        image: prom/prometheus:latest
+        container_name: prometheus
+        volumes:
+        - ./data/prometheus:/etc/prometheus
+        ports:
+        - "9091:9090"
+    grafana:
+        image: grafana/grafana:latest
+        container_name: grafana
+        ports:
+        - "3000:3000"
+        volumes:
+        - ./data/grafana:/var/lib/grafana
+        environment:
+        - GF_SECURITY_ADMIN_USER=admin 
+        - GF_SECURITY_ADMIN_PASSWORD=admin
+        depends_on:
+        - prometheus
+
 volumes:
   mysql_data:
   redis_data:
   es_data:
   logstash_data:
+  grafana:
+  victoria_data:
+
 networks:
   ELK:
     driver: bridge

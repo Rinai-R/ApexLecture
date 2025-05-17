@@ -57,6 +57,7 @@ func main() {
 			Password: consts.MysqlPassword,
 			Database: consts.MysqlDatabase,
 		},
+		OtelEndpoint: consts.OtelEndpoint,
 	}
 	// 序列化 ServerConfig
 	byteData, err = sonic.Marshal(ServerConfig)

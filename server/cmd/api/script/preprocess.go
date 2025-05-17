@@ -22,7 +22,6 @@ func main() {
 	var ServerConfig config.ServerConfig
 	var byteData []byte
 	var content *clientv3.GetResponse
-	var Services = [consts.SrvLen]string{}
 
 	// 读取配置文件
 	conf = viper.New()
@@ -45,16 +44,19 @@ func main() {
 	if err != nil {
 		panic("PreProcess failed: New Etcd client failed" + err.Error())
 	}
-	// 填入 Services 服务名称
-	Services[consts.UserSrvno] = consts.UserSrvPrefix
-	Services[consts.LectureSrvno] = consts.LectureSrvPrefix
 
 	// 预先准备 ServerConfig 的数据
 	ServerConfig = config.ServerConfig{
-		Name:     consts.ApiSrvPrefix,
-		Host:     consts.Host,
-		Port:     consts.ApiPort,
-		Services: Services,
+		Name: consts.ApiSrvPrefix,
+		Host: consts.Host,
+		Port: consts.ApiPort,
+		UserSrvInfo: config.RPCSrvConfig{
+			Name: consts.UserSrvPrefix,
+		},
+		LectureSrvInfo: config.RPCSrvConfig{
+			Name: consts.LectureSrvPrefix,
+		},
+		OtelEndpoint: consts.OtelEndpoint,
 	}
 	// 序列化 ServerConfig
 	byteData, err = sonic.Marshal(ServerConfig)

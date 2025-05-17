@@ -1,12 +1,5 @@
 package consts
 
-// ApiConfig
-const (
-	SrvLen       = 2
-	UserSrvno    = 0
-	LectureSrvno = 1
-)
-
 // ServerConfig
 const (
 	Host        = "0.0.0.0"
@@ -21,6 +14,8 @@ const (
 	ApiSrvPrefix     = "api"
 	UserSrvPrefix    = "user"
 	LectureSrvPrefix = "lecture"
+
+	OtelEndpoint = "localhost:4317"
 )
 
 // MysqlConfig
@@ -44,9 +39,8 @@ const (
 	HlogFilePath = "./tmp/hlog/"
 	KlogFilePath = "./tmp/klog/"
 
-	UserSrvSnowFlakeNode      = 1
+	EtcdSnowFlakeNode         = 1
 	UserIDSnowFlakeNode       = 2
-	LectureSnowFlakeNode      = 3
-	LectureIDSnowFlakeNode    = 4
-	AttendanceIDSnowFlakeNode = 5
+	LectureIDSnowFlakeNode    = 3
+	AttendanceIDSnowFlakeNode = 4
 )

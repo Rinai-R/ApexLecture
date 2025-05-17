@@ -4,11 +4,12 @@ import (
 	"net"
 
 	"github.com/Rinai-R/ApexLecture/server/cmd/api/config"
-	"github.com/Rinai-R/ApexLecture/server/shared/consts"
 	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/lecture/lectureservice"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
+	"github.com/hertz-contrib/obs-opentelemetry/provider"
+	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 	etcd "github.com/kitex-contrib/registry-etcd"
 )
 
@@ -20,11 +21,18 @@ func initLecture() {
 	if err != nil {
 		hlog.Fatal("initialize: failed to create etcd resolver", err)
 	}
+	provider.NewOpenTelemetryProvider(
+		provider.WithServiceName(config.GlobalServerConfig.LectureSrvInfo.Name),
+		provider.WithExportEndpoint(config.GlobalServerConfig.OtelEndpoint),
+		provider.WithInsecure(),
+	)
+
 	c, err := lectureservice.NewClient(
-		config.GlobalServerConfig.Services[consts.LectureSrvno],
+		config.GlobalServerConfig.LectureSrvInfo.Name,
 		client.WithResolver(r),
+		client.WithSuite(tracing.NewClientSuite()),
 		client.WithClientBasicInfo(&rpcinfo.EndpointBasicInfo{
-			ServiceName: config.GlobalServerConfig.Services[consts.LectureSrvno],
+			ServiceName: config.GlobalServerConfig.LectureSrvInfo.Name,
 		}),
 	)
 	if err != nil {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"sync"
 
@@ -11,6 +12,8 @@ import (
 	lecture "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/lecture/lectureservice"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
+	"github.com/kitex-contrib/obs-opentelemetry/provider"
+	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 	"github.com/pion/webrtc/v4"
 )
 
@@ -19,6 +22,12 @@ func main() {
 	initialize.InitConfig()
 	d := initialize.InitDB()
 	r, i := initialize.InitRegistry()
+	p := provider.NewOpenTelemetryProvider(
+		provider.WithServiceName(config.GlobalServerConfig.Name),
+		provider.WithExportEndpoint(config.GlobalServerConfig.OtelEndpoint),
+		provider.WithInsecure(),
+	)
+	defer p.Shutdown(context.Background())
 	svr := lecture.NewServer(&LectureServiceImpl{
 		MysqlManager: dao.NewDM(d),
 		Sessions:     &sync.Map{},
@@ -32,6 +41,7 @@ func main() {
 		server.WithRegistry(r),
 		server.WithRegistryInfo(i),
 		server.WithServiceAddr(i.Addr),
+		server.WithSuite(tracing.NewServerSuite()),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: config.GlobalServerConfig.Name,
 		}),

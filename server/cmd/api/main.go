@@ -3,21 +3,35 @@
 package main
 
 import (
+	"context"
 	"net"
 
 	"github.com/Rinai-R/ApexLecture/server/cmd/api/config"
 	"github.com/Rinai-R/ApexLecture/server/cmd/api/initialize"
 	"github.com/Rinai-R/ApexLecture/server/cmd/api/initialize/rpc"
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/hertz-contrib/obs-opentelemetry/provider"
+	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
 )
 
 func main() {
 	initialize.Initlogger()
 	initialize.InitConfig()
+	r, i := initialize.InitRegistry()
+	rpc.Initrpc()
+	p := provider.NewOpenTelemetryProvider(
+		provider.WithServiceName(config.GlobalServerConfig.Name),
+		provider.WithExportEndpoint(config.GlobalServerConfig.OtelEndpoint),
+		provider.WithInsecure(),
+	)
+	defer p.Shutdown(context.Background())
+	tracer, trcCfg := hertztracing.NewServerTracer()
 	h := server.New(
+		tracer,
+		server.WithRegistry(r, i),
 		server.WithHostPorts(net.JoinHostPort(config.GlobalServerConfig.Host, config.GlobalServerConfig.Port)),
 	)
-	rpc.Initrpc()
+	h.Use(hertztracing.ServerMiddleware(trcCfg))
 	register(h)
 	h.Spin()
 }

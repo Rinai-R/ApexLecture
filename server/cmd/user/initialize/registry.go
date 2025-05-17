@@ -20,7 +20,7 @@ func InitRegistry() (registry.Registry, *registry.Info) {
 	if err != nil {
 		klog.Fatal("failed to create etcd resolver: ", err)
 	}
-	suf, err := snowflake.NewNode(consts.UserSrvSnowFlakeNode)
+	suf, err := snowflake.NewNode(consts.EtcdSnowFlakeNode)
 	if err != nil {
 		klog.Fatal("failed to create snowflake node: ", err)
 	}
