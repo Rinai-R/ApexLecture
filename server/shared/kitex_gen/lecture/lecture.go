@@ -224,8 +224,7 @@ var fieldIDToName_AttendResponse = map[int16]string{
 }
 
 type RecordRequest struct {
-	RoomId int64  `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
-	Offer  string `thrift:"offer,2,required" frugal:"2,required,string" json:"offer"`
+	RoomId int64 `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
 }
 
 func NewRecordRequest() *RecordRequest {
@@ -238,15 +237,8 @@ func (p *RecordRequest) InitDefault() {
 func (p *RecordRequest) GetRoomId() (v int64) {
 	return p.RoomId
 }
-
-func (p *RecordRequest) GetOffer() (v string) {
-	return p.Offer
-}
 func (p *RecordRequest) SetRoomId(val int64) {
 	p.RoomId = val
-}
-func (p *RecordRequest) SetOffer(val string) {
-	p.Offer = val
 }
 
 func (p *RecordRequest) String() string {
@@ -258,12 +250,10 @@ func (p *RecordRequest) String() string {
 
 var fieldIDToName_RecordRequest = map[int16]string{
 	1: "roomId",
-	2: "offer",
 }
 
 type RecordResponse struct {
 	Response *base.BaseResponse `thrift:"response,1,required" frugal:"1,required,base.BaseResponse" json:"response"`
-	Answer   string             `thrift:"answer,2,required" frugal:"2,required,string" json:"answer"`
 }
 
 func NewRecordResponse() *RecordResponse {
@@ -281,15 +271,8 @@ func (p *RecordResponse) GetResponse() (v *base.BaseResponse) {
 	}
 	return p.Response
 }
-
-func (p *RecordResponse) GetAnswer() (v string) {
-	return p.Answer
-}
 func (p *RecordResponse) SetResponse(val *base.BaseResponse) {
 	p.Response = val
-}
-func (p *RecordResponse) SetAnswer(val string) {
-	p.Answer = val
 }
 
 func (p *RecordResponse) IsSetResponse() bool {
@@ -305,7 +288,6 @@ func (p *RecordResponse) String() string {
 
 var fieldIDToName_RecordResponse = map[int16]string{
 	1: "response",
-	2: "answer",
 }
 
 type LectureService interface {

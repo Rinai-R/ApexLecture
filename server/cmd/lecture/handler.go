@@ -3,10 +3,15 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
+	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
+	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/config"
 	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/dao"
 	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/model"
 	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/pkg/util"
@@ -17,7 +22,11 @@ import (
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/minio/minio-go/v7"
 	"github.com/panjf2000/ants/v2"
+	"github.com/pion/rtp"
 	"github.com/pion/webrtc/v4"
+	"github.com/pion/webrtc/v4/pkg/media"
+	"github.com/pion/webrtc/v4/pkg/media/ivfwriter"
+	"github.com/pion/webrtc/v4/pkg/media/oggwriter"
 )
 
 // LectureServiceImpl implements the last service interface defined in the IDL.
@@ -41,10 +50,13 @@ var _ MysqlManager = (*dao.MysqlManagerImpl)(nil)
 // 房间号对应的 LectureSession 结构体
 // 每个结构体代表房间里面主播的轨道以及主播的 PeerConnection 以及观众的连接状况
 type LectureSession struct {
-	PeerConnection *webrtc.PeerConnection
-	AudioTrack     *webrtc.TrackLocalStaticRTP
-	VideoTrack     *webrtc.TrackLocalStaticRTP
-	Audiences      *sync.Map
+	PeerConnection  *webrtc.PeerConnection
+	AudioTrack      *webrtc.TrackLocalStaticRTP
+	VideoTrack      *webrtc.TrackLocalStaticRTP
+	Audiences       *sync.Map
+	AudioRecordChan chan *rtp.Packet
+	VideoRecordChan chan *rtp.Packet
+	RecordStarted   bool
 }
 
 // CreateLecture implements the LectureServiceImpl interface.
@@ -110,7 +122,8 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 	// localTrackChan 用来拿到“转发用”的本地Track
 	audioLocalTrackChan := make(chan *webrtc.TrackLocalStaticRTP)
 	videoLocalTrackChan := make(chan *webrtc.TrackLocalStaticRTP)
-
+	// 这两个管道用于同步，保证两个轨道都准备好了。
+	Check := make(chan struct{}, 2)
 	// 当收到主播发过来的远端轨道（OnTrack）时：
 	peerConnection.OnTrack(func(remoteTrack *webrtc.TrackRemote, receiver *webrtc.RTPReceiver) {
 		// 1）创建一个本地静态RTP轨道，后面给所有观众用
@@ -126,22 +139,55 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 		// 把这个本地轨道传给后续代码
 		if remoteTrack.Kind() == webrtc.RTPCodecTypeAudio {
 			audioLocalTrackChan <- localTrack
-		} else if remoteTrack.Kind() == webrtc.RTPCodecTypeVideo {
-			videoLocalTrackChan <- localTrack
-		}
-
-		// 2）不停读主播发来的 RTP 包，并写到本地轨道（广播给所有观众）
-		buf := make([]byte, 1400)
-		for {
-			n, _, readErr := remoteTrack.Read(buf)
-			if readErr != nil {
-				klog.Error("Failed to read RTP packet: ", readErr)
+			<-Check
+			session, ok := s.Sessions.Load(roomid)
+			if !ok {
+				klog.Error("Failed to find session: ", roomid)
 				return
 			}
-			// 如果没有观众订阅，Write 会返回 ErrClosedPipe，忽略之
-			if _, err := localTrack.Write(buf[:n]); err != nil && !errors.Is(err, io.ErrClosedPipe) {
-				klog.Error("Failed to write RTP packet: ", err)
+			Session := session.(*LectureSession)
+			for {
+				rtp, _, err := remoteTrack.ReadRTP()
+				if err != nil {
+					klog.Error("Failed to read RTP packet: ", err)
+					return
+				}
+				if Session.RecordStarted {
+					Session.AudioRecordChan <- rtp
+				}
+
+				// 完成与主播的握手
+				// 如果没有观众订阅，Write 会返回 ErrClosedPipe，忽略之
+				if err := localTrack.WriteRTP(rtp); err != nil && !errors.Is(err, io.ErrClosedPipe) {
+					klog.Error("Failed to write RTP packet: ", err)
+					return
+				}
+			}
+		} else if remoteTrack.Kind() == webrtc.RTPCodecTypeVideo {
+			videoLocalTrackChan <- localTrack
+			<-Check
+			session, ok := s.Sessions.Load(roomid)
+			if !ok {
+				klog.Error("Failed to find session: ", roomid)
 				return
+			}
+			Session := session.(*LectureSession)
+			for {
+				rtp, _, err := remoteTrack.ReadRTP()
+				if err != nil {
+					klog.Error("Failed to read RTP packet: ", err)
+					return
+				}
+				if Session.RecordStarted {
+					Session.VideoRecordChan <- rtp
+				}
+
+				// 完成与主播的握手
+				// 如果没有观众订阅，Write 会返回 ErrClosedPipe，忽略之
+				if err := localTrack.WriteRTP(rtp); err != nil && !errors.Is(err, io.ErrClosedPipe) {
+					klog.Error("Failed to write RTP packet: ", err)
+					return
+				}
 			}
 		}
 	})
@@ -169,11 +215,17 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 	// 存储转发音频轨道和视频轨道的管道，便于用户来的时候获取音视频的轨道。
 	s.goroutinePool.Submit(func() {
 		s.Sessions.Store(roomid, &LectureSession{
-			PeerConnection: peerConnection,
-			AudioTrack:     <-audioLocalTrackChan,
-			VideoTrack:     <-videoLocalTrackChan,
-			Audiences:      &sync.Map{},
+			PeerConnection:  peerConnection,
+			AudioTrack:      <-audioLocalTrackChan,
+			VideoTrack:      <-videoLocalTrackChan,
+			Audiences:       &sync.Map{},
+			VideoRecordChan: make(chan *rtp.Packet, 200),
+			AudioRecordChan: make(chan *rtp.Packet, 200),
+			RecordStarted:   false,
 		})
+		Check <- struct{}{}
+		Check <- struct{}{}
+		close(Check)
 	})
 	return &lecture.StartResponse{
 		Response: rsp.OK(),
@@ -187,7 +239,7 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 // 然后和学生的 PeerConnection 做一次 Offer/Answer + ICE 协商，
 // 最后把 Answer 返回给前端处理。
 func (s *LectureServiceImpl) Attend(ctx context.Context, request *lecture.AttendRequest) (*lecture.AttendResponse, error) {
-	// 收到下一个观众发来的 Offer（Base64）
+	// 收到观众发来的 Offer（Base64）
 	recvOnlyOffer := webrtc.SessionDescription{}
 	util.Decode(request.Offer, &recvOnlyOffer)
 
@@ -243,6 +295,7 @@ func (s *LectureServiceImpl) Attend(ctx context.Context, request *lecture.Attend
 			Response: rsp.ErrorAddTrack(err.Error()),
 		}, nil
 	}
+
 	// 启动协程，也许可以用协程池？
 	// 需要读 RTCP 包触发 NACK/PLI 等功能
 	s.goroutinePool.Submit(func() {
@@ -293,7 +346,132 @@ func (s *LectureServiceImpl) Attend(ctx context.Context, request *lecture.Attend
 }
 
 // Record implements the LectureServiceImpl interface.
-func (s *LectureServiceImpl) Record(ctx context.Context, request *lecture.RecordRequest) (resp *lecture.RecordResponse, err error) {
-	// TODO: Your code here...
-	return
+// Record 录制视频，接收 RTP 包，写入临时文件，然后上传到 Minio。
+func (s *LectureServiceImpl) Record(ctx context.Context, request *lecture.RecordRequest) (*lecture.RecordResponse, error) {
+	session, ok := s.Sessions.Load(request.RoomId)
+	if !ok {
+		klog.Error("Failed to find session: ", request.RoomId)
+		return &lecture.RecordResponse{
+			Response: rsp.ErrorRoomNotFound(),
+		}, nil
+	}
+	Session := session.(*LectureSession)
+	if Session.RecordStarted {
+		return &lecture.RecordResponse{
+			Response: rsp.ErrorRecordAlreadyStarted(),
+		}, nil
+	}
+	Session.RecordStarted = true
+	// 先把临时文件准备好。
+	OggFile := fmt.Sprintf(consts.OggFilePath, request.RoomId)
+	IvfFile := fmt.Sprintf(consts.IvfFilePath, request.RoomId)
+	err := os.MkdirAll(filepath.Dir(OggFile), 0777)
+	if err != nil {
+		klog.Error("Failed to create directory: ", err)
+		return &lecture.RecordResponse{
+			Response: rsp.ErrorSaveLecture(err.Error()),
+		}, nil
+	}
+	err = os.MkdirAll(filepath.Dir(IvfFile), 0777)
+	if err != nil {
+		klog.Error("Failed to create directory: ", err)
+		return &lecture.RecordResponse{
+			Response: rsp.ErrorSaveLecture(err.Error()),
+		}, nil
+	}
+	f, err := os.Create(OggFile)
+	if err != nil {
+		klog.Error("Failed to create file: ", err)
+		return &lecture.RecordResponse{
+			Response: rsp.ErrorSaveLecture(err.Error()),
+		}, nil
+	}
+	f.Close()
+	f, err = os.Create(IvfFile)
+	if err != nil {
+		klog.Error("Failed to create file: ", err)
+		return &lecture.RecordResponse{
+			Response: rsp.ErrorSaveLecture(err.Error()),
+		}, nil
+	}
+	f.Close()
+	// 临时文件准备完成。
+	oggFile, err := oggwriter.New(OggFile, 48000, 2)
+	if err != nil {
+		panic(err)
+	}
+	ivfFile, err := ivfwriter.New(IvfFile, ivfwriter.WithCodec("video/VP8"))
+	if err != nil {
+		panic(err)
+	}
+	// 异步保存，不阻塞。
+	s.goroutinePool.Submit(func() {
+		s.Save(ctx, OggFile, oggFile, Session.AudioRecordChan)
+	})
+	s.goroutinePool.Submit(func() {
+		s.Save(ctx, IvfFile, ivfFile, Session.VideoRecordChan)
+	})
+
+	return &lecture.RecordResponse{
+		Response: rsp.OK(),
+	}, nil
+}
+
+// 异步保存逻辑
+func (s *LectureServiceImpl) Save(ctx context.Context, filepath string, writer media.Writer, ch chan *rtp.Packet) {
+	for {
+		select {
+		case packet := <-ch:
+			err := writer.WriteRTP(packet)
+			if err != nil {
+				klog.Error("Failed to write RTP packet: ", err)
+			}
+		case <-time.Tick(time.Second * 10):
+			goto minio
+		}
+	}
+minio:
+	err := writer.Close()
+	if err != nil {
+		klog.Error("Failed to close writer: ", err)
+		return
+	}
+	// 保存文件。
+	f, err := os.Open(filepath)
+	if err != nil {
+		klog.Error("Failed to open file: ", err)
+		return
+	}
+	fileInfo, err := f.Stat()
+	if err != nil {
+		klog.Error("Failed to get file info: ", err)
+		return
+	}
+	defer f.Close()
+	var contentType string
+	if strings.HasSuffix(filepath, ".ivf") {
+		contentType = "video/ivf"
+	}
+	if strings.HasSuffix(filepath, ".ogg") {
+		contentType = "audio/ogg"
+	}
+	dir := strings.Split(filepath, "/")
+	_, err = s.MinioManager.PutObject(
+		ctx,
+		config.GlobalServerConfig.Minio.BucketName,
+		fmt.Sprintf(consts.MinioObjectName, dir[len(dir)-2], dir[len(dir)-1]),
+		f, fileInfo.Size(),
+		minio.PutObjectOptions{ContentType: contentType},
+	)
+	if err != nil {
+		klog.Error("Failed to put object: ", err)
+		return
+	}
+	klog.Info("Saved file: ", filepath)
+	// 删除临时文件。
+	err = os.Remove(filepath)
+	if err != nil {
+		klog.Error("Failed to remove file: ", err)
+		return
+	}
 }

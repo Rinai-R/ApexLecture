@@ -19,6 +19,8 @@ const (
 	SetLocalDescriptionError  = 40013
 	RoomNotFound              = 40014
 	AddTrackError             = 40015
+	SaveLectureError          = 40016
+	RecordAlreadyStarted      = 40017
 )
 
 func OK() *base.BaseResponse {
@@ -130,5 +132,19 @@ func ErrorAddTrack(define string) *base.BaseResponse {
 	return &base.BaseResponse{
 		Code:    AddTrackError,
 		Message: define,
+	}
+}
+
+func ErrorSaveLecture(define string) *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    SaveLectureError,
+		Message: define,
+	}
+}
+
+func ErrorRecordAlreadyStarted() *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    RecordAlreadyStarted,
+		Message: "Record has already started",
 	}
 }

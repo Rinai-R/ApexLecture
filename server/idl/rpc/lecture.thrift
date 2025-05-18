@@ -29,12 +29,10 @@ struct AttendResponse {
 
 struct RecordRequest {
     1: required i64 roomId,
-    2: required string offer,
 }
 
 struct RecordResponse {
     1: required base.BaseResponse response,
-    2: required string answer,
 }
 
 service LectureService {

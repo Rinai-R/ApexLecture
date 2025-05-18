@@ -87,12 +87,6 @@ func AttendLecture(ctx context.Context, c *app.RequestContext) {
 // @router lecture/:roomid/record [POST]
 func RecordLecture(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req lecture.RecordRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
-		return
-	}
 	roomid, ok := c.Params.Get("roomid")
 	if !ok {
 		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
@@ -101,7 +95,6 @@ func RecordLecture(ctx context.Context, c *app.RequestContext) {
 	RoomID, _ := strconv.ParseInt(roomid, 10, 64)
 	resp, _ := config.LectureClient.Record(ctx, &rpc.RecordRequest{
 		RoomId: RoomID,
-		Offer:  req.Offer,
 	})
 
 	switch resp.Response.Code {

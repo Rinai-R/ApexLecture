@@ -31,8 +31,8 @@ const (
 // MinioConfig
 const (
 	MinioEndpoint  = "localhost:9000"
-	MinioAccessKey = "UhT0a4ETDSt5w6WMrdnL"
-	MinioSecretKey = "fQTAGA6OhiU0PBgie6ReA9MZJGTht2ZV4frWhxvu"
+	MinioAccessKey = "QIEZXMXgmp537hF4oUni"
+	MinioSecretKey = "Aw8FvzDjIWSqi3tkYdOTHXSFCTWV6ed3UXZ4ssPu"
 	MinioBucket    = "lecture"
 	MinioSecure    = false
 )
@@ -45,10 +45,11 @@ const (
 
 // Other
 const (
-	HlogFilePath = "./tmp/hlog/"
-	KlogFilePath = "./tmp/klog/"
-	IvfFilePath  = "./tmp/record/%s/video.ivf"
-	OggFilePath  = "./tmp/record/%s/audio.ogg"
+	HlogFilePath    = "./tmp/hlog/"
+	KlogFilePath    = "./tmp/klog/"
+	IvfFilePath     = "./tmp/record/%d/video.ivf"
+	OggFilePath     = "./tmp/record/%d/audio.ogg"
+	MinioObjectName = "%s:%s"
 
 	EtcdSnowFlakeNode         = 1
 	UserIDSnowFlakeNode       = 2
