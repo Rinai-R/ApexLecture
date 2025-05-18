@@ -16,6 +16,7 @@ require (
 	github.com/kitex-contrib/obs-opentelemetry v0.2.9
 	github.com/kitex-contrib/obs-opentelemetry/logging/logrus v0.0.0-20241120035129-55da83caab1b
 	github.com/kitex-contrib/registry-etcd v0.2.6
+	github.com/panjf2000/ants/v2 v2.11.3
 	github.com/pion/ice/v4 v4.0.10
 	github.com/pion/interceptor v0.1.37
 	github.com/pion/webrtc/v4 v4.1.0

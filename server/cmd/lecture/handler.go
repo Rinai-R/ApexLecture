@@ -15,6 +15,7 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/shared/rsp"
 	"github.com/bwmarrin/snowflake"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/panjf2000/ants/v2"
 	"github.com/pion/webrtc/v4"
 )
 
@@ -23,7 +24,7 @@ type LectureServiceImpl struct {
 	Sessions             *sync.Map
 	WebrtcAPI            *webrtc.API
 	peerConnectionConfig *webrtc.Configuration
-
+	goroutinePool        *ants.Pool // 控制并发数
 	MysqlManager
 }
 
@@ -39,8 +40,8 @@ var _ MysqlManager = (*dao.MysqlManagerImpl)(nil)
 // 每个结构体代表房间里面主播的轨道以及主播的 PeerConnection 以及观众的连接状况
 type LectureSession struct {
 	PeerConnection *webrtc.PeerConnection
-	AudioTrack     chan *webrtc.TrackLocalStaticRTP
-	VideoTrack     chan *webrtc.TrackLocalStaticRTP
+	AudioTrack     *webrtc.TrackLocalStaticRTP
+	VideoTrack     *webrtc.TrackLocalStaticRTP
 	Audiences      *sync.Map
 }
 
@@ -164,11 +165,13 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 	}
 	<-gatherComplete // 等 ICE 候选收集完
 	// 存储转发音频轨道和视频轨道的管道，便于用户来的时候获取音视频的轨道。
-	s.Sessions.Store(roomid, &LectureSession{
-		PeerConnection: peerConnection,
-		AudioTrack:     audioLocalTrackChan,
-		VideoTrack:     videoLocalTrackChan,
-		Audiences:      &sync.Map{},
+	s.goroutinePool.Submit(func() {
+		s.Sessions.Store(roomid, &LectureSession{
+			PeerConnection: peerConnection,
+			AudioTrack:     <-audioLocalTrackChan,
+			VideoTrack:     <-videoLocalTrackChan,
+			Audiences:      &sync.Map{},
+		})
 	})
 	return &lecture.StartResponse{
 		Response: rsp.OK(),
@@ -223,7 +226,7 @@ func (s *LectureServiceImpl) Attend(ctx context.Context, request *lecture.Attend
 			pc.Close()
 		}
 	})
-	AudioRtcp, err := pc.AddTrack(<-Session.AudioTrack)
+	AudioRtcp, err := pc.AddTrack(Session.AudioTrack)
 	if err != nil {
 		klog.Error("Failed to add audio track: ", err)
 		return &lecture.AttendResponse{
@@ -231,7 +234,7 @@ func (s *LectureServiceImpl) Attend(ctx context.Context, request *lecture.Attend
 		}, nil
 	}
 
-	VideoRtcp, err := pc.AddTrack(<-Session.VideoTrack)
+	VideoRtcp, err := pc.AddTrack(Session.VideoTrack)
 	if err != nil {
 		klog.Error("Failed to add video track: ", err)
 		return &lecture.AttendResponse{
@@ -240,22 +243,22 @@ func (s *LectureServiceImpl) Attend(ctx context.Context, request *lecture.Attend
 	}
 	// 启动协程，也许可以用协程池？
 	// 需要读 RTCP 包触发 NACK/PLI 等功能
-	go func() {
+	s.goroutinePool.Submit(func() {
 		buf := make([]byte, 1500)
 		for {
 			if _, _, rtcpErr := AudioRtcp.Read(buf); rtcpErr != nil {
 				return
 			}
 		}
-	}()
-	go func() {
+	})
+	s.goroutinePool.Submit(func() {
 		buf := make([]byte, 1500)
 		for {
 			if _, _, rtcpErr := VideoRtcp.Read(buf); rtcpErr != nil {
 				return
 			}
 		}
-	}()
+	})
 
 	// 和这个观众做一次 Offer/Answer + ICE
 	if err = pc.SetRemoteDescription(recvOnlyOffer); err != nil {

@@ -9,6 +9,7 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/dao"
 	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/initialize"
 	api "github.com/Rinai-R/ApexLecture/server/cmd/lecture/pkg/API"
+	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/pkg/goroutine"
 	lecture "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/lecture/lectureservice"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -37,6 +38,7 @@ func main() {
 				{URLs: []string{"stun:stun.l.google.com:19302"}},
 			},
 		},
+		goroutinePool: goroutine.NewPool(1000),
 	},
 		server.WithRegistry(r),
 		server.WithRegistryInfo(i),
