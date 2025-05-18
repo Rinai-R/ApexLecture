@@ -15,6 +15,7 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/shared/rsp"
 	"github.com/bwmarrin/snowflake"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/minio/minio-go/v7"
 	"github.com/panjf2000/ants/v2"
 	"github.com/pion/webrtc/v4"
 )
@@ -25,6 +26,7 @@ type LectureServiceImpl struct {
 	WebrtcAPI            *webrtc.API
 	peerConnectionConfig *webrtc.Configuration
 	goroutinePool        *ants.Pool // 控制并发数
+	MinioManager         *minio.Client
 	MysqlManager
 }
 
@@ -49,7 +51,7 @@ type LectureSession struct {
 func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRequest) (*lecture.StartResponse, error) {
 	// 从主播那里拿到 Offer
 	offer := webrtc.SessionDescription{}
-	util.Decode(request.Sdp, &offer)
+	util.Decode(request.Offer, &offer)
 
 	// 配置 PeerConnection 相关
 	// ICE 协商要用的 STUN 服务器（帮助打 NAT 穿透洞）
@@ -187,7 +189,7 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 func (s *LectureServiceImpl) Attend(ctx context.Context, request *lecture.AttendRequest) (*lecture.AttendResponse, error) {
 	// 收到下一个观众发来的 Offer（Base64）
 	recvOnlyOffer := webrtc.SessionDescription{}
-	util.Decode(request.Sdp, &recvOnlyOffer)
+	util.Decode(request.Offer, &recvOnlyOffer)
 
 	// 为这个观众新建一个 PeerConnection
 	pc, err := s.WebrtcAPI.NewPeerConnection(*s.peerConnectionConfig)
@@ -288,4 +290,10 @@ func (s *LectureServiceImpl) Attend(ctx context.Context, request *lecture.Attend
 		Response: rsp.OK(),
 		Answer:   util.Encode(pc.LocalDescription()),
 	}, nil
+}
+
+// Record implements the LectureServiceImpl interface.
+func (s *LectureServiceImpl) Record(ctx context.Context, request *lecture.RecordRequest) (resp *lecture.RecordResponse, err error) {
+	// TODO: Your code here...
+	return
 }

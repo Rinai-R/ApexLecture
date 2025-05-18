@@ -7,7 +7,7 @@ struct StartRequest {
     2: required string title,
     3: required string description,
     4: required string speaker,
-    5: required string sdp,
+    5: required string offer,
 }
 
 struct StartResponse {
@@ -19,7 +19,7 @@ struct StartResponse {
 struct AttendRequest {
     1: required i64 roomId,
     2: required i64 userId,
-    3: required string sdp,
+    3: required string offer,
 }
 
 struct AttendResponse {
@@ -27,7 +27,18 @@ struct AttendResponse {
     2: required string answer,
 }
 
+struct RecordRequest {
+    1: required i64 roomId,
+    2: required string offer,
+}
+
+struct RecordResponse {
+    1: required base.BaseResponse response,
+    2: required string answer,
+}
+
 service LectureService {
     StartResponse start(1: StartRequest request),
     AttendResponse attend(1: AttendRequest request),
+    RecordResponse record(1: RecordRequest request),
 }

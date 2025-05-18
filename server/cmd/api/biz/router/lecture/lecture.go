@@ -23,7 +23,7 @@ func Register(r *server.Hertz) {
 		{
 			_roomid := _lecture.Group("/:roomid", _roomidMw()...)
 			_roomid.POST("/attend", append(_attendlectureMw(), lecture.AttendLecture)...)
-			_roomid.GET("/ws", append(_inroomMw(), lecture.Inroom)...)
+			_roomid.POST("/record", append(_recordlectureMw(), lecture.RecordLecture)...)
 		}
 	}
 }

@@ -8,6 +8,14 @@ type MysqlConfig struct {
 	Password string `json:"password"`
 }
 
+type MinioConfig struct {
+	Endpoint        string `json:"endpoint"`
+	AccessKeyID     string `json:"access_key_id"`
+	SecretAccessKey string `json:"secret_access_key"`
+	BucketName      string `json:"bucket_name"`
+	Secure          bool   `json:"secure"`
+}
+
 type EtcdConfig struct {
 	Host string `json:"host"`
 	Port string `json:"port"`
@@ -19,5 +27,6 @@ type ServerConfig struct {
 	Host         string      `json:"host"`
 	Port         string      `json:"port"`
 	Mysql        MysqlConfig `json:"mysql"`
+	Minio        MinioConfig `json:"minio"`
 	OtelEndpoint string      `json:"otel_endpoint"`
 }

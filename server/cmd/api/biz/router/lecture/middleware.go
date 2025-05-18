@@ -58,3 +58,8 @@ func _wsMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _recordlectureMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

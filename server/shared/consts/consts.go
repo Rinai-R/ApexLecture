@@ -20,12 +20,21 @@ const (
 
 // MysqlConfig
 const (
-	MysqlDNS      = "%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local"
+	MysqlDNS      = "%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Asia%%2FShanghai"
 	MysqlHost     = "localhost"
 	MysqlUser     = "root"
 	MysqlPassword = "123456"
 	MysqlDatabase = "apex_db"
 	MysqlPort     = "3306"
+)
+
+// MinioConfig
+const (
+	MinioEndpoint  = "localhost:9000"
+	MinioAccessKey = "UhT0a4ETDSt5w6WMrdnL"
+	MinioSecretKey = "fQTAGA6OhiU0PBgie6ReA9MZJGTht2ZV4frWhxvu"
+	MinioBucket    = "lecture"
+	MinioSecure    = false
 )
 
 // key
@@ -38,6 +47,8 @@ const (
 const (
 	HlogFilePath = "./tmp/hlog/"
 	KlogFilePath = "./tmp/klog/"
+	IvfFilePath  = "./tmp/record/%s/video.ivf"
+	OggFilePath  = "./tmp/record/%s/audio.ogg"
 
 	EtcdSnowFlakeNode         = 1
 	UserIDSnowFlakeNode       = 2

@@ -1,4 +1,4 @@
-package api
+package webrtc
 
 import (
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -57,4 +57,13 @@ func NewWebrtcAPI() *webrtc.API {
 		webrtc.WithSettingEngine(settingEngine),
 	)
 	return API
+}
+
+// 配置 WebRTC 配置，只配置 ICE 服务器地址。
+func WebrtcConfig() *webrtc.Configuration {
+	return &webrtc.Configuration{
+		ICEServers: []webrtc.ICEServer{
+			{URLs: []string{"stun:stun.l.google.com:19302"}},
+		},
+	}
 }

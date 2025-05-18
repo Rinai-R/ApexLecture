@@ -57,6 +57,13 @@ func main() {
 			Password: consts.MysqlPassword,
 			Database: consts.MysqlDatabase,
 		},
+		Minio: config.MinioConfig{
+			Endpoint:        consts.MinioEndpoint,
+			AccessKeyID:     consts.MinioAccessKey,
+			SecretAccessKey: consts.MinioSecretKey,
+			BucketName:      consts.MinioBucket,
+			Secure:          consts.MinioSecure,
+		},
 		OtelEndpoint: consts.OtelEndpoint,
 	}
 	// 序列化 ServerConfig

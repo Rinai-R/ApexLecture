@@ -5,6 +5,7 @@ import (
 	"github.com/panjf2000/ants/v2"
 )
 
+// 用于限制并发数，节省资源
 func NewPool(size int) *ants.Pool {
 	pool, err := ants.NewPool(
 		size,

@@ -27,6 +27,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"record": kitex.NewMethodInfo(
+		recordHandler,
+		newLectureServiceRecordArgs,
+		newLectureServiceRecordResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -129,6 +136,24 @@ func newLectureServiceAttendResult() interface{} {
 	return lecture.NewLectureServiceAttendResult()
 }
 
+func recordHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*lecture.LectureServiceRecordArgs)
+	realResult := result.(*lecture.LectureServiceRecordResult)
+	success, err := handler.(lecture.LectureService).Record(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newLectureServiceRecordArgs() interface{} {
+	return lecture.NewLectureServiceRecordArgs()
+}
+
+func newLectureServiceRecordResult() interface{} {
+	return lecture.NewLectureServiceRecordResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -154,6 +179,16 @@ func (p *kClient) Attend(ctx context.Context, request *lecture.AttendRequest) (r
 	_args.Request = request
 	var _result lecture.LectureServiceAttendResult
 	if err = p.c.Call(ctx, "attend", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) Record(ctx context.Context, request *lecture.RecordRequest) (r *lecture.RecordResponse, err error) {
+	var _args lecture.LectureServiceRecordArgs
+	_args.Request = request
+	var _result lecture.LectureServiceRecordResult
+	if err = p.c.Call(ctx, "record", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

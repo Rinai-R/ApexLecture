@@ -13,7 +13,7 @@ type StartRequest struct {
 	Title       string `thrift:"title,2,required" frugal:"2,required,string" json:"title"`
 	Description string `thrift:"description,3,required" frugal:"3,required,string" json:"description"`
 	Speaker     string `thrift:"speaker,4,required" frugal:"4,required,string" json:"speaker"`
-	Sdp         string `thrift:"sdp,5,required" frugal:"5,required,string" json:"sdp"`
+	Offer       string `thrift:"offer,5,required" frugal:"5,required,string" json:"offer"`
 }
 
 func NewStartRequest() *StartRequest {
@@ -39,8 +39,8 @@ func (p *StartRequest) GetSpeaker() (v string) {
 	return p.Speaker
 }
 
-func (p *StartRequest) GetSdp() (v string) {
-	return p.Sdp
+func (p *StartRequest) GetOffer() (v string) {
+	return p.Offer
 }
 func (p *StartRequest) SetHostId(val int64) {
 	p.HostId = val
@@ -54,8 +54,8 @@ func (p *StartRequest) SetDescription(val string) {
 func (p *StartRequest) SetSpeaker(val string) {
 	p.Speaker = val
 }
-func (p *StartRequest) SetSdp(val string) {
-	p.Sdp = val
+func (p *StartRequest) SetOffer(val string) {
+	p.Offer = val
 }
 
 func (p *StartRequest) String() string {
@@ -70,7 +70,7 @@ var fieldIDToName_StartRequest = map[int16]string{
 	2: "title",
 	3: "description",
 	4: "speaker",
-	5: "sdp",
+	5: "offer",
 }
 
 type StartResponse struct {
@@ -132,7 +132,7 @@ var fieldIDToName_StartResponse = map[int16]string{
 type AttendRequest struct {
 	RoomId int64  `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
 	UserId int64  `thrift:"userId,2,required" frugal:"2,required,i64" json:"userId"`
-	Sdp    string `thrift:"sdp,3,required" frugal:"3,required,string" json:"sdp"`
+	Offer  string `thrift:"offer,3,required" frugal:"3,required,string" json:"offer"`
 }
 
 func NewAttendRequest() *AttendRequest {
@@ -150,8 +150,8 @@ func (p *AttendRequest) GetUserId() (v int64) {
 	return p.UserId
 }
 
-func (p *AttendRequest) GetSdp() (v string) {
-	return p.Sdp
+func (p *AttendRequest) GetOffer() (v string) {
+	return p.Offer
 }
 func (p *AttendRequest) SetRoomId(val int64) {
 	p.RoomId = val
@@ -159,8 +159,8 @@ func (p *AttendRequest) SetRoomId(val int64) {
 func (p *AttendRequest) SetUserId(val int64) {
 	p.UserId = val
 }
-func (p *AttendRequest) SetSdp(val string) {
-	p.Sdp = val
+func (p *AttendRequest) SetOffer(val string) {
+	p.Offer = val
 }
 
 func (p *AttendRequest) String() string {
@@ -173,7 +173,7 @@ func (p *AttendRequest) String() string {
 var fieldIDToName_AttendRequest = map[int16]string{
 	1: "roomId",
 	2: "userId",
-	3: "sdp",
+	3: "offer",
 }
 
 type AttendResponse struct {
@@ -223,10 +223,97 @@ var fieldIDToName_AttendResponse = map[int16]string{
 	2: "answer",
 }
 
+type RecordRequest struct {
+	RoomId int64  `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
+	Offer  string `thrift:"offer,2,required" frugal:"2,required,string" json:"offer"`
+}
+
+func NewRecordRequest() *RecordRequest {
+	return &RecordRequest{}
+}
+
+func (p *RecordRequest) InitDefault() {
+}
+
+func (p *RecordRequest) GetRoomId() (v int64) {
+	return p.RoomId
+}
+
+func (p *RecordRequest) GetOffer() (v string) {
+	return p.Offer
+}
+func (p *RecordRequest) SetRoomId(val int64) {
+	p.RoomId = val
+}
+func (p *RecordRequest) SetOffer(val string) {
+	p.Offer = val
+}
+
+func (p *RecordRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("RecordRequest(%+v)", *p)
+}
+
+var fieldIDToName_RecordRequest = map[int16]string{
+	1: "roomId",
+	2: "offer",
+}
+
+type RecordResponse struct {
+	Response *base.BaseResponse `thrift:"response,1,required" frugal:"1,required,base.BaseResponse" json:"response"`
+	Answer   string             `thrift:"answer,2,required" frugal:"2,required,string" json:"answer"`
+}
+
+func NewRecordResponse() *RecordResponse {
+	return &RecordResponse{}
+}
+
+func (p *RecordResponse) InitDefault() {
+}
+
+var RecordResponse_Response_DEFAULT *base.BaseResponse
+
+func (p *RecordResponse) GetResponse() (v *base.BaseResponse) {
+	if !p.IsSetResponse() {
+		return RecordResponse_Response_DEFAULT
+	}
+	return p.Response
+}
+
+func (p *RecordResponse) GetAnswer() (v string) {
+	return p.Answer
+}
+func (p *RecordResponse) SetResponse(val *base.BaseResponse) {
+	p.Response = val
+}
+func (p *RecordResponse) SetAnswer(val string) {
+	p.Answer = val
+}
+
+func (p *RecordResponse) IsSetResponse() bool {
+	return p.Response != nil
+}
+
+func (p *RecordResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("RecordResponse(%+v)", *p)
+}
+
+var fieldIDToName_RecordResponse = map[int16]string{
+	1: "response",
+	2: "answer",
+}
+
 type LectureService interface {
 	Start(ctx context.Context, request *StartRequest) (r *StartResponse, err error)
 
 	Attend(ctx context.Context, request *AttendRequest) (r *AttendResponse, err error)
+
+	Record(ctx context.Context, request *RecordRequest) (r *RecordResponse, err error)
 }
 
 type LectureServiceStartArgs struct {
@@ -378,5 +465,81 @@ func (p *LectureServiceAttendResult) String() string {
 }
 
 var fieldIDToName_LectureServiceAttendResult = map[int16]string{
+	0: "success",
+}
+
+type LectureServiceRecordArgs struct {
+	Request *RecordRequest `thrift:"request,1" frugal:"1,default,RecordRequest" json:"request"`
+}
+
+func NewLectureServiceRecordArgs() *LectureServiceRecordArgs {
+	return &LectureServiceRecordArgs{}
+}
+
+func (p *LectureServiceRecordArgs) InitDefault() {
+}
+
+var LectureServiceRecordArgs_Request_DEFAULT *RecordRequest
+
+func (p *LectureServiceRecordArgs) GetRequest() (v *RecordRequest) {
+	if !p.IsSetRequest() {
+		return LectureServiceRecordArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+func (p *LectureServiceRecordArgs) SetRequest(val *RecordRequest) {
+	p.Request = val
+}
+
+func (p *LectureServiceRecordArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *LectureServiceRecordArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("LectureServiceRecordArgs(%+v)", *p)
+}
+
+var fieldIDToName_LectureServiceRecordArgs = map[int16]string{
+	1: "request",
+}
+
+type LectureServiceRecordResult struct {
+	Success *RecordResponse `thrift:"success,0,optional" frugal:"0,optional,RecordResponse" json:"success,omitempty"`
+}
+
+func NewLectureServiceRecordResult() *LectureServiceRecordResult {
+	return &LectureServiceRecordResult{}
+}
+
+func (p *LectureServiceRecordResult) InitDefault() {
+}
+
+var LectureServiceRecordResult_Success_DEFAULT *RecordResponse
+
+func (p *LectureServiceRecordResult) GetSuccess() (v *RecordResponse) {
+	if !p.IsSetSuccess() {
+		return LectureServiceRecordResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *LectureServiceRecordResult) SetSuccess(x interface{}) {
+	p.Success = x.(*RecordResponse)
+}
+
+func (p *LectureServiceRecordResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *LectureServiceRecordResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("LectureServiceRecordResult(%+v)", *p)
+}
+
+var fieldIDToName_LectureServiceRecordResult = map[int16]string{
 	0: "success",
 }

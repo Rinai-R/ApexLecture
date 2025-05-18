@@ -6,7 +6,6 @@ import (
 	"context"
 	"strconv"
 
-	base "github.com/Rinai-R/ApexLecture/server/cmd/api/biz/model/base"
 	lecture "github.com/Rinai-R/ApexLecture/server/cmd/api/biz/model/lecture"
 	"github.com/Rinai-R/ApexLecture/server/cmd/api/config"
 	rpc "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/lecture"
@@ -27,7 +26,7 @@ func StartLecture(ctx context.Context, c *app.RequestContext) {
 	}
 	id, ok := c.Get("userid")
 	if !ok {
-		c.JSON(consts.StatusUnauthorized, rsp.ErrorUnAuthorized(""))
+		c.JSON(consts.StatusUnauthorized, rsp.ErrorUnAuthorized("Unknown user"))
 		return
 	}
 	host := id.(float64)
@@ -37,7 +36,7 @@ func StartLecture(ctx context.Context, c *app.RequestContext) {
 		Title:       req.Title,
 		Description: req.Description,
 		Speaker:     req.Speaker,
-		Sdp:         req.Sdp,
+		Offer:       req.Offer,
 	})
 	switch resp.Response.Code {
 	case rsp.Success:
@@ -54,7 +53,7 @@ func AttendLecture(ctx context.Context, c *app.RequestContext) {
 	var req lecture.AttendRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.JSON(consts.StatusBadRequest, err.Error())
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
 		return
 	}
 	roomid, ok := c.Params.Get("roomid")
@@ -73,7 +72,7 @@ func AttendLecture(ctx context.Context, c *app.RequestContext) {
 	resp, _ := config.LectureClient.Attend(ctx, &rpc.AttendRequest{
 		RoomId: RoomID,
 		UserId: UserID,
-		Sdp:    req.Sdp,
+		Offer:  req.Offer,
 	})
 
 	switch resp.Response.Code {
@@ -84,18 +83,31 @@ func AttendLecture(ctx context.Context, c *app.RequestContext) {
 	}
 }
 
-// Inroom .
-// @router lecture/:roomid/ws [GET]
-func Inroom(ctx context.Context, c *app.RequestContext) {
+// RecordLecture .
+// @router lecture/:roomid/record [POST]
+func RecordLecture(ctx context.Context, c *app.RequestContext) {
 	var err error
-	var req base.NilResponse
+	var req lecture.RecordRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.JSON(consts.StatusBadRequest, err.Error())
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
 		return
 	}
+	roomid, ok := c.Params.Get("roomid")
+	if !ok {
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
+		return
+	}
+	RoomID, _ := strconv.ParseInt(roomid, 10, 64)
+	resp, _ := config.LectureClient.Record(ctx, &rpc.RecordRequest{
+		RoomId: RoomID,
+		Offer:  req.Offer,
+	})
 
-	resp := new(base.NilResponse)
-
-	c.JSON(consts.StatusOK, resp)
+	switch resp.Response.Code {
+	case rsp.Success:
+		c.JSON(consts.StatusOK, resp)
+	default:
+		c.JSON(consts.StatusBadRequest, resp)
+	}
 }
