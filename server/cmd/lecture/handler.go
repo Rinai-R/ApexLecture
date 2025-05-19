@@ -196,6 +196,12 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 			}
 		}
 	})
+	peerConnection.OnICEConnectionStateChange(func(connectionState webrtc.ICEConnectionState) {
+		if connectionState == webrtc.ICEConnectionStateDisconnected || connectionState == webrtc.ICEConnectionStateFailed {
+			klog.Info("主播连接断开")
+			peerConnection.Close()
+		}
+	})
 
 	// 完成与主播的握手
 	if err = peerConnection.SetRemoteDescription(offer); err != nil {
@@ -216,7 +222,8 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 		klog.Error("Failed to set local description: ", err)
 
 	}
-	<-gatherComplete // 等 ICE 候选收集完
+	<-gatherComplete
+	// 等 ICE 候选收集完
 	// 存储转发音频轨道和视频轨道的管道，便于用户来的时候获取音视频的轨道。
 	s.goroutinePool.Submit(func() {
 		s.Sessions.Store(roomid, &LectureSession{
@@ -428,7 +435,7 @@ func (s *LectureServiceImpl) Record(ctx context.Context, request *lecture.Record
 	}, nil
 }
 
-// 异步保存逻辑
+// 通过临时文件来异步保存的逻辑
 func (s *LectureServiceImpl) Save(ctx context.Context, filepath string, writer media.Writer, ch chan *rtp.Packet) {
 	for {
 		select {
@@ -582,7 +589,7 @@ func (s *LectureServiceImpl) GetHistoryLecture(ctx context.Context, request *lec
 		<-iceConnectedCtx.Done()
 
 		ticker := time.NewTicker(
-			time.Millisecond * time.Duration((float32(header.TimebaseNumerator)/float32(header.TimebaseDenominator))*1000),
+			time.Millisecond * time.Duration((float32(header.TimebaseNumerator)/float32(header.TimebaseDenominator))*1400),
 		)
 		defer ticker.Stop()
 
