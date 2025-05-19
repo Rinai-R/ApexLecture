@@ -21,6 +21,9 @@ const (
 	AddTrackError             = 40015
 	SaveLectureError          = 40016
 	RecordAlreadyStarted      = 40017
+	RecordNotFound            = 40018
+	GetIVFStreamError         = 40019
+	GetOGGStreamError         = 40020
 )
 
 func OK() *base.BaseResponse {
@@ -146,5 +149,26 @@ func ErrorRecordAlreadyStarted() *base.BaseResponse {
 	return &base.BaseResponse{
 		Code:    RecordAlreadyStarted,
 		Message: "Record has already started",
+	}
+}
+
+func ErrorRecordNotFound(define string) *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    RecordNotFound,
+		Message: define,
+	}
+}
+
+func ErrorGetIVFStream(define string) *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    GetIVFStreamError,
+		Message: define,
+	}
+}
+
+func ErrorGetOGGStream(define string) *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    GetOGGStreamError,
+		Message: define,
 	}
 }

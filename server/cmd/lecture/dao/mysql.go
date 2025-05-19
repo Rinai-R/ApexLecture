@@ -29,3 +29,16 @@ func (m *MysqlManagerImpl) RecordJoin(ctx context.Context, attendance *model.Att
 func (m *MysqlManagerImpl) RecordLeft(ctx context.Context, id int64) error {
 	return m.DB.Model(&model.Attendance{}).Where("attendance_id = ?", id).Update("left_at", time.Now()).Error
 }
+
+func (m *MysqlManagerImpl) IsRecorded(ctx context.Context, roomId int64) error {
+	return m.DB.Model(&model.Lecture{}).Where("room_id = ?", roomId).Update("is_recorded", true).Error
+}
+
+func (m *MysqlManagerImpl) CheckRecord(ctx context.Context, roomId int64) (bool, error) {
+	var lecture model.Lecture
+	err := m.DB.Select("is_recorded").Where("room_id = ?", roomId).First(&lecture).Error
+	if err != nil {
+		return false, err
+	}
+	return lecture.IsRecorded, nil
+}

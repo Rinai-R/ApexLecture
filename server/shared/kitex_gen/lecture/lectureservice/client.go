@@ -14,6 +14,7 @@ type Client interface {
 	Start(ctx context.Context, request *lecture.StartRequest, callOptions ...callopt.Option) (r *lecture.StartResponse, err error)
 	Attend(ctx context.Context, request *lecture.AttendRequest, callOptions ...callopt.Option) (r *lecture.AttendResponse, err error)
 	Record(ctx context.Context, request *lecture.RecordRequest, callOptions ...callopt.Option) (r *lecture.RecordResponse, err error)
+	GetHistoryLecture(ctx context.Context, request *lecture.GetHistoryLectureRequest, callOptions ...callopt.Option) (r *lecture.GetHistoryLectureResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -58,4 +59,9 @@ func (p *kLectureServiceClient) Attend(ctx context.Context, request *lecture.Att
 func (p *kLectureServiceClient) Record(ctx context.Context, request *lecture.RecordRequest, callOptions ...callopt.Option) (r *lecture.RecordResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.Record(ctx, request)
+}
+
+func (p *kLectureServiceClient) GetHistoryLecture(ctx context.Context, request *lecture.GetHistoryLectureRequest, callOptions ...callopt.Option) (r *lecture.GetHistoryLectureResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetHistoryLecture(ctx, request)
 }

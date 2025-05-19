@@ -63,3 +63,8 @@ func _recordlectureMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _gethistorylectureMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

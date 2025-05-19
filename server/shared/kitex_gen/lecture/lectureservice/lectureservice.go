@@ -34,6 +34,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"getHistoryLecture": kitex.NewMethodInfo(
+		getHistoryLectureHandler,
+		newLectureServiceGetHistoryLectureArgs,
+		newLectureServiceGetHistoryLectureResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -154,6 +161,24 @@ func newLectureServiceRecordResult() interface{} {
 	return lecture.NewLectureServiceRecordResult()
 }
 
+func getHistoryLectureHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*lecture.LectureServiceGetHistoryLectureArgs)
+	realResult := result.(*lecture.LectureServiceGetHistoryLectureResult)
+	success, err := handler.(lecture.LectureService).GetHistoryLecture(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newLectureServiceGetHistoryLectureArgs() interface{} {
+	return lecture.NewLectureServiceGetHistoryLectureArgs()
+}
+
+func newLectureServiceGetHistoryLectureResult() interface{} {
+	return lecture.NewLectureServiceGetHistoryLectureResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -189,6 +214,16 @@ func (p *kClient) Record(ctx context.Context, request *lecture.RecordRequest) (r
 	_args.Request = request
 	var _result lecture.LectureServiceRecordResult
 	if err = p.c.Call(ctx, "record", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetHistoryLecture(ctx context.Context, request *lecture.GetHistoryLectureRequest) (r *lecture.GetHistoryLectureResponse, err error) {
+	var _args lecture.LectureServiceGetHistoryLectureArgs
+	_args.Request = request
+	var _result lecture.LectureServiceGetHistoryLectureResult
+	if err = p.c.Call(ctx, "getHistoryLecture", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

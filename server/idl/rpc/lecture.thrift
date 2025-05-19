@@ -35,8 +35,19 @@ struct RecordResponse {
     1: required base.BaseResponse response,
 }
 
+struct GetHistoryLectureRequest {
+    1: required i64 roomId,
+    2: required string offer,
+}
+
+struct GetHistoryLectureResponse {
+    1: required base.BaseResponse response,
+    2: required string answer,
+}
+
 service LectureService {
     StartResponse start(1: StartRequest request),
     AttendResponse attend(1: AttendRequest request),
     RecordResponse record(1: RecordRequest request),
+    GetHistoryLectureResponse getHistoryLecture(1: GetHistoryLectureRequest request),
 }

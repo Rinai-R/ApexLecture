@@ -9,6 +9,7 @@ type Lecture struct {
 	Description string    `json:"description" gorm:"type:varchar(100);not null"`
 	Speaker     string    `json:"speaker" gorm:"type:varchar(50);not null"`
 	Date        time.Time `json:"date" gorm:"type:timestamp;not null"`
+	IsRecorded  bool      `json:"is_recorded" gorm:"type:boolean;not null;default:false"`
 }
 
 type Attendance struct {

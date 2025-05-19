@@ -24,12 +24,22 @@ struct AttendResponse {
     2: required string answer,
 }
 
-
 struct RecordResponse {
     1: required base.BaseResponse response,
 }
+
+struct GetHistoryLectureRequest {
+    1: required string offer,
+}
+
+struct GetHistoryLectureResponse {
+    1: required base.BaseResponse response,
+    2: required string answer,
+}
+
 service LectureService {
     StartResponse startLecture(1: StartRequest request) (api.post = "lecture/"),
     AttendResponse attendLecture(1: AttendRequest request) (api.post = "lecture/:roomid/attend"),
     RecordResponse recordLecture(1: base.NilRequest request) (api.post = "lecture/:roomid/record"),
+    GetHistoryLectureResponse getHistoryLecture(1: GetHistoryLectureRequest request) (api.get = "lecture/:roomid/history"),
 }

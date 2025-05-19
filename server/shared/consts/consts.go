@@ -49,7 +49,7 @@ const (
 	KlogFilePath    = "./tmp/klog/"
 	IvfFilePath     = "./tmp/record/%d/video.ivf"
 	OggFilePath     = "./tmp/record/%d/audio.ogg"
-	MinioObjectName = "%s:%s"
+	MinioObjectName = "%d:%s"
 
 	EtcdSnowFlakeNode         = 1
 	UserIDSnowFlakeNode       = 2

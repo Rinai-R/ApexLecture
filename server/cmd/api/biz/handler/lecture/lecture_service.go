@@ -104,3 +104,32 @@ func RecordLecture(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusBadRequest, resp)
 	}
 }
+
+// GetHistoryLecture .
+// @router lecture/:roomid/history [GET]
+func GetHistoryLecture(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req lecture.GetHistoryLectureRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
+		return
+	}
+	roomid, ok := c.Params.Get("roomid")
+	if !ok {
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
+		return
+	}
+	RoomID, _ := strconv.ParseInt(roomid, 10, 64)
+	resp, _ := config.LectureClient.GetHistoryLecture(ctx, &rpc.GetHistoryLectureRequest{
+		RoomId: RoomID,
+		Offer:  req.Offer,
+	})
+
+	switch resp.Response.Code {
+	case rsp.Success:
+		c.JSON(consts.StatusOK, resp)
+	default:
+		c.JSON(consts.StatusBadRequest, resp)
+	}
+}

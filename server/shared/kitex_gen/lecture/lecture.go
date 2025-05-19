@@ -290,12 +290,99 @@ var fieldIDToName_RecordResponse = map[int16]string{
 	1: "response",
 }
 
+type GetHistoryLectureRequest struct {
+	RoomId int64  `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
+	Offer  string `thrift:"offer,2,required" frugal:"2,required,string" json:"offer"`
+}
+
+func NewGetHistoryLectureRequest() *GetHistoryLectureRequest {
+	return &GetHistoryLectureRequest{}
+}
+
+func (p *GetHistoryLectureRequest) InitDefault() {
+}
+
+func (p *GetHistoryLectureRequest) GetRoomId() (v int64) {
+	return p.RoomId
+}
+
+func (p *GetHistoryLectureRequest) GetOffer() (v string) {
+	return p.Offer
+}
+func (p *GetHistoryLectureRequest) SetRoomId(val int64) {
+	p.RoomId = val
+}
+func (p *GetHistoryLectureRequest) SetOffer(val string) {
+	p.Offer = val
+}
+
+func (p *GetHistoryLectureRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetHistoryLectureRequest(%+v)", *p)
+}
+
+var fieldIDToName_GetHistoryLectureRequest = map[int16]string{
+	1: "roomId",
+	2: "offer",
+}
+
+type GetHistoryLectureResponse struct {
+	Response *base.BaseResponse `thrift:"response,1,required" frugal:"1,required,base.BaseResponse" json:"response"`
+	Answer   string             `thrift:"answer,2,required" frugal:"2,required,string" json:"answer"`
+}
+
+func NewGetHistoryLectureResponse() *GetHistoryLectureResponse {
+	return &GetHistoryLectureResponse{}
+}
+
+func (p *GetHistoryLectureResponse) InitDefault() {
+}
+
+var GetHistoryLectureResponse_Response_DEFAULT *base.BaseResponse
+
+func (p *GetHistoryLectureResponse) GetResponse() (v *base.BaseResponse) {
+	if !p.IsSetResponse() {
+		return GetHistoryLectureResponse_Response_DEFAULT
+	}
+	return p.Response
+}
+
+func (p *GetHistoryLectureResponse) GetAnswer() (v string) {
+	return p.Answer
+}
+func (p *GetHistoryLectureResponse) SetResponse(val *base.BaseResponse) {
+	p.Response = val
+}
+func (p *GetHistoryLectureResponse) SetAnswer(val string) {
+	p.Answer = val
+}
+
+func (p *GetHistoryLectureResponse) IsSetResponse() bool {
+	return p.Response != nil
+}
+
+func (p *GetHistoryLectureResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetHistoryLectureResponse(%+v)", *p)
+}
+
+var fieldIDToName_GetHistoryLectureResponse = map[int16]string{
+	1: "response",
+	2: "answer",
+}
+
 type LectureService interface {
 	Start(ctx context.Context, request *StartRequest) (r *StartResponse, err error)
 
 	Attend(ctx context.Context, request *AttendRequest) (r *AttendResponse, err error)
 
 	Record(ctx context.Context, request *RecordRequest) (r *RecordResponse, err error)
+
+	GetHistoryLecture(ctx context.Context, request *GetHistoryLectureRequest) (r *GetHistoryLectureResponse, err error)
 }
 
 type LectureServiceStartArgs struct {
@@ -523,5 +610,81 @@ func (p *LectureServiceRecordResult) String() string {
 }
 
 var fieldIDToName_LectureServiceRecordResult = map[int16]string{
+	0: "success",
+}
+
+type LectureServiceGetHistoryLectureArgs struct {
+	Request *GetHistoryLectureRequest `thrift:"request,1" frugal:"1,default,GetHistoryLectureRequest" json:"request"`
+}
+
+func NewLectureServiceGetHistoryLectureArgs() *LectureServiceGetHistoryLectureArgs {
+	return &LectureServiceGetHistoryLectureArgs{}
+}
+
+func (p *LectureServiceGetHistoryLectureArgs) InitDefault() {
+}
+
+var LectureServiceGetHistoryLectureArgs_Request_DEFAULT *GetHistoryLectureRequest
+
+func (p *LectureServiceGetHistoryLectureArgs) GetRequest() (v *GetHistoryLectureRequest) {
+	if !p.IsSetRequest() {
+		return LectureServiceGetHistoryLectureArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+func (p *LectureServiceGetHistoryLectureArgs) SetRequest(val *GetHistoryLectureRequest) {
+	p.Request = val
+}
+
+func (p *LectureServiceGetHistoryLectureArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *LectureServiceGetHistoryLectureArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("LectureServiceGetHistoryLectureArgs(%+v)", *p)
+}
+
+var fieldIDToName_LectureServiceGetHistoryLectureArgs = map[int16]string{
+	1: "request",
+}
+
+type LectureServiceGetHistoryLectureResult struct {
+	Success *GetHistoryLectureResponse `thrift:"success,0,optional" frugal:"0,optional,GetHistoryLectureResponse" json:"success,omitempty"`
+}
+
+func NewLectureServiceGetHistoryLectureResult() *LectureServiceGetHistoryLectureResult {
+	return &LectureServiceGetHistoryLectureResult{}
+}
+
+func (p *LectureServiceGetHistoryLectureResult) InitDefault() {
+}
+
+var LectureServiceGetHistoryLectureResult_Success_DEFAULT *GetHistoryLectureResponse
+
+func (p *LectureServiceGetHistoryLectureResult) GetSuccess() (v *GetHistoryLectureResponse) {
+	if !p.IsSetSuccess() {
+		return LectureServiceGetHistoryLectureResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *LectureServiceGetHistoryLectureResult) SetSuccess(x interface{}) {
+	p.Success = x.(*GetHistoryLectureResponse)
+}
+
+func (p *LectureServiceGetHistoryLectureResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *LectureServiceGetHistoryLectureResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("LectureServiceGetHistoryLectureResult(%+v)", *p)
+}
+
+var fieldIDToName_LectureServiceGetHistoryLectureResult = map[int16]string{
 	0: "success",
 }
