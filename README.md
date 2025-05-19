@@ -26,3 +26,4 @@ An online live classroom
 - [x] 分布式日志
 - [ ] k8s 部署
 - [ ] 完善的单元测试
+- [ ] 完美支持多个直播节点

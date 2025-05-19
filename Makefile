@@ -34,10 +34,13 @@ lecture-run:
 hz-update:
 	make api-update service=user
 	make api-update service=lecture
+	make api-update service=interaction
 
 hz-new:
 	make api-new service=user
 	make api-new service=lecture
+	make api-new service=interaction
+
 # ============================= 更新 rpc 脚手架文件 ========================
 rpc-all:
 	make user-gen
@@ -65,6 +68,17 @@ lecture-gen:
 	cd 	./server/shared && \
 	kitex -module github.com/Rinai-R/ApexLecture ../idl/rpc/lecture.thrift
 
+interaction-rpc:
+	cd 	./server/cmd/interaction && \
+	kitex -module $(MODULE_NAME) -service interaction \
+	-use github.com/Rinai-R/ApexLecture/server/shared/kitex_gen \
+	../../idl/rpc/interaction.thrift
+
+interaction-gen:
+	cd 	./server/shared && \
+	kitex -module github.com/Rinai-R/ApexLecture ../idl/rpc/interaction.thrift
+
+
 
 # =================================== 更新配置文件 ==================================
 hz-conf:
@@ -76,11 +90,14 @@ user-conf:
 lecture-conf:
 	go run $(CMD_PATH)/lecture/script/preprocess.go
 
+interaction-conf:
+	go run $(CMD_PATH)/interaction/script/preprocess.go
+
 conf:
 	make hz-conf
 	make user-conf
 	make lecture-conf
-
+	make interaction-conf
 # ============================ 杂项，给其他 make 指令用的 ==========================
 api-update:
 	cd 	./server/cmd/api && \

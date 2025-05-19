@@ -46,8 +46,8 @@ struct GetHistoryLectureResponse {
 }
 
 service LectureService {
-    StartResponse start(1: StartRequest request),
-    AttendResponse attend(1: AttendRequest request),
-    RecordResponse record(1: RecordRequest request),
-    GetHistoryLectureResponse getHistoryLecture(1: GetHistoryLectureRequest request),
+    StartResponse start(1: StartRequest request)
+    AttendResponse attend(1: AttendRequest request)
+    RecordResponse record(1: RecordRequest request)
+    GetHistoryLectureResponse getHistoryLecture(1: GetHistoryLectureRequest request)
 }

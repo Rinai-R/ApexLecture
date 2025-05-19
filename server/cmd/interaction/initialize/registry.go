@@ -3,7 +3,7 @@ package initialize
 import (
 	"net"
 
-	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/config"
+	"github.com/Rinai-R/ApexLecture/server/cmd/interaction/config"
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
 	"github.com/bwmarrin/snowflake"
 	"github.com/cloudwego/kitex/pkg/klog"

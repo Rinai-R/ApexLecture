@@ -2,18 +2,21 @@ package consts
 
 // ServerConfig
 const (
-	Host        = "0.0.0.0"
-	ApiPort     = "10000"
-	UserPort    = "10001"
-	LecturePort = "10002"
+	Host            = "0.0.0.0"
+	ApiPort         = "10000"
+	UserPort        = "10001"
+	LecturePort     = "10002"
+	InteractionPort = "10003"
 
-	ApiConfig     = "./server/cmd/api/config.yaml"
-	UserConfig    = "./server/cmd/user/config.yaml"
-	LectureConfig = "./server/cmd/lecture/config.yaml"
+	ApiConfig         = "./server/cmd/api/config.yaml"
+	UserConfig        = "./server/cmd/user/config.yaml"
+	LectureConfig     = "./server/cmd/lecture/config.yaml"
+	InteractionConfig = "./server/cmd/interaction/config.yaml"
 
-	ApiSrvPrefix     = "api"
-	UserSrvPrefix    = "user"
-	LectureSrvPrefix = "lecture"
+	ApiSrvPrefix         = "api"
+	UserSrvPrefix        = "user"
+	LectureSrvPrefix     = "lecture"
+	InteractionSrvPrefix = "interaction"
 
 	OtelEndpoint = "localhost:4317"
 )
@@ -26,6 +29,14 @@ const (
 	MysqlPassword = "123456"
 	MysqlDatabase = "apex_db"
 	MysqlPort     = "3306"
+)
+
+// RedisConfig
+const (
+	RedisHost     = "localhost"
+	RedisPort     = "6379"
+	RedisPassword = "123456"
+	RedisDatabase = 0
 )
 
 // MinioConfig

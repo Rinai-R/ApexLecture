@@ -25,7 +25,7 @@ func InitRegistry() (registry.Registry, *registry.Info) {
 		klog.Fatal("failed to create snowflake node: ", err)
 	}
 	info := &registry.Info{
-		ServiceName: consts.UserSrvPrefix,
+		ServiceName: config.GlobalServerConfig.Name,
 		Addr: utils.NewNetAddr(
 			"tcp",
 			net.JoinHostPort(

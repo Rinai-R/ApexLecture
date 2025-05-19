@@ -58,13 +58,13 @@ func AttendLecture(ctx context.Context, c *app.RequestContext) {
 	}
 	roomid, ok := c.Params.Get("roomid")
 	if !ok {
-		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter("Unknown room"))
 		return
 	}
 	RoomID, _ := strconv.ParseInt(roomid, 10, 64)
 	userid, ok := c.Get("userid")
 	if !ok {
-		c.JSON(consts.StatusUnauthorized, rsp.ErrorUnAuthorized(err.Error()))
+		c.JSON(consts.StatusUnauthorized, rsp.ErrorUnAuthorized("Unknown user"))
 		return
 	}
 	userId := userid.(float64)
@@ -86,10 +86,9 @@ func AttendLecture(ctx context.Context, c *app.RequestContext) {
 // RecordLecture .
 // @router lecture/:roomid/record [POST]
 func RecordLecture(ctx context.Context, c *app.RequestContext) {
-	var err error
 	roomid, ok := c.Params.Get("roomid")
 	if !ok {
-		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter("Unknown room"))
 		return
 	}
 	RoomID, _ := strconv.ParseInt(roomid, 10, 64)
@@ -108,16 +107,15 @@ func RecordLecture(ctx context.Context, c *app.RequestContext) {
 // GetHistoryLecture .
 // @router lecture/:roomid/history [GET]
 func GetHistoryLecture(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req lecture.GetHistoryLectureRequest
-	err = c.BindAndValidate(&req)
+	err := c.BindAndValidate(&req)
 	if err != nil {
 		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
 		return
 	}
 	roomid, ok := c.Params.Get("roomid")
 	if !ok {
-		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter("Unknown room"))
 		return
 	}
 	RoomID, _ := strconv.ParseInt(roomid, 10, 64)
