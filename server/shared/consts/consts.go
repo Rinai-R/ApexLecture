@@ -48,6 +48,12 @@ const (
 	MinioSecure    = false
 )
 
+// KafkaConfig
+const (
+	KafkaBroker = "localhost:9092"
+	KafkaTopic  = "lecture"
+)
+
 // key
 const (
 	PrivateKey = "./server/cmd/user/keys/private_key.pem"

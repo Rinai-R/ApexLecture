@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/Rinai-R/ApexLecture/server/cmd/interaction/dao"
+	"github.com/Rinai-R/ApexLecture/server/cmd/interaction/model"
 	interaction "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/interaction"
 	"github.com/Rinai-R/ApexLecture/server/shared/rsp"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -13,6 +14,7 @@ import (
 type InteractionServiceImpl struct {
 	MysqlManagerImpl
 	RedisManagerImpl
+	MQManagerImpl
 }
 
 type RedisManagerImpl interface {
@@ -22,9 +24,12 @@ type RedisManagerImpl interface {
 var _ RedisManagerImpl = (*dao.RedisManager)(nil)
 
 type MysqlManagerImpl interface {
+	CreateRoom(ctx context.Context, room *model.Room) (err error)
 }
 
 var _ MysqlManagerImpl = (*dao.MysqlManager)(nil)
+
+type MQManagerImpl interface{}
 
 // SendMessage implements the InteractionServiceImpl interface.
 func (s *InteractionServiceImpl) SendMessage(ctx context.Context, request *interaction.SendMessageRequest) (resp *interaction.SendMessageResponse, err error) {
@@ -52,5 +57,11 @@ func (s *InteractionServiceImpl) SubmitAnswer(ctx context.Context, request *inte
 
 func (s *InteractionServiceImpl) Receive(request *interaction.ReceiveRequest, stream interaction.InteractionService_receiveServer) (err error) {
 	println("Receive called")
+	return
+}
+
+// CreateRoom implements the InteractionServiceImpl interface.
+func (s *InteractionServiceImpl) CreateRoom(ctx context.Context, request *interaction.CreateRoomRequest) (resp *interaction.CreateRoomResponse, err error) {
+
 	return
 }

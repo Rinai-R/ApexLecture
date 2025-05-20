@@ -28,6 +28,8 @@ user-run:
 lecture-run:
 	go run $(CMD_PATH)/lecture/
 
+interaction-run:
+	go run $(CMD_PATH)/interaction/
 
 
 # ============================= 更新 API 脚手架文件 ========================

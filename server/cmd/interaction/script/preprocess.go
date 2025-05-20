@@ -63,6 +63,10 @@ func main() {
 			Password: consts.RedisPassword,
 			Database: consts.RedisDatabase,
 		},
+		Kafka: config.KafkaConfig{
+			Brokers: []string{consts.KafkaBroker},
+			Topic:   consts.KafkaTopic,
+		},
 		OtelEndpoint: consts.OtelEndpoint,
 	}
 	// 序列化 ServerConfig
@@ -70,7 +74,7 @@ func main() {
 	if err != nil {
 		panic("PreProcess failed: json.Marshal failed" + err.Error())
 	}
-	// 写入etcd
+	// 写入 etcd
 	Registry.Put(context.Background(), EtcdConf.Key, string(byteData))
 
 	// 最后的验证

@@ -133,6 +133,45 @@ services:
         volumes:
         - ./data/minio/data:/data:rw
         - ./data/minio/config:/root/.minio:rw
+# ========================= 消息队列 ==============================
+    kafka:
+        image: apache/kafka:latest
+        container_name: kafka
+        ports:
+            - "9092:9092"
+        environment:
+            CLUSTER_ID: 'kafka-cluster'
+            KAFKA_NODE_ID: 1
+            KAFKA_PROCESS_ROLES: 'broker,controller'
+            KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:9093'
+            KAFKA_LISTENERS: 'PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093'
+            KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://localhost:9092'
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+            KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+            KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+            KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+            KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+            KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+        volumes:
+            - ./data/kafka/data:/var/lib/kafka/data
+        networks:
+            - kafka-net
+
+    kafka-ui:
+        image: provectuslabs/kafka-ui:latest
+        container_name: kafka-ui
+        ports:
+            - "8080:8080"
+        environment:
+            KAFKA_CLUSTERS_0_NAME: local
+            KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+            KAFKA_CLUSTERS_0_METRICS_PORT: 9092
+            SERVER_SERVLET_CONTEXT_PATH: /
+        depends_on:
+            - kafka
+        networks:
+            - kafka-net
 
 volumes:
   mysql_data:
@@ -141,7 +180,10 @@ volumes:
   logstash_data:
   grafana:
   victoria_data:
+  kafka_data:
 
 networks:
   ELK:
+    driver: bridge
+  kafka-net:
     driver: bridge

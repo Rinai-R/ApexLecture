@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"context"
+	"net"
 	"time"
 
 	"github.com/Rinai-R/ApexLecture/server/cmd/user/config"
@@ -34,7 +35,7 @@ func InitConfig() {
 
 	// 初始化etcd
 	Registry, err = clientv3.New(clientv3.Config{
-		Endpoints:   []string{config.GlobalEtcdConfig.Host + ":" + config.GlobalEtcdConfig.Port},
+		Endpoints:   []string{net.JoinHostPort(config.GlobalEtcdConfig.Host, config.GlobalEtcdConfig.Port)},
 		DialTimeout: 5 * time.Second,
 	})
 	if err != nil {

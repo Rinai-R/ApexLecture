@@ -64,6 +64,9 @@ func main() {
 			BucketName:      consts.MinioBucket,
 			Secure:          consts.MinioSecure,
 		},
+		InteractionSrvInfo: config.RPCSrvConfig{
+			Name: consts.InteractionSrvPrefix,
+		},
 		OtelEndpoint: consts.OtelEndpoint,
 	}
 	// 序列化 ServerConfig

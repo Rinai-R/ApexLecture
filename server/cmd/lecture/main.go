@@ -8,6 +8,7 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/config"
 	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/dao"
 	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/initialize"
+	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/initialize/rpc"
 	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/pkg/goroutine"
 	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/pkg/webrtc"
 	lecture "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/lecture/lectureservice"
@@ -23,6 +24,7 @@ func main() {
 	d := initialize.InitDB()
 	r, i := initialize.InitRegistry()
 	m := initialize.InitMinio()
+	rpc.Initrpc()
 	p := provider.NewOpenTelemetryProvider(
 		provider.WithServiceName(config.GlobalServerConfig.Name),
 		provider.WithExportEndpoint(config.GlobalServerConfig.OtelEndpoint),

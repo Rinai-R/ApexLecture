@@ -15,6 +15,13 @@ import (
 var errInvalidMessageType = errors.New("invalid message type for service method handler")
 
 var serviceMethods = map[string]kitex.MethodInfo{
+	"createRoom": kitex.NewMethodInfo(
+		createRoomHandler,
+		newInteractionServiceCreateRoomArgs,
+		newInteractionServiceCreateRoomResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 	"sendMessage": kitex.NewMethodInfo(
 		sendMessageHandler,
 		newInteractionServiceSendMessageArgs,
@@ -107,6 +114,24 @@ func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreami
 		Extra:           extra,
 	}
 	return svcInfo
+}
+
+func createRoomHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*interaction.InteractionServiceCreateRoomArgs)
+	realResult := result.(*interaction.InteractionServiceCreateRoomResult)
+	success, err := handler.(interaction.InteractionService).CreateRoom(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newInteractionServiceCreateRoomArgs() interface{} {
+	return interaction.NewInteractionServiceCreateRoomArgs()
+}
+
+func newInteractionServiceCreateRoomResult() interface{} {
+	return interaction.NewInteractionServiceCreateRoomResult()
 }
 
 func sendMessageHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -216,6 +241,16 @@ func newServiceClient(c client.Client) *kClient {
 	return &kClient{
 		c: c,
 	}
+}
+
+func (p *kClient) CreateRoom(ctx context.Context, request *interaction.CreateRoomRequest) (r *interaction.CreateRoomResponse, err error) {
+	var _args interaction.InteractionServiceCreateRoomArgs
+	_args.Request = request
+	var _result interaction.InteractionServiceCreateRoomResult
+	if err = p.c.Call(ctx, "createRoom", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
 }
 
 func (p *kClient) SendMessage(ctx context.Context, request *interaction.SendMessageRequest) (r *interaction.SendMessageResponse, err error) {

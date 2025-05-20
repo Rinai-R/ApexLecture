@@ -6,6 +6,7 @@ type ServerConfig struct {
 	Port         string      `json:"port"`
 	Mysql        MysqlConfig `json:"mysql"`
 	Redis        RedisConfig `json:"redis"`
+	Kafka        KafkaConfig `json:"kafka"`
 	OtelEndpoint string      `json:"otel_endpoint"`
 }
 
@@ -28,4 +29,9 @@ type RedisConfig struct {
 	Port     string `json:"port"`
 	Password string `json:"password"`
 	Database int    `json:"database"`
+}
+
+type KafkaConfig struct {
+	Brokers []string `json:"brokers"`
+	Topic   string   `json:"topic"`
 }

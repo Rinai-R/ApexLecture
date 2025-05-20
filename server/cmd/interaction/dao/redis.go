@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/interaction"
-	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -19,11 +18,6 @@ func NewRedisManager(rdb *redis.Client) *RedisManager {
 	}
 }
 
-func (r *RedisManager) SendMessage(ctx context.Context, request *interaction.SendMessageRequest) (err error) {
-	err = r.rdb.Publish(ctx, strconv.FormatInt(request.RoomId, 10), request.Message).Err()
-	if err != nil {
-		klog.Error("SendMessage failed", err)
-		return err
-	}
-	return
+func (r *RedisManager) SendMessage(ctx context.Context, request *interaction.SendMessageRequest) error {
+	return r.rdb.Publish(ctx, strconv.FormatInt(request.RoomId, 10), request.Message).Err()
 }

@@ -9,6 +9,82 @@ import (
 	"github.com/cloudwego/kitex/pkg/streaming"
 )
 
+type CreateRoomRequest struct {
+	TeacherId int64 `thrift:"teacher_id,1,required" frugal:"1,required,i64" json:"teacher_id"`
+	RoomId    int64 `thrift:"room_id,2,required" frugal:"2,required,i64" json:"room_id"`
+}
+
+func NewCreateRoomRequest() *CreateRoomRequest {
+	return &CreateRoomRequest{}
+}
+
+func (p *CreateRoomRequest) InitDefault() {
+}
+
+func (p *CreateRoomRequest) GetTeacherId() (v int64) {
+	return p.TeacherId
+}
+
+func (p *CreateRoomRequest) GetRoomId() (v int64) {
+	return p.RoomId
+}
+func (p *CreateRoomRequest) SetTeacherId(val int64) {
+	p.TeacherId = val
+}
+func (p *CreateRoomRequest) SetRoomId(val int64) {
+	p.RoomId = val
+}
+
+func (p *CreateRoomRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CreateRoomRequest(%+v)", *p)
+}
+
+var fieldIDToName_CreateRoomRequest = map[int16]string{
+	1: "teacher_id",
+	2: "room_id",
+}
+
+type CreateRoomResponse struct {
+	Response *base.BaseResponse `thrift:"response,1" frugal:"1,default,base.BaseResponse" json:"response"`
+}
+
+func NewCreateRoomResponse() *CreateRoomResponse {
+	return &CreateRoomResponse{}
+}
+
+func (p *CreateRoomResponse) InitDefault() {
+}
+
+var CreateRoomResponse_Response_DEFAULT *base.BaseResponse
+
+func (p *CreateRoomResponse) GetResponse() (v *base.BaseResponse) {
+	if !p.IsSetResponse() {
+		return CreateRoomResponse_Response_DEFAULT
+	}
+	return p.Response
+}
+func (p *CreateRoomResponse) SetResponse(val *base.BaseResponse) {
+	p.Response = val
+}
+
+func (p *CreateRoomResponse) IsSetResponse() bool {
+	return p.Response != nil
+}
+
+func (p *CreateRoomResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CreateRoomResponse(%+v)", *p)
+}
+
+var fieldIDToName_CreateRoomResponse = map[int16]string{
+	1: "response",
+}
+
 type SendMessageRequest struct {
 	Message string `thrift:"message,1" frugal:"1,default,string" json:"message"`
 	UserId  int64  `thrift:"userId,2" frugal:"2,default,i64" json:"userId"`
@@ -1051,6 +1127,8 @@ var fieldIDToName_ReceiveResponse = map[int16]string{
 }
 
 type InteractionService interface {
+	CreateRoom(ctx context.Context, request *CreateRoomRequest) (r *CreateRoomResponse, err error)
+
 	SendMessage(ctx context.Context, request *SendMessageRequest) (r *SendMessageResponse, err error)
 
 	CreateQuestion(ctx context.Context, request *CreateQuestionRequest) (r *CreateQuestionResponse, err error)
@@ -1058,6 +1136,82 @@ type InteractionService interface {
 	SubmitAnswer(ctx context.Context, request *SubmitAnswerRequest) (r *SubmitAnswerResponse, err error)
 
 	Receive(req *ReceiveRequest, stream InteractionService_receiveServer) (err error)
+}
+
+type InteractionServiceCreateRoomArgs struct {
+	Request *CreateRoomRequest `thrift:"request,1" frugal:"1,default,CreateRoomRequest" json:"request"`
+}
+
+func NewInteractionServiceCreateRoomArgs() *InteractionServiceCreateRoomArgs {
+	return &InteractionServiceCreateRoomArgs{}
+}
+
+func (p *InteractionServiceCreateRoomArgs) InitDefault() {
+}
+
+var InteractionServiceCreateRoomArgs_Request_DEFAULT *CreateRoomRequest
+
+func (p *InteractionServiceCreateRoomArgs) GetRequest() (v *CreateRoomRequest) {
+	if !p.IsSetRequest() {
+		return InteractionServiceCreateRoomArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+func (p *InteractionServiceCreateRoomArgs) SetRequest(val *CreateRoomRequest) {
+	p.Request = val
+}
+
+func (p *InteractionServiceCreateRoomArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *InteractionServiceCreateRoomArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("InteractionServiceCreateRoomArgs(%+v)", *p)
+}
+
+var fieldIDToName_InteractionServiceCreateRoomArgs = map[int16]string{
+	1: "request",
+}
+
+type InteractionServiceCreateRoomResult struct {
+	Success *CreateRoomResponse `thrift:"success,0,optional" frugal:"0,optional,CreateRoomResponse" json:"success,omitempty"`
+}
+
+func NewInteractionServiceCreateRoomResult() *InteractionServiceCreateRoomResult {
+	return &InteractionServiceCreateRoomResult{}
+}
+
+func (p *InteractionServiceCreateRoomResult) InitDefault() {
+}
+
+var InteractionServiceCreateRoomResult_Success_DEFAULT *CreateRoomResponse
+
+func (p *InteractionServiceCreateRoomResult) GetSuccess() (v *CreateRoomResponse) {
+	if !p.IsSetSuccess() {
+		return InteractionServiceCreateRoomResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *InteractionServiceCreateRoomResult) SetSuccess(x interface{}) {
+	p.Success = x.(*CreateRoomResponse)
+}
+
+func (p *InteractionServiceCreateRoomResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *InteractionServiceCreateRoomResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("InteractionServiceCreateRoomResult(%+v)", *p)
+}
+
+var fieldIDToName_InteractionServiceCreateRoomResult = map[int16]string{
+	0: "success",
 }
 
 type InteractionServiceSendMessageArgs struct {

@@ -15,6 +15,7 @@ import (
 
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.
 type Client interface {
+	CreateRoom(ctx context.Context, request *interaction.CreateRoomRequest, callOptions ...callopt.Option) (r *interaction.CreateRoomResponse, err error)
 	SendMessage(ctx context.Context, request *interaction.SendMessageRequest, callOptions ...callopt.Option) (r *interaction.SendMessageResponse, err error)
 	CreateQuestion(ctx context.Context, request *interaction.CreateQuestionRequest, callOptions ...callopt.Option) (r *interaction.CreateQuestionResponse, err error)
 	SubmitAnswer(ctx context.Context, request *interaction.SubmitAnswerRequest, callOptions ...callopt.Option) (r *interaction.SubmitAnswerResponse, err error)
@@ -57,6 +58,11 @@ func MustNewClient(destService string, opts ...client.Option) Client {
 
 type kInteractionServiceClient struct {
 	*kClient
+}
+
+func (p *kInteractionServiceClient) CreateRoom(ctx context.Context, request *interaction.CreateRoomRequest, callOptions ...callopt.Option) (r *interaction.CreateRoomResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.CreateRoom(ctx, request)
 }
 
 func (p *kInteractionServiceClient) SendMessage(ctx context.Context, request *interaction.SendMessageRequest, callOptions ...callopt.Option) (r *interaction.SendMessageResponse, err error) {

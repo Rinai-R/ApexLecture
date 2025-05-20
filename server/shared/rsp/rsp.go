@@ -24,6 +24,7 @@ const (
 	RecordNotFound            = 40018
 	GetIVFStreamError         = 40019
 	GetOGGStreamError         = 40020
+	CreateRoomError           = 40021
 )
 
 func OK() *base.BaseResponse {
@@ -169,6 +170,13 @@ func ErrorGetIVFStream(define string) *base.BaseResponse {
 func ErrorGetOGGStream(define string) *base.BaseResponse {
 	return &base.BaseResponse{
 		Code:    GetOGGStreamError,
+		Message: define,
+	}
+}
+
+func ErrorCreateRoom(define string) *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    CreateRoomError,
 		Message: define,
 	}
 }

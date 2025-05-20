@@ -19,24 +19,24 @@ func NewDM(DB *gorm.DB) *MysqlManagerImpl {
 }
 
 func (m *MysqlManagerImpl) CreateLecture(ctx context.Context, lecture *model.Lecture) error {
-	return m.DB.Create(lecture).Error
+	return m.DB.WithContext(ctx).Create(lecture).Error
 }
 
 func (m *MysqlManagerImpl) RecordJoin(ctx context.Context, attendance *model.Attendance) error {
-	return m.DB.Create(attendance).Error
+	return m.DB.WithContext(ctx).Create(attendance).Error
 }
 
 func (m *MysqlManagerImpl) RecordLeft(ctx context.Context, id int64) error {
-	return m.DB.Model(&model.Attendance{}).Where("attendance_id = ?", id).Update("left_at", time.Now()).Error
+	return m.DB.WithContext(ctx).Model(&model.Attendance{}).Where("attendance_id = ?", id).Update("left_at", time.Now()).Error
 }
 
 func (m *MysqlManagerImpl) IsRecorded(ctx context.Context, roomId int64) error {
-	return m.DB.Model(&model.Lecture{}).Where("room_id = ?", roomId).Update("is_recorded", true).Error
+	return m.DB.WithContext(ctx).Model(&model.Lecture{}).Where("room_id = ?", roomId).Update("is_recorded", true).Error
 }
 
 func (m *MysqlManagerImpl) CheckRecord(ctx context.Context, roomId int64) (bool, error) {
 	var lecture model.Lecture
-	err := m.DB.Select("is_recorded").Where("room_id = ?", roomId).First(&lecture).Error
+	err := m.DB.WithContext(ctx).Select("is_recorded").Where("room_id = ?", roomId).First(&lecture).Error
 	if err != nil {
 		return false, err
 	}

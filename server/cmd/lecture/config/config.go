@@ -23,10 +23,15 @@ type EtcdConfig struct {
 }
 
 type ServerConfig struct {
-	Name         string      `json:"name"`
-	Host         string      `json:"host"`
-	Port         string      `json:"port"`
-	Mysql        MysqlConfig `json:"mysql"`
-	Minio        MinioConfig `json:"minio"`
-	OtelEndpoint string      `json:"otel_endpoint"`
+	Name               string       `json:"name"`
+	Host               string       `json:"host"`
+	Port               string       `json:"port"`
+	Mysql              MysqlConfig  `json:"mysql"`
+	Minio              MinioConfig  `json:"minio"`
+	InteractionSrvInfo RPCSrvConfig `json:"interaction_srv_info"`
+	OtelEndpoint       string       `json:"otel_endpoint"`
+}
+
+type RPCSrvConfig struct {
+	Name string `json:"name"`
 }
