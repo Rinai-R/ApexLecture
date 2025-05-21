@@ -17,7 +17,6 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/model"
 	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/pkg/util"
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
-	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/interaction"
 	lecture "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/lecture"
 	"github.com/Rinai-R/ApexLecture/server/shared/rsp"
 	"github.com/bwmarrin/snowflake"
@@ -126,16 +125,6 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 	}
 
 	// 远程调用，创建交互房间。
-	resp, _ := config.InteractionClient.CreateRoom(ctx, &interaction.CreateRoomRequest{
-		RoomId:    roomid,
-		TeacherId: request.HostId,
-	})
-	if resp.Response.Code != rsp.Success {
-		klog.Error("Failed to create room: ", resp.Response.Message)
-		return &lecture.StartResponse{
-			Response: rsp.ErrorCreateRoom(resp.Response.Message),
-		}, nil
-	}
 
 	// localTrackChan 用来拿到“转发用”的本地Track
 	// localTrackChan 用来拿到“转发用”的本地Track

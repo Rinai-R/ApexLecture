@@ -1,3 +1,0 @@
-host: "localhost"
-port: "2379"
-key: "apex:rpc:interaction"

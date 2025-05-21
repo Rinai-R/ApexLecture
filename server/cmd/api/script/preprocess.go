@@ -56,9 +56,6 @@ func main() {
 		LectureSrvInfo: config.RPCSrvConfig{
 			Name: consts.LectureSrvPrefix,
 		},
-		InteractionSrvInfo: config.RPCSrvConfig{
-			Name: consts.InteractionSrvPrefix,
-		},
 		OtelEndpoint: consts.OtelEndpoint,
 	}
 	// 序列化 ServerConfig

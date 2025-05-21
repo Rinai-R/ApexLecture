@@ -1,13 +1,12 @@
 package config
 
 type ServerConfig struct {
-	Name               string       `json:"name"`
-	Host               string       `json:"host"`
-	Port               string       `json:"port"`
-	UserSrvInfo        RPCSrvConfig `json:"user_srv"`
-	LectureSrvInfo     RPCSrvConfig `json:"lecture_srv"`
-	InteractionSrvInfo RPCSrvConfig `json:"interaction_srv"`
-	OtelEndpoint       string       `json:"otel_endpoint"`
+	Name           string       `json:"name"`
+	Host           string       `json:"host"`
+	Port           string       `json:"port"`
+	UserSrvInfo    RPCSrvConfig `json:"user_srv"`
+	LectureSrvInfo RPCSrvConfig `json:"lecture_srv"`
+	OtelEndpoint   string       `json:"otel_endpoint"`
 }
 
 type RPCSrvConfig struct {

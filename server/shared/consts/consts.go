@@ -2,21 +2,24 @@ package consts
 
 // ServerConfig
 const (
-	Host            = "0.0.0.0"
-	ApiPort         = "10000"
-	UserPort        = "10001"
-	LecturePort     = "10002"
-	InteractionPort = "10003"
+	Host        = "0.0.0.0"
+	ApiPort     = "10000"
+	UserPort    = "10001"
+	LecturePort = "10002"
+	ChatPort    = "10003"
+	PushPort    = "10004"
 
-	ApiConfig         = "./server/cmd/api/config.yaml"
-	UserConfig        = "./server/cmd/user/config.yaml"
-	LectureConfig     = "./server/cmd/lecture/config.yaml"
-	InteractionConfig = "./server/cmd/interaction/config.yaml"
+	ApiConfig     = "./server/cmd/api/config.yaml"
+	UserConfig    = "./server/cmd/user/config.yaml"
+	LectureConfig = "./server/cmd/lecture/config.yaml"
+	ChatConfig    = "./server/cmd/chat/config.yaml"
+	PushConfig    = "./server/cmd/push/config.yaml"
 
-	ApiSrvPrefix         = "api"
-	UserSrvPrefix        = "user"
-	LectureSrvPrefix     = "lecture"
-	InteractionSrvPrefix = "interaction"
+	ApiSrvPrefix     = "api"
+	UserSrvPrefix    = "user"
+	LectureSrvPrefix = "lecture"
+	ChatSrvPrefix    = "chat"
+	PushSrvPrefix    = "push"
 
 	OtelEndpoint = "localhost:4317"
 )

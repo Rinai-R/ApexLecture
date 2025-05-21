@@ -28,20 +28,24 @@ user-run:
 lecture-run:
 	go run $(CMD_PATH)/lecture/
 
-interaction-run:
-	go run $(CMD_PATH)/interaction/
+chat-run:
+	go run $(CMD_PATH)/chat/
 
+push_run:
+	go run $(CMD_PATH)/push/
 
 # ============================= 更新 API 脚手架文件 ========================
 hz-update:
 	make api-update service=user
 	make api-update service=lecture
-	make api-update service=interaction
+	make api-update service=chat
+	make api-update service=push
 
 hz-new:
 	make api-new service=user
 	make api-new service=lecture
-	make api-new service=interaction
+	make api-new service=push
+	make api-new service=chat
 
 # ============================= 更新 rpc 脚手架文件 ========================
 rpc-all:
@@ -49,6 +53,10 @@ rpc-all:
 	make user-rpc
 	make lecture-gen
 	make lecture-rpc
+	make chat-gen
+	make chat-rpc
+	make push-gen
+	make push-rpc
 
 user-rpc:
 	cd 	./server/cmd/user && \
@@ -70,17 +78,25 @@ lecture-gen:
 	cd 	./server/shared && \
 	kitex -module github.com/Rinai-R/ApexLecture ../idl/rpc/lecture.thrift
 
-interaction-rpc:
-	cd 	./server/cmd/interaction && \
-	kitex -module $(MODULE_NAME) -service interaction \
+push-rpc:
+	cd 	./server/cmd/push && \
+	kitex -module $(MODULE_NAME) -service push \
 	-use github.com/Rinai-R/ApexLecture/server/shared/kitex_gen \
-	../../idl/rpc/interaction.thrift
+	../../idl/rpc/push.thrift
 
-interaction-gen:
+push-gen:
 	cd 	./server/shared && \
-	kitex -module github.com/Rinai-R/ApexLecture ../idl/rpc/interaction.thrift
+	kitex -module github.com/Rinai-R/ApexLecture ../idl/rpc/push.thrift
 
+chat-rpc:
+	cd 	./server/cmd/chat && \
+	kitex -module $(MODULE_NAME) -service chat \
+	-use github.com/Rinai-R/ApexLecture/server/shared/kitex_gen \
+	../../idl/rpc/chat.thrift
 
+chat-gen:
+	cd 	./server/shared && \
+	kitex -module github.com/Rinai-R/ApexLecture ../idl/rpc/chat.thrift
 
 # =================================== 更新配置文件 ==================================
 hz-conf:
@@ -92,14 +108,18 @@ user-conf:
 lecture-conf:
 	go run $(CMD_PATH)/lecture/script/preprocess.go
 
-interaction-conf:
-	go run $(CMD_PATH)/interaction/script/preprocess.go
+push-conf:
+	go run $(CMD_PATH)/push/script/preprocess.go
+
+chat-conf:
+	go run $(CMD_PATH)/chat/script/preprocess.go
 
 conf:
 	make hz-conf
 	make user-conf
 	make lecture-conf
-	make interaction-conf
+	make push-conf
+	make chat-conf
 # ============================ 杂项，给其他 make 指令用的 ==========================
 api-update:
 	cd 	./server/cmd/api && \

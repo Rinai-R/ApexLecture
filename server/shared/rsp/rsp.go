@@ -25,6 +25,7 @@ const (
 	GetIVFStreamError         = 40019
 	GetOGGStreamError         = 40020
 	CreateRoomError           = 40021
+	SendMessageError          = 40022
 )
 
 func OK() *base.BaseResponse {
@@ -177,6 +178,13 @@ func ErrorGetOGGStream(define string) *base.BaseResponse {
 func ErrorCreateRoom(define string) *base.BaseResponse {
 	return &base.BaseResponse{
 		Code:    CreateRoomError,
+		Message: define,
+	}
+}
+
+func ErrorSendMessage(define string) *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    SendMessageError,
 		Message: define,
 	}
 }

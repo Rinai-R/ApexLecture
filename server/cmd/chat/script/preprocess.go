@@ -6,7 +6,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/config"
+	"github.com/Rinai-R/ApexLecture/server/cmd/chat/config"
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
 	"github.com/bytedance/sonic"
 	"github.com/spf13/viper"
@@ -25,7 +25,7 @@ func main() {
 
 	// 读取配置文件
 	conf = viper.New()
-	conf.SetConfigFile(consts.LectureConfig)
+	conf.SetConfigFile(consts.ChatConfig)
 	err = conf.ReadInConfig()
 	if err != nil {
 		panic("PreProcess failed: ReadInConfig failed" + err.Error())
@@ -47,9 +47,9 @@ func main() {
 
 	// 预先准备 ServerConfig 的数据
 	ServerConfig = config.ServerConfig{
-		Name: consts.LectureSrvPrefix,
+		Name: consts.ChatSrvPrefix,
 		Host: consts.Host,
-		Port: consts.LecturePort,
+		Port: consts.ChatPort,
 		Mysql: config.MysqlConfig{
 			Host:     consts.MysqlHost,
 			Port:     consts.MysqlPort,
@@ -57,12 +57,15 @@ func main() {
 			Password: consts.MysqlPassword,
 			Database: consts.MysqlDatabase,
 		},
-		Minio: config.MinioConfig{
-			Endpoint:        consts.MinioEndpoint,
-			AccessKeyID:     consts.MinioAccessKey,
-			SecretAccessKey: consts.MinioSecretKey,
-			BucketName:      consts.MinioBucket,
-			Secure:          consts.MinioSecure,
+		Redis: config.RedisConfig{
+			Host:     consts.RedisHost,
+			Port:     consts.RedisPort,
+			Password: consts.RedisPassword,
+			Database: consts.RedisDatabase,
+		},
+		Kafka: config.KafkaConfig{
+			Brokers: []string{consts.KafkaBroker},
+			Topic:   consts.KafkaTopic,
 		},
 		OtelEndpoint: consts.OtelEndpoint,
 	}
@@ -71,7 +74,7 @@ func main() {
 	if err != nil {
 		panic("PreProcess failed: json.Marshal failed" + err.Error())
 	}
-	// 写入etcd
+	// 写入 etcd
 	Registry.Put(context.Background(), EtcdConf.Key, string(byteData))
 
 	// 最后的验证
