@@ -6,7 +6,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/Rinai-R/ApexLecture/server/cmd/chat/config"
+	"github.com/Rinai-R/ApexLecture/server/cmd/push/config"
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
 	"github.com/bytedance/sonic"
 	"github.com/spf13/viper"
@@ -25,7 +25,7 @@ func main() {
 
 	// 读取配置文件
 	conf = viper.New()
-	conf.SetConfigFile(consts.ChatConfig)
+	conf.SetConfigFile(consts.PushConfig)
 	err = conf.ReadInConfig()
 	if err != nil {
 		panic("PreProcess failed: ReadInConfig failed" + err.Error())
@@ -47,26 +47,14 @@ func main() {
 
 	// 预先准备 ServerConfig 的数据
 	ServerConfig = config.ServerConfig{
-		Name: consts.ChatSrvPrefix,
+		Name: consts.PushSrvPrefix,
 		Host: consts.Host,
-		Port: consts.ChatPort,
-		Mysql: config.MysqlConfig{
-			Host:     consts.MysqlHost,
-			Port:     consts.MysqlPort,
-			Username: consts.MysqlUser,
-			Password: consts.MysqlPassword,
-			Database: consts.MysqlDatabase,
-		},
+		Port: consts.PushPort,
 		Redis: config.RedisConfig{
 			Host:     consts.RedisHost,
 			Port:     consts.RedisPort,
 			Password: consts.RedisPassword,
 			Database: consts.RedisDatabase,
-		},
-		Kafka: config.KafkaConfig{
-			Brokers: []string{consts.KafkaBroker},
-			Topic:   consts.ChatKafkaTopic,
-			Group:   consts.ChatKafkaGroup,
 		},
 		OtelEndpoint: consts.OtelEndpoint,
 	}

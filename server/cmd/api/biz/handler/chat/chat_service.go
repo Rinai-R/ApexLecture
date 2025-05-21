@@ -4,8 +4,12 @@ package chat
 
 import (
 	"context"
+	"strconv"
 
 	chat "github.com/Rinai-R/ApexLecture/server/cmd/api/biz/model/chat"
+	"github.com/Rinai-R/ApexLecture/server/cmd/api/config"
+	rpc "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/chat"
+	"github.com/Rinai-R/ApexLecture/server/shared/rsp"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -17,11 +21,34 @@ func Chat(ctx context.Context, c *app.RequestContext) {
 	var req chat.SendMessageRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
 		return
 	}
-
-	resp := new(chat.SendMessageResponse)
-
-	c.JSON(consts.StatusOK, resp)
+	userid, ok := c.Get("userid")
+	if !ok {
+		c.JSON(consts.StatusBadRequest, rsp.ErrorUnAuthorized("Unknown user"))
+		return
+	}
+	UserId := userid.(int64)
+	roomid, ok := c.Params.Get("roomid")
+	if !ok {
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter("roomid is required"))
+		return
+	}
+	RoomId, err := strconv.ParseInt(roomid, 10, 64)
+	if err != nil {
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter("roomid is invalid"))
+		return
+	}
+	resp, _ := config.ChatClient.SendChat(ctx, &rpc.ChatMessage{
+		UserId: UserId,
+		RoomId: RoomId,
+		Text:   req.Message,
+	})
+	switch resp.Response.Code {
+	case 20000:
+		c.JSON(consts.StatusOK, resp)
+	default:
+		c.JSON(consts.StatusBadRequest, resp)
+	}
 }

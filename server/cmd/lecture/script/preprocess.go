@@ -64,6 +64,12 @@ func main() {
 			BucketName:      consts.MinioBucket,
 			Secure:          consts.MinioSecure,
 		},
+		Redis: config.RedisConfig{
+			Host:     "localhost",
+			Port:     "6379",
+			Password: "123456",
+			Database: 0,
+		},
 		OtelEndpoint: consts.OtelEndpoint,
 	}
 	// 序列化 ServerConfig

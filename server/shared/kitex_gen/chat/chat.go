@@ -9,8 +9,8 @@ import (
 )
 
 type ChatMessage struct {
-	RoomId string `thrift:"room_id,1" frugal:"1,default,string" json:"room_id"`
-	UserId string `thrift:"user_id,2" frugal:"2,default,string" json:"user_id"`
+	RoomId int64  `thrift:"roomId,1" frugal:"1,default,i64" json:"roomId"`
+	UserId int64  `thrift:"userId,2" frugal:"2,default,i64" json:"userId"`
 	Text   string `thrift:"text,3" frugal:"3,default,string" json:"text"`
 }
 
@@ -21,21 +21,21 @@ func NewChatMessage() *ChatMessage {
 func (p *ChatMessage) InitDefault() {
 }
 
-func (p *ChatMessage) GetRoomId() (v string) {
+func (p *ChatMessage) GetRoomId() (v int64) {
 	return p.RoomId
 }
 
-func (p *ChatMessage) GetUserId() (v string) {
+func (p *ChatMessage) GetUserId() (v int64) {
 	return p.UserId
 }
 
 func (p *ChatMessage) GetText() (v string) {
 	return p.Text
 }
-func (p *ChatMessage) SetRoomId(val string) {
+func (p *ChatMessage) SetRoomId(val int64) {
 	p.RoomId = val
 }
-func (p *ChatMessage) SetUserId(val string) {
+func (p *ChatMessage) SetUserId(val int64) {
 	p.UserId = val
 }
 func (p *ChatMessage) SetText(val string) {
@@ -50,8 +50,8 @@ func (p *ChatMessage) String() string {
 }
 
 var fieldIDToName_ChatMessage = map[int16]string{
-	1: "room_id",
-	2: "user_id",
+	1: "roomId",
+	2: "userId",
 	3: "text",
 }
 

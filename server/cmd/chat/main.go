@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/Rinai-R/ApexLecture/server/cmd/chat/config"
 	"github.com/Rinai-R/ApexLecture/server/cmd/chat/dao"
@@ -12,7 +15,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
-	"github.com/hertz-contrib/obs-opentelemetry/provider"
+	"github.com/kitex-contrib/obs-opentelemetry/provider"
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 )
 
@@ -23,6 +26,7 @@ func main() {
 	rdb := initialize.InitRedis()
 	pro, con := initialize.InitMQ()
 	r, i := initialize.InitRegistry()
+	handler := mq.NewConsumerHandler(dao.NewMysqlManager(d))
 	p := provider.NewOpenTelemetryProvider(
 		provider.WithServiceName(config.GlobalServerConfig.Name),
 		provider.WithExportEndpoint(config.GlobalServerConfig.OtelEndpoint),
@@ -31,9 +35,9 @@ func main() {
 	defer p.Shutdown(context.Background())
 	svr := chatservice.NewServer(
 		&ChatServiceImpl{
-			MysqlManagerImpl: dao.NewMysqlManager(d),
-			RedisManagerImpl: dao.NewRedisManager(rdb),
-			MQManagerImpl:    mq.NewProducerManager(pro),
+			MysqlManager: dao.NewMysqlManager(d),
+			RedisManager: dao.NewRedisManager(rdb),
+			MQManager:    mq.NewProducerManager(pro),
 		},
 		server.WithRegistry(r),
 		server.WithRegistryInfo(i),
@@ -42,12 +46,19 @@ func main() {
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: config.GlobalServerConfig.Name,
 		}))
+	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
 		consumer := mq.NewConsumerManager(con)
-		err := consumer.Consume(context.Background(), config.GlobalServerConfig.Kafka.Topic)
+		err := consumer.Consume(ctx, config.GlobalServerConfig.Kafka.Topic, handler)
 		if err != nil {
 			klog.Error("Consume failed", err)
 		}
+	}()
+	go func() {
+		signalChan := make(chan os.Signal, 1)
+		signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+		<-signalChan
+		cancel()
 	}()
 	err := svr.Run()
 

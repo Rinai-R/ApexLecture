@@ -7,13 +7,13 @@ enum MessageType {
 }
 
 struct ChatMessage {
-    1: required string room_id,
-    2: required string user_id,
+    1: required i64 room_id,
+    2: required i64 user_id,
     3: required string text,
 }
 
 union Payload {
-    1: ChatMessage chat_message,
+    1: optional ChatMessage chat_message,
 }
 
 struct PushMessageResponse {
@@ -21,11 +21,12 @@ struct PushMessageResponse {
     2: required Payload payload,
 }
 
-struct PushQuestionRequest {
-    1: required string room_id,
+struct PushMessageRequest {
+    1: required i64 roomId,
+    2: required i64 userId,
 }
 
 
 service PushService {
-    PushMessageResponse Receive(1: PushQuestionRequest request) (stream="server")
+    PushMessageResponse Receive(1: PushMessageRequest request) (streaming.mode="server")
 }

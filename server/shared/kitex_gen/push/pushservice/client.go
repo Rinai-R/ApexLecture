@@ -6,22 +6,28 @@ import (
 	"context"
 	push "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/push"
 	client "github.com/cloudwego/kitex/client"
-	callopt "github.com/cloudwego/kitex/client/callopt"
+	streamcall "github.com/cloudwego/kitex/client/callopt/streamcall"
+	streaming "github.com/cloudwego/kitex/pkg/streaming"
+	transport "github.com/cloudwego/kitex/transport"
 )
 
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.
 type Client interface {
-	Receive(ctx context.Context, request *push.PushQuestionRequest, callOptions ...callopt.Option) (r *push.PushMessageResponse, err error)
+	Receive(ctx context.Context, request *push.PushMessageRequest, callOptions ...streamcall.Option) (stream PushService_ReceiveClient, err error)
 }
+
+type PushService_ReceiveClient streaming.ServerStreamingClient[push.PushMessageResponse]
 
 // NewClient creates a client for the service defined in IDL.
 func NewClient(destService string, opts ...client.Option) (Client, error) {
 	var options []client.Option
 	options = append(options, client.WithDestService(destService))
 
+	options = append(options, client.WithTransportProtocol(transport.TTHeaderStreaming))
+
 	options = append(options, opts...)
 
-	kc, err := client.NewClient(serviceInfoForClient(), options...)
+	kc, err := client.NewClient(serviceInfo(), options...)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +49,7 @@ type kPushServiceClient struct {
 	*kClient
 }
 
-func (p *kPushServiceClient) Receive(ctx context.Context, request *push.PushQuestionRequest, callOptions ...callopt.Option) (r *push.PushMessageResponse, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+func (p *kPushServiceClient) Receive(ctx context.Context, request *push.PushMessageRequest, callOptions ...streamcall.Option) (stream PushService_ReceiveClient, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, streamcall.GetCallOptions(callOptions))
 	return p.kClient.Receive(ctx, request)
 }

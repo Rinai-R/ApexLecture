@@ -31,7 +31,7 @@ lecture-run:
 chat-run:
 	go run $(CMD_PATH)/chat/
 
-push_run:
+push-run:
 	go run $(CMD_PATH)/push/
 
 # ============================= 更新 API 脚手架文件 ========================
@@ -80,13 +80,13 @@ lecture-gen:
 
 push-rpc:
 	cd 	./server/cmd/push && \
-	kitex -module $(MODULE_NAME) -service push \
+	kitex -streamx -module $(MODULE_NAME) -service push \
 	-use github.com/Rinai-R/ApexLecture/server/shared/kitex_gen \
 	../../idl/rpc/push.thrift
 
 push-gen:
 	cd 	./server/shared && \
-	kitex -module github.com/Rinai-R/ApexLecture ../idl/rpc/push.thrift
+	kitex -streamx  -module github.com/Rinai-R/ApexLecture ../idl/rpc/push.thrift
 
 chat-rpc:
 	cd 	./server/cmd/chat && \

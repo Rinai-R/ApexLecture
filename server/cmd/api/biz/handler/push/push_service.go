@@ -4,10 +4,18 @@ package push
 
 import (
 	"context"
+	"net/http"
+	"strconv"
 
 	push "github.com/Rinai-R/ApexLecture/server/cmd/api/biz/model/push"
+	"github.com/Rinai-R/ApexLecture/server/cmd/api/config"
+	rpc "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/push"
+	"github.com/Rinai-R/ApexLecture/server/shared/rsp"
+	"github.com/Rinai-R/ApexLecture/server/shared/tools"
+	"github.com/bytedance/sonic"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/hertz-contrib/sse"
 )
 
 // Receive .
@@ -17,11 +25,58 @@ func Receive(ctx context.Context, c *app.RequestContext) {
 	var req push.PushQuestionRequest
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter(err.Error()))
 		return
 	}
+	userid, ok := c.Get("userid")
+	if !ok {
+		c.JSON(consts.StatusBadRequest, rsp.ErrorUnAuthorized("UnKnown User"))
+	}
+	UserId := userid.(int64)
+	roomid, ok := c.Params.Get("roomid")
+	if !ok {
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter("roomid is required"))
+	}
+	RoomId, err := strconv.ParseInt(roomid, 10, 64)
+	if err != nil {
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter("roomid is invalid"))
+	}
+	serverStream, err := config.PushClient.Receive(ctx, &rpc.PushMessageRequest{
+		RoomId: RoomId,
+		UserId: UserId,
+	})
+	if err != nil {
+		serverStream.CloseSend(ctx)
+		c.JSON(consts.StatusInternalServerError, rsp.ErrorFailToConnect())
+		return
+	}
+	c.SetStatusCode(http.StatusOK)
+	clientStream := sse.NewStream(c)
 
-	resp := new(push.PushMessageResponse)
+	for {
+		select {
+		case <-ctx.Done():
+			serverStream.CloseSend(ctx)
+			return
 
-	c.JSON(consts.StatusOK, resp)
+		default:
+			msg, err := serverStream.Recv(ctx)
+			if err != nil {
+				serverStream.CloseSend(ctx)
+				return
+			}
+			data, err := sonic.Marshal(msg)
+			if err != nil {
+				continue
+			}
+			err = clientStream.Publish(&sse.Event{
+				Event: tools.MessageTypeToString(msg.Type),
+				Data:  data,
+			})
+			if err != nil {
+				serverStream.CloseSend(ctx)
+				return
+			}
+		}
+	}
 }

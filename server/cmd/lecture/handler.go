@@ -40,6 +40,7 @@ type LectureServiceImpl struct {
 	goroutinePool        *ants.Pool // 控制并发数
 	MinioManager         *minio.Client
 	MysqlManager
+	RedisManager
 }
 
 type MysqlManager interface {
@@ -51,6 +52,12 @@ type MysqlManager interface {
 }
 
 var _ MysqlManager = (*dao.MysqlManagerImpl)(nil)
+
+type RedisManager interface {
+	CreateRoom(ctx context.Context, roomId int64) error
+	DeleteRoom(ctx context.Context, roomId int64) error
+	DeleteSignal(ctx context.Context, roomId int64) error
+}
 
 // 房间号对应的 LectureSession 结构体
 // 每个结构体代表房间里面主播的轨道以及主播的 PeerConnection 以及观众的连接状况
@@ -123,6 +130,9 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 			Response: rsp.ErrorCreateLecture(err.Error()),
 		}, nil
 	}
+
+	// redis 存储房间号，使得消息服务可以知道这个房间的存在。
+	s.RedisManager.CreateRoom(ctx, roomid)
 
 	// 远程调用，创建交互房间。
 
@@ -202,6 +212,11 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 	peerConnection.OnICEConnectionStateChange(func(connectionState webrtc.ICEConnectionState) {
 		if connectionState == webrtc.ICEConnectionStateDisconnected || connectionState == webrtc.ICEConnectionStateFailed {
 			klog.Info("主播连接断开")
+			// 此处也需要告诉其他服务，这个房间已经关闭了
+			// 使得消息服务可以正常运作。
+			s.RedisManager.DeleteRoom(ctx, roomid)
+			s.RedisManager.DeleteSignal(ctx, roomid)
+			s.Sessions.Delete(roomid)
 			peerConnection.Close()
 		}
 	})

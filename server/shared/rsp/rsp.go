@@ -26,6 +26,8 @@ const (
 	GetOGGStreamError         = 40020
 	CreateRoomError           = 40021
 	SendMessageError          = 40022
+	RoomNotExists             = 40023
+	FailToConnect             = 40024
 )
 
 func OK() *base.BaseResponse {
@@ -186,5 +188,19 @@ func ErrorSendMessage(define string) *base.BaseResponse {
 	return &base.BaseResponse{
 		Code:    SendMessageError,
 		Message: define,
+	}
+}
+
+func ErrorRoomNotExists(define string) *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    RoomNotExists,
+		Message: define,
+	}
+}
+
+func ErrorFailToConnect() *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    FailToConnect,
+		Message: "Fail to connect the room",
 	}
 }

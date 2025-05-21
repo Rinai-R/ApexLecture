@@ -1,15 +1,21 @@
 package dao
 
 import (
+	"context"
+
 	"github.com/Rinai-R/ApexLecture/server/cmd/chat/model"
 	"gorm.io/gorm"
 )
 
-type MysqlManager struct {
+type MysqlManagerImpl struct {
 	db *gorm.DB
 }
 
-func NewMysqlManager(db *gorm.DB) *MysqlManager {
+func NewMysqlManager(db *gorm.DB) *MysqlManagerImpl {
 	db.AutoMigrate(&model.ChatMessage{})
-	return &MysqlManager{db: db}
+	return &MysqlManagerImpl{db: db}
+}
+
+func (m *MysqlManagerImpl) CreateChatMessage(ctx context.Context, chatMessage *model.ChatMessage) error {
+	return m.db.Create(chatMessage).Error
 }

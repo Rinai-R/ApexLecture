@@ -61,7 +61,11 @@ func AttendLecture(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter("Unknown room"))
 		return
 	}
-	RoomID, _ := strconv.ParseInt(roomid, 10, 64)
+	RoomID, err := strconv.ParseInt(roomid, 10, 64)
+	if err != nil {
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter("Invalid roomid"))
+		return
+	}
 	userid, ok := c.Get("userid")
 	if !ok {
 		c.JSON(consts.StatusUnauthorized, rsp.ErrorUnAuthorized("Unknown user"))

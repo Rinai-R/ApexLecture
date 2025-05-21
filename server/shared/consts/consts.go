@@ -53,8 +53,11 @@ const (
 
 // KafkaConfig
 const (
-	KafkaBroker = "localhost:9092"
-	KafkaTopic  = "lecture"
+	KafkaBroker       = "localhost:9092"
+	LectureKafkaTopic = "lecture"
+	LectureKafkaGroup = "lecture"
+	ChatKafkaTopic    = "chat"
+	ChatKafkaGroup    = "chat"
 )
 
 // key
@@ -75,4 +78,11 @@ const (
 	UserIDSnowFlakeNode       = 2
 	LectureIDSnowFlakeNode    = 3
 	AttendanceIDSnowFlakeNode = 4
+	MessageIDSnowFlakeNode    = 5
+)
+
+// RedisMessage
+const (
+	RoomKey      = "room:%d"
+	DeleteSignal = "__DELETE__"
 )

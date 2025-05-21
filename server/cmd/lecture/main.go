@@ -21,6 +21,7 @@ func main() {
 	initialize.Initlogger()
 	initialize.InitConfig()
 	d := initialize.InitDB()
+	rdb := initialize.InitRedis()
 	r, i := initialize.InitRegistry()
 	m := initialize.InitMinio()
 	p := provider.NewOpenTelemetryProvider(
@@ -31,6 +32,7 @@ func main() {
 	defer p.Shutdown(context.Background())
 	svr := lecture.NewServer(&LectureServiceImpl{
 		MysqlManager:         dao.NewDM(d),
+		RedisManager:         dao.NewRedisManager(rdb),
 		MinioManager:         m,
 		Sessions:             &sync.Map{},
 		WebrtcAPI:            webrtc.NewWebrtcAPI(),

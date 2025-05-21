@@ -8,6 +8,7 @@ import (
 	push "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/push"
 	client "github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
+	streaming "github.com/cloudwego/kitex/pkg/streaming"
 )
 
 var errInvalidMessageType = errors.New("invalid message type for service method handler")
@@ -18,14 +19,12 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		newPushServiceReceiveArgs,
 		newPushServiceReceiveResult,
 		false,
-		kitex.WithStreamingMode(kitex.StreamingNone),
+		kitex.WithStreamingMode(kitex.StreamingServer),
 	),
 }
 
 var (
-	pushServiceServiceInfo                = NewServiceInfo()
-	pushServiceServiceInfoForClient       = NewServiceInfoForClient()
-	pushServiceServiceInfoForStreamClient = NewServiceInfoForStreamClient()
+	pushServiceServiceInfo = NewServiceInfo()
 )
 
 // for server
@@ -33,52 +32,21 @@ func serviceInfo() *kitex.ServiceInfo {
 	return pushServiceServiceInfo
 }
 
-// for stream client
-func serviceInfoForStreamClient() *kitex.ServiceInfo {
-	return pushServiceServiceInfoForStreamClient
-}
-
-// for client
-func serviceInfoForClient() *kitex.ServiceInfo {
-	return pushServiceServiceInfoForClient
-}
-
-// NewServiceInfo creates a new ServiceInfo containing all methods
+// NewServiceInfo creates a new ServiceInfo
 func NewServiceInfo() *kitex.ServiceInfo {
-	return newServiceInfo(false, true, true)
+	return newServiceInfo()
 }
 
-// NewServiceInfo creates a new ServiceInfo containing non-streaming methods
-func NewServiceInfoForClient() *kitex.ServiceInfo {
-	return newServiceInfo(false, false, true)
-}
-func NewServiceInfoForStreamClient() *kitex.ServiceInfo {
-	return newServiceInfo(true, true, false)
-}
-
-func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreamingMethods bool) *kitex.ServiceInfo {
+func newServiceInfo() *kitex.ServiceInfo {
 	serviceName := "PushService"
 	handlerType := (*push.PushService)(nil)
-	methods := map[string]kitex.MethodInfo{}
-	for name, m := range serviceMethods {
-		if m.IsStreaming() && !keepStreamingMethods {
-			continue
-		}
-		if !m.IsStreaming() && !keepNonStreamingMethods {
-			continue
-		}
-		methods[name] = m
-	}
 	extra := map[string]interface{}{
 		"PackageName": "push",
-	}
-	if hasStreaming {
-		extra["streaming"] = hasStreaming
 	}
 	svcInfo := &kitex.ServiceInfo{
 		ServiceName:     serviceName,
 		HandlerType:     handlerType,
-		Methods:         methods,
+		Methods:         serviceMethods,
 		PayloadCodec:    kitex.Thrift,
 		KiteXGenVersion: "v0.13.1",
 		Extra:           extra,
@@ -87,15 +55,18 @@ func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreami
 }
 
 func receiveHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*push.PushServiceReceiveArgs)
-	realResult := result.(*push.PushServiceReceiveResult)
-	success, err := handler.(push.PushService).Receive(ctx, realArg.Request)
+	st, err := streaming.GetServerStreamFromArg(arg)
 	if err != nil {
 		return err
 	}
-	realResult.Success = success
-	return nil
+	stream := streaming.NewServerStreamingServer[push.PushMessageResponse](st)
+	req := new(push.PushMessageRequest)
+	if err := stream.RecvMsg(ctx, req); err != nil {
+		return err
+	}
+	return handler.(push.PushService).Receive(ctx, req, stream)
 }
+
 func newPushServiceReceiveArgs() interface{} {
 	return push.NewPushServiceReceiveArgs()
 }
@@ -105,21 +76,28 @@ func newPushServiceReceiveResult() interface{} {
 }
 
 type kClient struct {
-	c client.Client
+	c  client.Client
+	sc client.Streaming
 }
 
 func newServiceClient(c client.Client) *kClient {
 	return &kClient{
-		c: c,
+		c:  c,
+		sc: c.(client.Streaming),
 	}
 }
 
-func (p *kClient) Receive(ctx context.Context, request *push.PushQuestionRequest) (r *push.PushMessageResponse, err error) {
-	var _args push.PushServiceReceiveArgs
-	_args.Request = request
-	var _result push.PushServiceReceiveResult
-	if err = p.c.Call(ctx, "Receive", &_args, &_result); err != nil {
-		return
+func (p *kClient) Receive(ctx context.Context, request *push.PushMessageRequest) (PushService_ReceiveClient, error) {
+	st, err := p.sc.StreamX(ctx, "Receive")
+	if err != nil {
+		return nil, err
 	}
-	return _result.GetSuccess(), nil
+	stream := streaming.NewServerStreamingClient[push.PushMessageResponse](st)
+	if err := stream.SendMsg(ctx, request); err != nil {
+		return nil, err
+	}
+	if err := stream.CloseSend(ctx); err != nil {
+		return nil, err
+	}
+	return stream, nil
 }

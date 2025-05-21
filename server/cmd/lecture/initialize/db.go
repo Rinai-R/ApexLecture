@@ -6,6 +6,7 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/cmd/lecture/config"
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -29,4 +30,16 @@ func InitDB() *gorm.DB {
 	}
 	klog.Info("Connected to mysql")
 	return db
+}
+
+func InitRedis() *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr: fmt.Sprintf(
+			"%s:%s",
+			config.GlobalServerConfig.Redis.Host,
+			config.GlobalServerConfig.Redis.Port,
+		),
+		Password: config.GlobalServerConfig.Redis.Password,
+		DB:       config.GlobalServerConfig.Redis.Database,
+	})
 }

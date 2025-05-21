@@ -6,8 +6,8 @@ include "../base/base.thrift"
 namespace go chat
 
 struct ChatMessage {
-    1: string room_id,
-    2: string user_id,
+    1: i64 roomId,
+    2: i64 userId,
     3: string text,
 }
 

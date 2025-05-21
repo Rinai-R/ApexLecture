@@ -3,8 +3,52 @@
 package base
 
 import (
+	"database/sql"
+	"database/sql/driver"
 	"fmt"
 )
+
+type InternalMessageType int64
+
+const (
+	InternalMessageType_CHAT_MESSAGE    InternalMessageType = 1
+	InternalMessageType_CONTRAL_MESSAGE InternalMessageType = 2
+)
+
+func (p InternalMessageType) String() string {
+	switch p {
+	case InternalMessageType_CHAT_MESSAGE:
+		return "CHAT_MESSAGE"
+	case InternalMessageType_CONTRAL_MESSAGE:
+		return "CONTRAL_MESSAGE"
+	}
+	return "<UNSET>"
+}
+
+func InternalMessageTypeFromString(s string) (InternalMessageType, error) {
+	switch s {
+	case "CHAT_MESSAGE":
+		return InternalMessageType_CHAT_MESSAGE, nil
+	case "CONTRAL_MESSAGE":
+		return InternalMessageType_CONTRAL_MESSAGE, nil
+	}
+	return InternalMessageType(0), fmt.Errorf("not a valid InternalMessageType string")
+}
+
+func InternalMessageTypePtr(v InternalMessageType) *InternalMessageType { return &v }
+func (p *InternalMessageType) Scan(value interface{}) (err error) {
+	var result sql.NullInt64
+	err = result.Scan(value)
+	*p = InternalMessageType(result.Int64)
+	return
+}
+
+func (p *InternalMessageType) Value() (driver.Value, error) {
+	if p == nil {
+		return nil, nil
+	}
+	return int64(*p), nil
+}
 
 type BaseResponse struct {
 	Code    int64  `thrift:"code,1" frugal:"1,default,i64" json:"code"`
@@ -81,3 +125,193 @@ func (p *NilRequest) String() string {
 }
 
 var fieldIDToName_NilRequest = map[int16]string{}
+
+type InternalMessage struct {
+	Type    InternalMessageType `thrift:"type,1,required" frugal:"1,required,InternalMessageType" json:"type"`
+	Payload *InternalPayload    `thrift:"payload,2,required" frugal:"2,required,InternalPayload" json:"payload"`
+}
+
+func NewInternalMessage() *InternalMessage {
+	return &InternalMessage{}
+}
+
+func (p *InternalMessage) InitDefault() {
+}
+
+func (p *InternalMessage) GetType() (v InternalMessageType) {
+	return p.Type
+}
+
+var InternalMessage_Payload_DEFAULT *InternalPayload
+
+func (p *InternalMessage) GetPayload() (v *InternalPayload) {
+	if !p.IsSetPayload() {
+		return InternalMessage_Payload_DEFAULT
+	}
+	return p.Payload
+}
+func (p *InternalMessage) SetType(val InternalMessageType) {
+	p.Type = val
+}
+func (p *InternalMessage) SetPayload(val *InternalPayload) {
+	p.Payload = val
+}
+
+func (p *InternalMessage) IsSetPayload() bool {
+	return p.Payload != nil
+}
+
+func (p *InternalMessage) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("InternalMessage(%+v)", *p)
+}
+
+var fieldIDToName_InternalMessage = map[int16]string{
+	1: "type",
+	2: "payload",
+}
+
+type InternalChatMessage struct {
+	RoomId  int64  `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
+	UserId  int64  `thrift:"userId,2,required" frugal:"2,required,i64" json:"userId"`
+	Message string `thrift:"message,3,required" frugal:"3,required,string" json:"message"`
+}
+
+func NewInternalChatMessage() *InternalChatMessage {
+	return &InternalChatMessage{}
+}
+
+func (p *InternalChatMessage) InitDefault() {
+}
+
+func (p *InternalChatMessage) GetRoomId() (v int64) {
+	return p.RoomId
+}
+
+func (p *InternalChatMessage) GetUserId() (v int64) {
+	return p.UserId
+}
+
+func (p *InternalChatMessage) GetMessage() (v string) {
+	return p.Message
+}
+func (p *InternalChatMessage) SetRoomId(val int64) {
+	p.RoomId = val
+}
+func (p *InternalChatMessage) SetUserId(val int64) {
+	p.UserId = val
+}
+func (p *InternalChatMessage) SetMessage(val string) {
+	p.Message = val
+}
+
+func (p *InternalChatMessage) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("InternalChatMessage(%+v)", *p)
+}
+
+var fieldIDToName_InternalChatMessage = map[int16]string{
+	1: "roomId",
+	2: "userId",
+	3: "message",
+}
+
+type InternalControlMessage struct {
+	Operation string `thrift:"operation,1,required" frugal:"1,required,string" json:"operation"`
+}
+
+func NewInternalControlMessage() *InternalControlMessage {
+	return &InternalControlMessage{}
+}
+
+func (p *InternalControlMessage) InitDefault() {
+}
+
+func (p *InternalControlMessage) GetOperation() (v string) {
+	return p.Operation
+}
+func (p *InternalControlMessage) SetOperation(val string) {
+	p.Operation = val
+}
+
+func (p *InternalControlMessage) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("InternalControlMessage(%+v)", *p)
+}
+
+var fieldIDToName_InternalControlMessage = map[int16]string{
+	1: "operation",
+}
+
+type InternalPayload struct {
+	ChatMessage    *InternalChatMessage    `thrift:"chatMessage,1,optional" frugal:"1,optional,InternalChatMessage" json:"chatMessage,omitempty"`
+	ControlMessage *InternalControlMessage `thrift:"controlMessage,2,optional" frugal:"2,optional,InternalControlMessage" json:"controlMessage,omitempty"`
+}
+
+func NewInternalPayload() *InternalPayload {
+	return &InternalPayload{}
+}
+
+func (p *InternalPayload) InitDefault() {
+}
+
+var InternalPayload_ChatMessage_DEFAULT *InternalChatMessage
+
+func (p *InternalPayload) GetChatMessage() (v *InternalChatMessage) {
+	if !p.IsSetChatMessage() {
+		return InternalPayload_ChatMessage_DEFAULT
+	}
+	return p.ChatMessage
+}
+
+var InternalPayload_ControlMessage_DEFAULT *InternalControlMessage
+
+func (p *InternalPayload) GetControlMessage() (v *InternalControlMessage) {
+	if !p.IsSetControlMessage() {
+		return InternalPayload_ControlMessage_DEFAULT
+	}
+	return p.ControlMessage
+}
+func (p *InternalPayload) SetChatMessage(val *InternalChatMessage) {
+	p.ChatMessage = val
+}
+func (p *InternalPayload) SetControlMessage(val *InternalControlMessage) {
+	p.ControlMessage = val
+}
+
+func (p *InternalPayload) CountSetFieldsInternalPayload() int {
+	count := 0
+	if p.IsSetChatMessage() {
+		count++
+	}
+	if p.IsSetControlMessage() {
+		count++
+	}
+	return count
+}
+
+func (p *InternalPayload) IsSetChatMessage() bool {
+	return p.ChatMessage != nil
+}
+
+func (p *InternalPayload) IsSetControlMessage() bool {
+	return p.ControlMessage != nil
+}
+
+func (p *InternalPayload) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("InternalPayload(%+v)", *p)
+}
+
+var fieldIDToName_InternalPayload = map[int16]string{
+	1: "chatMessage",
+	2: "controlMessage",
+}

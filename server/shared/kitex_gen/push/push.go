@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
+	"github.com/cloudwego/kitex/pkg/streaming"
 )
 
 type MessageType int64
@@ -47,8 +48,8 @@ func (p *MessageType) Value() (driver.Value, error) {
 }
 
 type ChatMessage struct {
-	RoomId string `thrift:"room_id,1,required" frugal:"1,required,string" json:"room_id"`
-	UserId string `thrift:"user_id,2,required" frugal:"2,required,string" json:"user_id"`
+	RoomId int64  `thrift:"room_id,1,required" frugal:"1,required,i64" json:"room_id"`
+	UserId int64  `thrift:"user_id,2,required" frugal:"2,required,i64" json:"user_id"`
 	Text   string `thrift:"text,3,required" frugal:"3,required,string" json:"text"`
 }
 
@@ -59,21 +60,21 @@ func NewChatMessage() *ChatMessage {
 func (p *ChatMessage) InitDefault() {
 }
 
-func (p *ChatMessage) GetRoomId() (v string) {
+func (p *ChatMessage) GetRoomId() (v int64) {
 	return p.RoomId
 }
 
-func (p *ChatMessage) GetUserId() (v string) {
+func (p *ChatMessage) GetUserId() (v int64) {
 	return p.UserId
 }
 
 func (p *ChatMessage) GetText() (v string) {
 	return p.Text
 }
-func (p *ChatMessage) SetRoomId(val string) {
+func (p *ChatMessage) SetRoomId(val int64) {
 	p.RoomId = val
 }
-func (p *ChatMessage) SetUserId(val string) {
+func (p *ChatMessage) SetUserId(val int64) {
 	p.UserId = val
 }
 func (p *ChatMessage) SetText(val string) {
@@ -140,33 +141,42 @@ var fieldIDToName_PushMessageResponse = map[int16]string{
 	2: "payload",
 }
 
-type PushQuestionRequest struct {
-	RoomId string `thrift:"room_id,1,required" frugal:"1,required,string" json:"room_id"`
+type PushMessageRequest struct {
+	RoomId int64 `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
+	UserId int64 `thrift:"userId,2,required" frugal:"2,required,i64" json:"userId"`
 }
 
-func NewPushQuestionRequest() *PushQuestionRequest {
-	return &PushQuestionRequest{}
+func NewPushMessageRequest() *PushMessageRequest {
+	return &PushMessageRequest{}
 }
 
-func (p *PushQuestionRequest) InitDefault() {
+func (p *PushMessageRequest) InitDefault() {
 }
 
-func (p *PushQuestionRequest) GetRoomId() (v string) {
+func (p *PushMessageRequest) GetRoomId() (v int64) {
 	return p.RoomId
 }
-func (p *PushQuestionRequest) SetRoomId(val string) {
+
+func (p *PushMessageRequest) GetUserId() (v int64) {
+	return p.UserId
+}
+func (p *PushMessageRequest) SetRoomId(val int64) {
 	p.RoomId = val
 }
+func (p *PushMessageRequest) SetUserId(val int64) {
+	p.UserId = val
+}
 
-func (p *PushQuestionRequest) String() string {
+func (p *PushMessageRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("PushQuestionRequest(%+v)", *p)
+	return fmt.Sprintf("PushMessageRequest(%+v)", *p)
 }
 
-var fieldIDToName_PushQuestionRequest = map[int16]string{
-	1: "room_id",
+var fieldIDToName_PushMessageRequest = map[int16]string{
+	1: "roomId",
+	2: "userId",
 }
 
 type Payload struct {
@@ -216,11 +226,11 @@ var fieldIDToName_Payload = map[int16]string{
 }
 
 type PushService interface {
-	Receive(ctx context.Context, request *PushQuestionRequest) (r *PushMessageResponse, err error)
+	Receive(ctx context.Context, req *PushMessageRequest, stream PushService_ReceiveServer) (err error)
 }
 
 type PushServiceReceiveArgs struct {
-	Request *PushQuestionRequest `thrift:"request,1" frugal:"1,default,PushQuestionRequest" json:"request"`
+	Request *PushMessageRequest `thrift:"request,1" frugal:"1,default,PushMessageRequest" json:"request"`
 }
 
 func NewPushServiceReceiveArgs() *PushServiceReceiveArgs {
@@ -230,15 +240,15 @@ func NewPushServiceReceiveArgs() *PushServiceReceiveArgs {
 func (p *PushServiceReceiveArgs) InitDefault() {
 }
 
-var PushServiceReceiveArgs_Request_DEFAULT *PushQuestionRequest
+var PushServiceReceiveArgs_Request_DEFAULT *PushMessageRequest
 
-func (p *PushServiceReceiveArgs) GetRequest() (v *PushQuestionRequest) {
+func (p *PushServiceReceiveArgs) GetRequest() (v *PushMessageRequest) {
 	if !p.IsSetRequest() {
 		return PushServiceReceiveArgs_Request_DEFAULT
 	}
 	return p.Request
 }
-func (p *PushServiceReceiveArgs) SetRequest(val *PushQuestionRequest) {
+func (p *PushServiceReceiveArgs) SetRequest(val *PushMessageRequest) {
 	p.Request = val
 }
 
@@ -294,3 +304,5 @@ func (p *PushServiceReceiveResult) String() string {
 var fieldIDToName_PushServiceReceiveResult = map[int16]string{
 	0: "success",
 }
+
+type PushService_ReceiveServer streaming.ServerStreamingServer[PushMessageResponse]
