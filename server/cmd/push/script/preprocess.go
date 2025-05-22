@@ -48,7 +48,7 @@ func main() {
 	// 预先准备 ServerConfig 的数据
 	ServerConfig = config.ServerConfig{
 		Name: consts.PushSrvPrefix,
-		Host: consts.Host,
+		Host: consts.PushHost,
 		Port: consts.PushPort,
 		Redis: config.RedisConfig{
 			Host:     consts.RedisHost,

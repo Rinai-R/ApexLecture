@@ -1,8 +1,11 @@
 namespace go quiz
 
+include "../base/base.thrift"
+
+
 struct SubmitQuestionRequest {
     1: required i8 type,
-    2: required payload Payload,
+    2: required Payload Payload,
 }
 
 union Payload {
@@ -54,6 +57,6 @@ struct SubmitAnswerResponse {
 }
 
 service QuizService {
-    SubmitQuestionResponse submitQuestion(1: SubmitQuestionRequest request)
-    SubmitAnswerResponse submitAnswer(1: SubmitAnswerRequest request)
+    SubmitQuestionResponse submitQuestion(1: SubmitQuestionRequest request) (api.post="/quiz/:roomid/question")
+    SubmitAnswerResponse submitAnswer(1: SubmitAnswerRequest request) (api.post="/quiz/:roomid/answer")
 }

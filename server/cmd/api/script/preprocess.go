@@ -48,7 +48,7 @@ func main() {
 	// 预先准备 ServerConfig 的数据
 	ServerConfig = config.ServerConfig{
 		Name: consts.ApiSrvPrefix,
-		Host: consts.Host,
+		Host: consts.ApiHost,
 		Port: consts.ApiPort,
 		UserSrvInfo: config.RPCSrvConfig{
 			Name: consts.UserSrvPrefix,

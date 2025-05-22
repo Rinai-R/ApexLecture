@@ -48,7 +48,7 @@ func main() {
 	// 预先准备 ServerConfig 的数据
 	ServerConfig = config.ServerConfig{
 		Name: consts.ChatSrvPrefix,
-		Host: consts.Host,
+		Host: consts.ChatHost,
 		Port: consts.ChatPort,
 		Mysql: config.MysqlConfig{
 			Host:     consts.MysqlHost,

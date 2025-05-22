@@ -2,24 +2,33 @@ package consts
 
 // ServerConfig
 const (
-	Host        = "0.0.0.0"
+	ApiHost     = "0.0.0.0"
+	UserHost    = "0.0.0.0"
+	LectureHost = "0.0.0.0"
+	ChatHost    = "0.0.0.0"
+	PushHost    = "0.0.0.0"
+	QuizHost    = "0.0.0.0"
+
 	ApiPort     = "10000"
 	UserPort    = "10001"
 	LecturePort = "10002"
 	ChatPort    = "10003"
 	PushPort    = "10004"
+	QuizPort    = "10005"
 
 	ApiConfig     = "./server/cmd/api/config.yaml"
 	UserConfig    = "./server/cmd/user/config.yaml"
 	LectureConfig = "./server/cmd/lecture/config.yaml"
 	ChatConfig    = "./server/cmd/chat/config.yaml"
 	PushConfig    = "./server/cmd/push/config.yaml"
+	QuizConfig    = "./server/cmd/quiz/config.yaml"
 
 	ApiSrvPrefix     = "api"
 	UserSrvPrefix    = "user"
 	LectureSrvPrefix = "lecture"
 	ChatSrvPrefix    = "chat"
 	PushSrvPrefix    = "push"
+	QuizSrvPrefix    = "quiz"
 
 	OtelEndpoint = "localhost:4317"
 )
@@ -60,6 +69,8 @@ const (
 	LectureKafkaGroup = "lecture"
 	ChatKafkaTopic    = "chat"
 	ChatKafkaGroup    = "chat"
+	QuizKafkaTopic    = "quiz"
+	QuizKafkaGroup    = "quiz"
 )
 
 // key

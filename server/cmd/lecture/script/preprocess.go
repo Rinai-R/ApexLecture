@@ -48,7 +48,7 @@ func main() {
 	// 预先准备 ServerConfig 的数据
 	ServerConfig = config.ServerConfig{
 		Name: consts.LectureSrvPrefix,
-		Host: consts.Host,
+		Host: consts.LectureHost,
 		Port: consts.LecturePort,
 		Mysql: config.MysqlConfig{
 			Host:     consts.MysqlHost,
@@ -65,10 +65,10 @@ func main() {
 			Secure:          consts.MinioSecure,
 		},
 		Redis: config.RedisConfig{
-			Host:     "localhost",
-			Port:     "6379",
-			Password: "123456",
-			Database: 0,
+			Host:     consts.RedisHost,
+			Port:     consts.RedisPort,
+			Password: consts.RedisPassword,
+			Database: consts.RedisDatabase,
 		},
 		OtelEndpoint: consts.OtelEndpoint,
 	}
