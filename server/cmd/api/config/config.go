@@ -8,6 +8,7 @@ type ServerConfig struct {
 	LectureSrvInfo RPCSrvConfig `json:"lecture_srv"`
 	ChatSrvInfo    RPCSrvConfig `json:"chat_srv"`
 	PushSrvInfo    RPCSrvConfig `json:"push_srv"`
+	QuizSrvInfo    RPCSrvConfig `json:"quiz_srv"`
 	OtelEndpoint   string       `json:"otel_endpoint"`
 }
 

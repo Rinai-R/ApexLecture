@@ -64,6 +64,8 @@ func main() {
 			Database: consts.RedisDatabase,
 		},
 		Kafka: config.KafkaConfig{
+			Username: consts.KafkaUsername,
+			Password: consts.KafkaPassword,
 			Brokers: []string{
 				consts.KafkaBroker1,
 				consts.KafkaBroker2,

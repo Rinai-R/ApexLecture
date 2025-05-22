@@ -62,6 +62,8 @@ const (
 
 // KafkaConfig
 const (
+	KafkaUsername     = "root"
+	KafkaPassword     = "123456"
 	KafkaBroker1      = "localhost:9094"
 	KafkaBroker2      = "localhost:9095"
 	KafkaBroker3      = "localhost:9096"

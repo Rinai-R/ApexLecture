@@ -6,7 +6,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/Rinai-R/ApexLecture/server/cmd/api/config"
+	"github.com/Rinai-R/ApexLecture/server/cmd/quiz/config"
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
 	"github.com/bytedance/sonic"
 	"github.com/spf13/viper"
@@ -25,7 +25,7 @@ func main() {
 
 	// 读取配置文件
 	conf = viper.New()
-	conf.SetConfigFile(consts.ApiConfig)
+	conf.SetConfigFile(consts.QuizConfig)
 	err = conf.ReadInConfig()
 	if err != nil {
 		panic("PreProcess failed: ReadInConfig failed" + err.Error())
@@ -47,23 +47,32 @@ func main() {
 
 	// 预先准备 ServerConfig 的数据
 	ServerConfig = config.ServerConfig{
-		Name: consts.ApiSrvPrefix,
-		Host: consts.ApiHost,
-		Port: consts.ApiPort,
-		UserSrvInfo: config.RPCSrvConfig{
-			Name: consts.UserSrvPrefix,
+		Name: consts.QuizSrvPrefix,
+		Host: consts.QuizHost,
+		Port: consts.QuizPort,
+		Mysql: config.MysqlConfig{
+			Host:     consts.MysqlHost,
+			Port:     consts.MysqlPort,
+			Username: consts.MysqlUser,
+			Password: consts.MysqlPassword,
+			Database: consts.MysqlDatabase,
 		},
-		LectureSrvInfo: config.RPCSrvConfig{
-			Name: consts.LectureSrvPrefix,
+		Redis: config.RedisConfig{
+			Host:     consts.RedisHost,
+			Port:     consts.RedisPort,
+			Password: consts.RedisPassword,
+			Database: consts.RedisDatabase,
 		},
-		ChatSrvInfo: config.RPCSrvConfig{
-			Name: consts.ChatSrvPrefix,
-		},
-		PushSrvInfo: config.RPCSrvConfig{
-			Name: consts.PushSrvPrefix,
-		},
-		QuizSrvInfo: config.RPCSrvConfig{
-			Name: consts.QuizSrvPrefix,
+		Kafka: config.KafkaConfig{
+			Username: consts.KafkaUsername,
+			Password: consts.KafkaPassword,
+			Brokers: []string{
+				consts.KafkaBroker1,
+				consts.KafkaBroker2,
+				consts.KafkaBroker3,
+			},
+			Topic: consts.QuizKafkaTopic,
+			Group: consts.QuizKafkaGroup,
 		},
 		OtelEndpoint: consts.OtelEndpoint,
 	}
@@ -72,7 +81,7 @@ func main() {
 	if err != nil {
 		panic("PreProcess failed: json.Marshal failed" + err.Error())
 	}
-	// 写入etcd
+	// 写入 etcd
 	Registry.Put(context.Background(), EtcdConf.Key, string(byteData))
 
 	// 最后的验证

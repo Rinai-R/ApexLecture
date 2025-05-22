@@ -5,4 +5,5 @@ func Initrpc() {
 	initLecture()
 	initChat()
 	initPush()
+	initQuiz()
 }

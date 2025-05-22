@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/IBM/sarama"
-	"github.com/Rinai-R/ApexLecture/server/cmd/chat/config"
+	"github.com/Rinai-R/ApexLecture/server/cmd/quiz/config"
 	"github.com/cloudwego/kitex/pkg/klog"
 )
 
@@ -31,13 +31,13 @@ func InitMQ() (sarama.AsyncProducer, sarama.ConsumerGroup) {
 	}
 	go func() {
 		for err := range producer.Errors() {
-			klog.Error("Chat MQ producer error: ", err)
+			klog.Error("Quiz MQ producer error: ", err)
 		}
 	}()
 
 	go func() {
 		for msg := range producer.Successes() {
-			klog.Infof("Chat MQ producer success, topic: %s, partition: %d", msg.Topic, msg.Partition)
+			klog.Infof("Quiz MQ producer success, topic: %s, partition: %d", msg.Topic, msg.Partition)
 		}
 	}()
 
