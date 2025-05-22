@@ -64,9 +64,13 @@ func main() {
 			Database: consts.RedisDatabase,
 		},
 		Kafka: config.KafkaConfig{
-			Brokers: []string{consts.KafkaBroker},
-			Topic:   consts.ChatKafkaTopic,
-			Group:   consts.ChatKafkaGroup,
+			Brokers: []string{
+				consts.KafkaBroker1,
+				consts.KafkaBroker2,
+				consts.KafkaBroker3,
+			},
+			Topic: consts.ChatKafkaTopic,
+			Group: consts.ChatKafkaGroup,
 		},
 		OtelEndpoint: consts.OtelEndpoint,
 	}

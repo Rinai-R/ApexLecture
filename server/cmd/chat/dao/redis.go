@@ -7,6 +7,7 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
 	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/base"
 	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/chat"
+	"github.com/bytedance/sonic"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -20,7 +21,7 @@ func NewRedisManager(redis *redis.Client) *RedisManagerImpl {
 
 // 使用公共的 InternalMessage 结构体作为消息的载体，便于转换。
 func (r *RedisManagerImpl) SendMessage(ctx context.Context, request *chat.ChatMessage) (err error) {
-	return r.redis.Publish(ctx, fmt.Sprintf(consts.RoomKey, request.RoomId), &base.InternalMessage{
+	msg := &base.InternalMessage{
 		Type: base.InternalMessageType_CHAT_MESSAGE,
 		Payload: &base.InternalPayload{
 			ChatMessage: &base.InternalChatMessage{
@@ -29,7 +30,12 @@ func (r *RedisManagerImpl) SendMessage(ctx context.Context, request *chat.ChatMe
 				Message: request.Text,
 			},
 		},
-	}).Err()
+	}
+	msgbytes, err := sonic.Marshal(msg)
+	if err != nil {
+		return err
+	}
+	return r.redis.Publish(ctx, fmt.Sprintf(consts.RoomKey, request.RoomId), msgbytes).Err()
 }
 
 func (r *RedisManagerImpl) CheckRoomExists(ctx context.Context, roomId int64) (bool, error) {

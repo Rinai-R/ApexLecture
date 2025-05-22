@@ -53,7 +53,9 @@ const (
 
 // KafkaConfig
 const (
-	KafkaBroker       = "localhost:9092"
+	KafkaBroker1      = "localhost:9094"
+	KafkaBroker2      = "localhost:9095"
+	KafkaBroker3      = "localhost:9096"
 	LectureKafkaTopic = "lecture"
 	LectureKafkaGroup = "lecture"
 	ChatKafkaTopic    = "chat"

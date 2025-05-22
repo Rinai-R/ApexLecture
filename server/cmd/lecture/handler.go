@@ -59,6 +59,8 @@ type RedisManager interface {
 	DeleteSignal(ctx context.Context, roomId int64) error
 }
 
+var _ RedisManager = (*dao.RedisManagerImpl)(nil)
+
 // 房间号对应的 LectureSession 结构体
 // 每个结构体代表房间里面主播的轨道以及主播的 PeerConnection 以及观众的连接状况
 type LectureSession struct {
@@ -210,7 +212,8 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 		}
 	})
 	peerConnection.OnICEConnectionStateChange(func(connectionState webrtc.ICEConnectionState) {
-		if connectionState == webrtc.ICEConnectionStateDisconnected || connectionState == webrtc.ICEConnectionStateFailed {
+		if connectionState == webrtc.ICEConnectionStateDisconnected ||
+			connectionState == webrtc.ICEConnectionStateFailed || connectionState == webrtc.ICEConnectionStateClosed {
 			klog.Info("主播连接断开")
 			// 此处也需要告诉其他服务，这个房间已经关闭了
 			// 使得消息服务可以正常运作。
@@ -310,7 +313,8 @@ func (s *LectureServiceImpl) Attend(ctx context.Context, request *lecture.Attend
 	// 如果学生关闭网页，或者网络断开，就关闭这个 PeerConnection
 	// 并且记录退出时间，如果后续扩展，可以便于统计。
 	pc.OnICEConnectionStateChange(func(connectionState webrtc.ICEConnectionState) {
-		if connectionState == webrtc.ICEConnectionStateDisconnected || connectionState == webrtc.ICEConnectionStateFailed {
+		if connectionState == webrtc.ICEConnectionStateDisconnected || connectionState == webrtc.ICEConnectionStateFailed ||
+			connectionState == webrtc.ICEConnectionStateClosed {
 			s.RecordLeft(ctx, AttendanceId)
 			Session.Audiences.Delete(request.UserId)
 			pc.Close()

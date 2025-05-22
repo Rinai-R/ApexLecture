@@ -3,9 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/Rinai-R/ApexLecture/server/cmd/chat/config"
 	"github.com/Rinai-R/ApexLecture/server/cmd/chat/dao"
@@ -33,6 +30,14 @@ func main() {
 		provider.WithInsecure(),
 	)
 	defer p.Shutdown(context.Background())
+
+	go func() {
+		consumer := mq.NewConsumerManager(con)
+		err := consumer.Consume(context.Background(), config.GlobalServerConfig.Kafka.Topic, handler)
+		if err != nil {
+			klog.Error("Consume failed", err)
+		}
+	}()
 	svr := chatservice.NewServer(
 		&ChatServiceImpl{
 			MysqlManager: dao.NewMysqlManager(d),
@@ -46,20 +51,6 @@ func main() {
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: config.GlobalServerConfig.Name,
 		}))
-	ctx, cancel := context.WithCancel(context.Background())
-	go func() {
-		consumer := mq.NewConsumerManager(con)
-		err := consumer.Consume(ctx, config.GlobalServerConfig.Kafka.Topic, handler)
-		if err != nil {
-			klog.Error("Consume failed", err)
-		}
-	}()
-	go func() {
-		signalChan := make(chan os.Signal, 1)
-		signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
-		<-signalChan
-		cancel()
-	}()
 	err := svr.Run()
 
 	if err != nil {

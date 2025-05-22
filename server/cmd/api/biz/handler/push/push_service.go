@@ -32,7 +32,8 @@ func Receive(ctx context.Context, c *app.RequestContext) {
 	if !ok {
 		c.JSON(consts.StatusBadRequest, rsp.ErrorUnAuthorized("UnKnown User"))
 	}
-	UserId := userid.(int64)
+	userId := userid.(float64)
+	UserId := int64(userId)
 	roomid, ok := c.Params.Get("roomid")
 	if !ok {
 		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter("roomid is required"))

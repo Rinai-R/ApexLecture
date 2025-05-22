@@ -46,18 +46,19 @@ func NewConsumerManager(consumer sarama.ConsumerGroup) *ConsumerManagerImpl {
 	return &ConsumerManagerImpl{consumer: consumer}
 }
 
-func (c *ConsumerManagerImpl) Consume(ctx context.Context, topic string, handler *ConsumerHandlerImpl) (err error) {
-	for {
-		err = c.consumer.Consume(ctx, []string{topic}, handler)
-		if err != nil {
-			klog.Error("Consume failed", err)
-		}
-		if ctx.Err() != nil {
-			klog.Info("Kafka 消费退出")
-			break
-		}
+func (c *ConsumerManagerImpl) Consume(ctx context.Context, topic string, handler *ConsumerHandlerImpl) error {
+	klog.Info("Kafka 消费")
+	err := c.consumer.Consume(ctx, []string{topic}, handler)
+	if err != nil {
+		klog.Error("Consume failed", err)
+		return err
 	}
-	return
+	if ctx.Err() != nil {
+		klog.Info("Kafka 消费退出")
+		return ctx.Err()
+	}
+
+	return nil
 }
 
 // ============================= 下面是关于 Consumer Handler 的部分 =============================
@@ -87,27 +88,35 @@ func (h *ConsumerHandlerImpl) Cleanup(session sarama.ConsumerGroupSession) error
 }
 
 func (h *ConsumerHandlerImpl) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
-	klog.Info("ConsumerHandlerImpl: ConsumeClaim")
-	for message := range claim.Messages() {
-		var chatMessage chat.ChatMessage
-		err := sonic.Unmarshal(message.Value, &chatMessage)
-		if err != nil {
-			klog.Error("Unmarshal failed", err)
-			continue
+	for {
+		select {
+		case message, ok := <-claim.Messages():
+			if !ok {
+				klog.Info("ConsumerHandlerImpl: 消费完毕")
+				return nil
+			}
+			var chatMessage chat.ChatMessage
+			err := sonic.Unmarshal(message.Value, &chatMessage)
+			if err != nil {
+				klog.Error("Unmarshal failed", err)
+				continue
+			}
+			sf, err := snowflake.NewNode(consts.MessageIDSnowFlakeNode)
+			if err != nil {
+				klog.Error("NewNode failed", err)
+				continue
+			}
+			id := sf.Generate().Int64()
+			h.MySQLManager.CreateChatMessage(context.Background(), &model.ChatMessage{
+				ID:        id,
+				SenderID:  chatMessage.UserId,
+				RoomID:    chatMessage.RoomId,
+				Content:   chatMessage.Text,
+				CreatedAt: time.Now(),
+			})
+			session.MarkMessage(message, "")
+		case <-session.Context().Done():
+			return nil
 		}
-		sf, err := snowflake.NewNode(consts.MessageIDSnowFlakeNode)
-		if err != nil {
-			klog.Error("NewNode failed", err)
-			continue
-		}
-		id := sf.Generate().Int64()
-		h.MySQLManager.CreateChatMessage(context.Background(), &model.ChatMessage{
-			ID:        id,
-			SenderID:  chatMessage.UserId,
-			RoomID:    chatMessage.RoomId,
-			Content:   chatMessage.Text,
-			CreatedAt: time.Now(),
-		})
 	}
-	return nil
 }
