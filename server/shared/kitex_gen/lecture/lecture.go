@@ -378,6 +378,7 @@ var fieldIDToName_GetHistoryLectureResponse = map[int16]string{
 type RandomSelectRequest struct {
 	RoomId int64 `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
 	UserId int64 `thrift:"userId,2,required" frugal:"2,required,i64" json:"userId"`
+	Number int64 `thrift:"number,3,required" frugal:"3,required,i64" json:"number"`
 }
 
 func NewRandomSelectRequest() *RandomSelectRequest {
@@ -394,11 +395,18 @@ func (p *RandomSelectRequest) GetRoomId() (v int64) {
 func (p *RandomSelectRequest) GetUserId() (v int64) {
 	return p.UserId
 }
+
+func (p *RandomSelectRequest) GetNumber() (v int64) {
+	return p.Number
+}
 func (p *RandomSelectRequest) SetRoomId(val int64) {
 	p.RoomId = val
 }
 func (p *RandomSelectRequest) SetUserId(val int64) {
 	p.UserId = val
+}
+func (p *RandomSelectRequest) SetNumber(val int64) {
+	p.Number = val
 }
 
 func (p *RandomSelectRequest) String() string {
@@ -411,11 +419,12 @@ func (p *RandomSelectRequest) String() string {
 var fieldIDToName_RandomSelectRequest = map[int16]string{
 	1: "roomId",
 	2: "userId",
+	3: "number",
 }
 
 type RandomSelectResponse struct {
-	Response   *base.BaseResponse `thrift:"response,1,required" frugal:"1,required,base.BaseResponse" json:"response"`
-	SelectedId int64              `thrift:"selectedId,2,required" frugal:"2,required,i64" json:"selectedId"`
+	Response    *base.BaseResponse `thrift:"response,1,required" frugal:"1,required,base.BaseResponse" json:"response"`
+	SelectedIds []int64            `thrift:"selectedIds,2,required" frugal:"2,required,list<i64>" json:"selectedIds"`
 }
 
 func NewRandomSelectResponse() *RandomSelectResponse {
@@ -434,14 +443,14 @@ func (p *RandomSelectResponse) GetResponse() (v *base.BaseResponse) {
 	return p.Response
 }
 
-func (p *RandomSelectResponse) GetSelectedId() (v int64) {
-	return p.SelectedId
+func (p *RandomSelectResponse) GetSelectedIds() (v []int64) {
+	return p.SelectedIds
 }
 func (p *RandomSelectResponse) SetResponse(val *base.BaseResponse) {
 	p.Response = val
 }
-func (p *RandomSelectResponse) SetSelectedId(val int64) {
-	p.SelectedId = val
+func (p *RandomSelectResponse) SetSelectedIds(val []int64) {
+	p.SelectedIds = val
 }
 
 func (p *RandomSelectResponse) IsSetResponse() bool {
@@ -457,7 +466,7 @@ func (p *RandomSelectResponse) String() string {
 
 var fieldIDToName_RandomSelectResponse = map[int16]string{
 	1: "response",
-	2: "selectedId",
+	2: "selectedIds",
 }
 
 type LectureService interface {

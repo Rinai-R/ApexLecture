@@ -763,7 +763,7 @@ func (s *LectureServiceImpl) GetOGGStream(ctx context.Context, roomId int64) (*o
 }
 
 // RandomSelect implements the LectureServiceImpl interface.
-// 随机点名一个人
+// 随机点名指定数量的人
 func (s *LectureServiceImpl) RandomSelect(ctx context.Context, request *lecture.RandomSelectRequest) (resp *lecture.RandomSelectResponse, err error) {
 	value, ok := s.Sessions.Load(request.RoomId)
 	if !ok {
@@ -789,10 +789,26 @@ func (s *LectureServiceImpl) RandomSelect(ctx context.Context, request *lecture.
 			Response: rsp.ErrorNoAudience(),
 		}, nil
 	}
+
+	// 参数校验
+	n := int(request.Number)
+	if n > len(keys) {
+		n = len(keys)
+	} else if n <= 0 {
+		n = 1
+	}
+
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	selected := keys[r.Intn(len(keys))]
+	// Shuffle 可以用来打乱切片，来得到随机的结果
+	r.Shuffle(len(keys), func(i, j int) {
+		keys[i], keys[j] = keys[j], keys[i]
+	})
+
+	// 返回前n个
+	selected := keys[:n]
+
 	return &lecture.RandomSelectResponse{
-		Response:   rsp.OK(),
-		SelectedId: selected,
+		Response:    rsp.OK(),
+		SelectedIds: selected,
 	}, nil
 }

@@ -14,7 +14,7 @@ An online live classroom
 ## 进阶部分
 - [ ] AI Agent
 - [ ] 签到
-- [ ] 随机点名
+- [x] 随机点名
 - [ ] 连麦
 - [x] 文字聊天
 - [x] 屏幕共享(老师只能共享 https 的网站)

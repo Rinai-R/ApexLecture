@@ -1369,6 +1369,7 @@ func (p *GetHistoryLectureResponse) String() string {
 }
 
 type RandomSelectRequest struct {
+	Number int64 `thrift:"number,1,required" form:"number,required" json:"number,required" query:"number,required"`
 }
 
 func NewRandomSelectRequest() *RandomSelectRequest {
@@ -1378,11 +1379,18 @@ func NewRandomSelectRequest() *RandomSelectRequest {
 func (p *RandomSelectRequest) InitDefault() {
 }
 
-var fieldIDToName_RandomSelectRequest = map[int16]string{}
+func (p *RandomSelectRequest) GetNumber() (v int64) {
+	return p.Number
+}
+
+var fieldIDToName_RandomSelectRequest = map[int16]string{
+	1: "number",
+}
 
 func (p *RandomSelectRequest) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
+	var issetNumber bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -1396,8 +1404,21 @@ func (p *RandomSelectRequest) Read(iprot thrift.TProtocol) (err error) {
 		if fieldTypeId == thrift.STOP {
 			break
 		}
-		if err = iprot.Skip(fieldTypeId); err != nil {
-			goto SkipFieldTypeError
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetNumber = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
 		}
 		if err = iprot.ReadFieldEnd(); err != nil {
 			goto ReadFieldEndError
@@ -1407,25 +1428,50 @@ func (p *RandomSelectRequest) Read(iprot thrift.TProtocol) (err error) {
 		goto ReadStructEndError
 	}
 
+	if !issetNumber {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
 	return nil
 ReadStructBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-SkipFieldTypeError:
-	return thrift.PrependError(fmt.Sprintf("%T skip field type %d error", p, fieldTypeId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_RandomSelectRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
 ReadFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
 ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_RandomSelectRequest[fieldId]))
+}
+
+func (p *RandomSelectRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Number = _field
+	return nil
 }
 
 func (p *RandomSelectRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
 	if err = oprot.WriteStructBegin("RandomSelectRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -1436,10 +1482,29 @@ func (p *RandomSelectRequest) Write(oprot thrift.TProtocol) (err error) {
 	return nil
 WriteStructBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
 WriteFieldStopError:
 	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
 WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *RandomSelectRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("number", thrift.I64, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.Number); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
 func (p *RandomSelectRequest) String() string {
@@ -1451,8 +1516,8 @@ func (p *RandomSelectRequest) String() string {
 }
 
 type RandomSelectResponse struct {
-	Response   *base.BaseResponse `thrift:"response,1,required" form:"response,required" json:"response,required" query:"response,required"`
-	SelectedId int64              `thrift:"selectedId,2,required" form:"selectedId,required" json:"selectedId,required" query:"selectedId,required"`
+	Response    *base.BaseResponse `thrift:"response,1,required" form:"response,required" json:"response,required" query:"response,required"`
+	SelectedIds []int64            `thrift:"selectedIds,2,required" form:"selectedIds,required" json:"selectedIds,required" query:"selectedIds,required"`
 }
 
 func NewRandomSelectResponse() *RandomSelectResponse {
@@ -1471,13 +1536,13 @@ func (p *RandomSelectResponse) GetResponse() (v *base.BaseResponse) {
 	return p.Response
 }
 
-func (p *RandomSelectResponse) GetSelectedId() (v int64) {
-	return p.SelectedId
+func (p *RandomSelectResponse) GetSelectedIds() (v []int64) {
+	return p.SelectedIds
 }
 
 var fieldIDToName_RandomSelectResponse = map[int16]string{
 	1: "response",
-	2: "selectedId",
+	2: "selectedIds",
 }
 
 func (p *RandomSelectResponse) IsSetResponse() bool {
@@ -1488,7 +1553,7 @@ func (p *RandomSelectResponse) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetResponse bool = false
-	var issetSelectedId bool = false
+	var issetSelectedIds bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -1514,11 +1579,11 @@ func (p *RandomSelectResponse) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.LIST {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetSelectedId = true
+				issetSelectedIds = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -1540,7 +1605,7 @@ func (p *RandomSelectResponse) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetSelectedId {
+	if !issetSelectedIds {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
@@ -1571,14 +1636,26 @@ func (p *RandomSelectResponse) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 func (p *RandomSelectResponse) ReadField2(iprot thrift.TProtocol) error {
-
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
 		return err
-	} else {
-		_field = v
 	}
-	p.SelectedId = _field
+	_field := make([]int64, 0, size)
+	for i := 0; i < size; i++ {
+
+		var _elem int64
+		if v, err := iprot.ReadI64(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		_field = append(_field, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	p.SelectedIds = _field
 	return nil
 }
 
@@ -1631,10 +1708,18 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 func (p *RandomSelectResponse) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("selectedId", thrift.I64, 2); err != nil {
+	if err = oprot.WriteFieldBegin("selectedIds", thrift.LIST, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.SelectedId); err != nil {
+	if err := oprot.WriteListBegin(thrift.I64, len(p.SelectedIds)); err != nil {
+		return err
+	}
+	for _, v := range p.SelectedIds {
+		if err := oprot.WriteI64(v); err != nil {
+			return err
+		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {

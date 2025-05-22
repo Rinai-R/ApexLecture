@@ -37,11 +37,13 @@ struct GetHistoryLectureResponse {
     2: required string answer,
 }
 
-struct RandomSelectRequest {}
+struct RandomSelectRequest {
+    1: required i64 number,
+}
 
 struct RandomSelectResponse {
     1: required base.BaseResponse response,
-    2: required i64 selectedId,
+    2: required list<i64> selectedIds,
 }
 
 service LectureService {

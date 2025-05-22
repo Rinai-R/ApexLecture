@@ -1444,6 +1444,7 @@ func (p *RandomSelectRequest) FastRead(buf []byte) (int, error) {
 	var fieldId int16
 	var issetRoomId bool = false
 	var issetUserId bool = false
+	var issetNumber bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -1484,6 +1485,21 @@ func (p *RandomSelectRequest) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 3:
+			if fieldTypeId == thrift.I64 {
+				l, err = p.FastReadField3(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+				issetNumber = true
+			} else {
+				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 			offset += l
@@ -1500,6 +1516,11 @@ func (p *RandomSelectRequest) FastRead(buf []byte) (int, error) {
 
 	if !issetUserId {
 		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetNumber {
+		fieldId = 3
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -1541,6 +1562,20 @@ func (p *RandomSelectRequest) FastReadField2(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *RandomSelectRequest) FastReadField3(buf []byte) (int, error) {
+	offset := 0
+
+	var _field int64
+	if v, l, err := thrift.Binary.ReadI64(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+		_field = v
+	}
+	p.Number = _field
+	return offset, nil
+}
+
 func (p *RandomSelectRequest) FastWrite(buf []byte) int {
 	return p.FastWriteNocopy(buf, nil)
 }
@@ -1550,6 +1585,7 @@ func (p *RandomSelectRequest) FastWriteNocopy(buf []byte, w thrift.NocopyWriter)
 	if p != nil {
 		offset += p.fastWriteField1(buf[offset:], w)
 		offset += p.fastWriteField2(buf[offset:], w)
+		offset += p.fastWriteField3(buf[offset:], w)
 	}
 	offset += thrift.Binary.WriteFieldStop(buf[offset:])
 	return offset
@@ -1560,6 +1596,7 @@ func (p *RandomSelectRequest) BLength() int {
 	if p != nil {
 		l += p.field1Length()
 		l += p.field2Length()
+		l += p.field3Length()
 	}
 	l += thrift.Binary.FieldStopLength()
 	return l
@@ -1579,6 +1616,13 @@ func (p *RandomSelectRequest) fastWriteField2(buf []byte, w thrift.NocopyWriter)
 	return offset
 }
 
+func (p *RandomSelectRequest) fastWriteField3(buf []byte, w thrift.NocopyWriter) int {
+	offset := 0
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 3)
+	offset += thrift.Binary.WriteI64(buf[offset:], p.Number)
+	return offset
+}
+
 func (p *RandomSelectRequest) field1Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
@@ -1593,6 +1637,13 @@ func (p *RandomSelectRequest) field2Length() int {
 	return l
 }
 
+func (p *RandomSelectRequest) field3Length() int {
+	l := 0
+	l += thrift.Binary.FieldBeginLength()
+	l += thrift.Binary.I64Length()
+	return l
+}
+
 func (p *RandomSelectResponse) FastRead(buf []byte) (int, error) {
 
 	var err error
@@ -1601,7 +1652,7 @@ func (p *RandomSelectResponse) FastRead(buf []byte) (int, error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetResponse bool = false
-	var issetSelectedId bool = false
+	var issetSelectedIds bool = false
 	for {
 		fieldTypeId, fieldId, l, err = thrift.Binary.ReadFieldBegin(buf[offset:])
 		offset += l
@@ -1628,13 +1679,13 @@ func (p *RandomSelectResponse) FastRead(buf []byte) (int, error) {
 				}
 			}
 		case 2:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.LIST {
 				l, err = p.FastReadField2(buf[offset:])
 				offset += l
 				if err != nil {
 					goto ReadFieldError
 				}
-				issetSelectedId = true
+				issetSelectedIds = true
 			} else {
 				l, err = thrift.Binary.Skip(buf[offset:], fieldTypeId)
 				offset += l
@@ -1656,7 +1707,7 @@ func (p *RandomSelectResponse) FastRead(buf []byte) (int, error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetSelectedId {
+	if !issetSelectedIds {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
@@ -1686,14 +1737,24 @@ func (p *RandomSelectResponse) FastReadField1(buf []byte) (int, error) {
 func (p *RandomSelectResponse) FastReadField2(buf []byte) (int, error) {
 	offset := 0
 
-	var _field int64
-	if v, l, err := thrift.Binary.ReadI64(buf[offset:]); err != nil {
+	_, size, l, err := thrift.Binary.ReadListBegin(buf[offset:])
+	offset += l
+	if err != nil {
 		return offset, err
-	} else {
-		offset += l
-		_field = v
 	}
-	p.SelectedId = _field
+	_field := make([]int64, 0, size)
+	for i := 0; i < size; i++ {
+		var _elem int64
+		if v, l, err := thrift.Binary.ReadI64(buf[offset:]); err != nil {
+			return offset, err
+		} else {
+			offset += l
+			_elem = v
+		}
+
+		_field = append(_field, _elem)
+	}
+	p.SelectedIds = _field
 	return offset, nil
 }
 
@@ -1704,8 +1765,8 @@ func (p *RandomSelectResponse) FastWrite(buf []byte) int {
 func (p *RandomSelectResponse) FastWriteNocopy(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
 	if p != nil {
-		offset += p.fastWriteField2(buf[offset:], w)
 		offset += p.fastWriteField1(buf[offset:], w)
+		offset += p.fastWriteField2(buf[offset:], w)
 	}
 	offset += thrift.Binary.WriteFieldStop(buf[offset:])
 	return offset
@@ -1730,8 +1791,15 @@ func (p *RandomSelectResponse) fastWriteField1(buf []byte, w thrift.NocopyWriter
 
 func (p *RandomSelectResponse) fastWriteField2(buf []byte, w thrift.NocopyWriter) int {
 	offset := 0
-	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.I64, 2)
-	offset += thrift.Binary.WriteI64(buf[offset:], p.SelectedId)
+	offset += thrift.Binary.WriteFieldBegin(buf[offset:], thrift.LIST, 2)
+	listBeginOffset := offset
+	offset += thrift.Binary.ListBeginLength()
+	var length int
+	for _, v := range p.SelectedIds {
+		length++
+		offset += thrift.Binary.WriteI64(buf[offset:], v)
+	}
+	thrift.Binary.WriteListBegin(buf[listBeginOffset:], thrift.I64, length)
 	return offset
 }
 
@@ -1745,7 +1813,9 @@ func (p *RandomSelectResponse) field1Length() int {
 func (p *RandomSelectResponse) field2Length() int {
 	l := 0
 	l += thrift.Binary.FieldBeginLength()
-	l += thrift.Binary.I64Length()
+	l += thrift.Binary.ListBeginLength()
+	l +=
+		thrift.Binary.I64Length() * len(p.SelectedIds)
 	return l
 }
 
