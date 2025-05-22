@@ -15,6 +15,7 @@ type Client interface {
 	Attend(ctx context.Context, request *lecture.AttendRequest, callOptions ...callopt.Option) (r *lecture.AttendResponse, err error)
 	Record(ctx context.Context, request *lecture.RecordRequest, callOptions ...callopt.Option) (r *lecture.RecordResponse, err error)
 	GetHistoryLecture(ctx context.Context, request *lecture.GetHistoryLectureRequest, callOptions ...callopt.Option) (r *lecture.GetHistoryLectureResponse, err error)
+	RandomSelect(ctx context.Context, request *lecture.RandomSelectRequest, callOptions ...callopt.Option) (r *lecture.RandomSelectResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -64,4 +65,9 @@ func (p *kLectureServiceClient) Record(ctx context.Context, request *lecture.Rec
 func (p *kLectureServiceClient) GetHistoryLecture(ctx context.Context, request *lecture.GetHistoryLectureRequest, callOptions ...callopt.Option) (r *lecture.GetHistoryLectureResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetHistoryLecture(ctx, request)
+}
+
+func (p *kLectureServiceClient) RandomSelect(ctx context.Context, request *lecture.RandomSelectRequest, callOptions ...callopt.Option) (r *lecture.RandomSelectResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.RandomSelect(ctx, request)
 }

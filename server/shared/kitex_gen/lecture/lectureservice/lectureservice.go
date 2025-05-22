@@ -41,6 +41,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"randomSelect": kitex.NewMethodInfo(
+		randomSelectHandler,
+		newLectureServiceRandomSelectArgs,
+		newLectureServiceRandomSelectResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -179,6 +186,24 @@ func newLectureServiceGetHistoryLectureResult() interface{} {
 	return lecture.NewLectureServiceGetHistoryLectureResult()
 }
 
+func randomSelectHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*lecture.LectureServiceRandomSelectArgs)
+	realResult := result.(*lecture.LectureServiceRandomSelectResult)
+	success, err := handler.(lecture.LectureService).RandomSelect(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newLectureServiceRandomSelectArgs() interface{} {
+	return lecture.NewLectureServiceRandomSelectArgs()
+}
+
+func newLectureServiceRandomSelectResult() interface{} {
+	return lecture.NewLectureServiceRandomSelectResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -224,6 +249,16 @@ func (p *kClient) GetHistoryLecture(ctx context.Context, request *lecture.GetHis
 	_args.Request = request
 	var _result lecture.LectureServiceGetHistoryLectureResult
 	if err = p.c.Call(ctx, "getHistoryLecture", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) RandomSelect(ctx context.Context, request *lecture.RandomSelectRequest) (r *lecture.RandomSelectResponse, err error) {
+	var _args lecture.LectureServiceRandomSelectArgs
+	_args.Request = request
+	var _result lecture.LectureServiceRandomSelectResult
+	if err = p.c.Call(ctx, "randomSelect", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

@@ -135,3 +135,38 @@ func GetHistoryLecture(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusBadRequest, resp)
 	}
 }
+
+// RandomSelect .
+// @router lecture/:roomid/randomselect [GET]
+func RandomSelect(ctx context.Context, c *app.RequestContext) {
+	var err error
+
+	roomid, ok := c.Params.Get("roomid")
+	if !ok {
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter("Unknown room"))
+		return
+	}
+	RoomID, err := strconv.ParseInt(roomid, 10, 64)
+	if err != nil {
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter("Invalid roomid"))
+		return
+	}
+	userid, ok := c.Get("userid")
+	if !ok {
+		c.JSON(consts.StatusUnauthorized, rsp.ErrorUnAuthorized("Unknown user"))
+		return
+	}
+	userId := userid.(float64)
+	UserID := int64(userId)
+	resp, _ := config.LectureClient.RandomSelect(ctx, &rpc.RandomSelectRequest{
+		RoomId: RoomID,
+		UserId: UserID,
+	})
+
+	switch resp.Response.Code {
+	case rsp.Success:
+		c.JSON(consts.StatusOK, resp)
+	default:
+		c.JSON(consts.StatusBadRequest, resp)
+	}
+}

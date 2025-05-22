@@ -68,3 +68,8 @@ func _gethistorylectureMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _randomselectMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

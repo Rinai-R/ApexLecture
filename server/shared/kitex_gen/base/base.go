@@ -13,6 +13,9 @@ type InternalMessageType int64
 const (
 	InternalMessageType_CHAT_MESSAGE    InternalMessageType = 1
 	InternalMessageType_CONTRAL_MESSAGE InternalMessageType = 2
+	InternalMessageType_QUIZ_CHOICE     InternalMessageType = 3
+	InternalMessageType_QUIZ_JUDGE      InternalMessageType = 4
+	InternalMessageType_QUIZ_STATUS     InternalMessageType = 5
 )
 
 func (p InternalMessageType) String() string {
@@ -21,6 +24,12 @@ func (p InternalMessageType) String() string {
 		return "CHAT_MESSAGE"
 	case InternalMessageType_CONTRAL_MESSAGE:
 		return "CONTRAL_MESSAGE"
+	case InternalMessageType_QUIZ_CHOICE:
+		return "QUIZ_CHOICE"
+	case InternalMessageType_QUIZ_JUDGE:
+		return "QUIZ_JUDGE"
+	case InternalMessageType_QUIZ_STATUS:
+		return "QUIZ_STATUS"
 	}
 	return "<UNSET>"
 }
@@ -31,6 +40,12 @@ func InternalMessageTypeFromString(s string) (InternalMessageType, error) {
 		return InternalMessageType_CHAT_MESSAGE, nil
 	case "CONTRAL_MESSAGE":
 		return InternalMessageType_CONTRAL_MESSAGE, nil
+	case "QUIZ_CHOICE":
+		return InternalMessageType_QUIZ_CHOICE, nil
+	case "QUIZ_JUDGE":
+		return InternalMessageType_QUIZ_JUDGE, nil
+	case "QUIZ_STATUS":
+		return InternalMessageType_QUIZ_STATUS, nil
 	}
 	return InternalMessageType(0), fmt.Errorf("not a valid InternalMessageType string")
 }
@@ -249,9 +264,198 @@ var fieldIDToName_InternalControlMessage = map[int16]string{
 	1: "operation",
 }
 
+type InternalQuizChoice struct {
+	RoomId     int64    `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
+	UserId     int64    `thrift:"userId,2,required" frugal:"2,required,i64" json:"userId"`
+	QuestionId int64    `thrift:"questionId,3,required" frugal:"3,required,i64" json:"questionId"`
+	Title      string   `thrift:"title,4,required" frugal:"4,required,string" json:"title"`
+	Options    []string `thrift:"options,5,required" frugal:"5,required,list<string>" json:"options"`
+	Answers    []int8   `thrift:"answers,6,required" frugal:"6,required,list<i8>" json:"answers"`
+}
+
+func NewInternalQuizChoice() *InternalQuizChoice {
+	return &InternalQuizChoice{}
+}
+
+func (p *InternalQuizChoice) InitDefault() {
+}
+
+func (p *InternalQuizChoice) GetRoomId() (v int64) {
+	return p.RoomId
+}
+
+func (p *InternalQuizChoice) GetUserId() (v int64) {
+	return p.UserId
+}
+
+func (p *InternalQuizChoice) GetQuestionId() (v int64) {
+	return p.QuestionId
+}
+
+func (p *InternalQuizChoice) GetTitle() (v string) {
+	return p.Title
+}
+
+func (p *InternalQuizChoice) GetOptions() (v []string) {
+	return p.Options
+}
+
+func (p *InternalQuizChoice) GetAnswers() (v []int8) {
+	return p.Answers
+}
+func (p *InternalQuizChoice) SetRoomId(val int64) {
+	p.RoomId = val
+}
+func (p *InternalQuizChoice) SetUserId(val int64) {
+	p.UserId = val
+}
+func (p *InternalQuizChoice) SetQuestionId(val int64) {
+	p.QuestionId = val
+}
+func (p *InternalQuizChoice) SetTitle(val string) {
+	p.Title = val
+}
+func (p *InternalQuizChoice) SetOptions(val []string) {
+	p.Options = val
+}
+func (p *InternalQuizChoice) SetAnswers(val []int8) {
+	p.Answers = val
+}
+
+func (p *InternalQuizChoice) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("InternalQuizChoice(%+v)", *p)
+}
+
+var fieldIDToName_InternalQuizChoice = map[int16]string{
+	1: "roomId",
+	2: "userId",
+	3: "questionId",
+	4: "title",
+	5: "options",
+	6: "answers",
+}
+
+type InternalQuizJudge struct {
+	RoomId     int64 `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
+	UserId     int64 `thrift:"userId,2,required" frugal:"2,required,i64" json:"userId"`
+	QuestionId int64 `thrift:"questionId,3,required" frugal:"3,required,i64" json:"questionId"`
+	Answer     int64 `thrift:"answer,4,required" frugal:"4,required,i64" json:"answer"`
+}
+
+func NewInternalQuizJudge() *InternalQuizJudge {
+	return &InternalQuizJudge{}
+}
+
+func (p *InternalQuizJudge) InitDefault() {
+}
+
+func (p *InternalQuizJudge) GetRoomId() (v int64) {
+	return p.RoomId
+}
+
+func (p *InternalQuizJudge) GetUserId() (v int64) {
+	return p.UserId
+}
+
+func (p *InternalQuizJudge) GetQuestionId() (v int64) {
+	return p.QuestionId
+}
+
+func (p *InternalQuizJudge) GetAnswer() (v int64) {
+	return p.Answer
+}
+func (p *InternalQuizJudge) SetRoomId(val int64) {
+	p.RoomId = val
+}
+func (p *InternalQuizJudge) SetUserId(val int64) {
+	p.UserId = val
+}
+func (p *InternalQuizJudge) SetQuestionId(val int64) {
+	p.QuestionId = val
+}
+func (p *InternalQuizJudge) SetAnswer(val int64) {
+	p.Answer = val
+}
+
+func (p *InternalQuizJudge) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("InternalQuizJudge(%+v)", *p)
+}
+
+var fieldIDToName_InternalQuizJudge = map[int16]string{
+	1: "roomId",
+	2: "userId",
+	3: "questionId",
+	4: "answer",
+}
+
+type InternalQuizStatus struct {
+	RoomId      int64 `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
+	RequiredNum int64 `thrift:"requiredNum,2,required" frugal:"2,required,i64" json:"requiredNum"`
+	CurrentNum  int64 `thrift:"currentNum,3,required" frugal:"3,required,i64" json:"currentNum"`
+	AcceptRate  int64 `thrift:"AcceptRate,4,required" frugal:"4,required,i64" json:"AcceptRate"`
+}
+
+func NewInternalQuizStatus() *InternalQuizStatus {
+	return &InternalQuizStatus{}
+}
+
+func (p *InternalQuizStatus) InitDefault() {
+}
+
+func (p *InternalQuizStatus) GetRoomId() (v int64) {
+	return p.RoomId
+}
+
+func (p *InternalQuizStatus) GetRequiredNum() (v int64) {
+	return p.RequiredNum
+}
+
+func (p *InternalQuizStatus) GetCurrentNum() (v int64) {
+	return p.CurrentNum
+}
+
+func (p *InternalQuizStatus) GetAcceptRate() (v int64) {
+	return p.AcceptRate
+}
+func (p *InternalQuizStatus) SetRoomId(val int64) {
+	p.RoomId = val
+}
+func (p *InternalQuizStatus) SetRequiredNum(val int64) {
+	p.RequiredNum = val
+}
+func (p *InternalQuizStatus) SetCurrentNum(val int64) {
+	p.CurrentNum = val
+}
+func (p *InternalQuizStatus) SetAcceptRate(val int64) {
+	p.AcceptRate = val
+}
+
+func (p *InternalQuizStatus) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("InternalQuizStatus(%+v)", *p)
+}
+
+var fieldIDToName_InternalQuizStatus = map[int16]string{
+	1: "roomId",
+	2: "requiredNum",
+	3: "currentNum",
+	4: "AcceptRate",
+}
+
 type InternalPayload struct {
 	ChatMessage    *InternalChatMessage    `thrift:"chatMessage,1,optional" frugal:"1,optional,InternalChatMessage" json:"chatMessage,omitempty"`
 	ControlMessage *InternalControlMessage `thrift:"controlMessage,2,optional" frugal:"2,optional,InternalControlMessage" json:"controlMessage,omitempty"`
+	QuizChoice     *InternalQuizChoice     `thrift:"quizChoice,3,optional" frugal:"3,optional,InternalQuizChoice" json:"quizChoice,omitempty"`
+	QuizJudge      *InternalQuizJudge      `thrift:"quizJudge,4,optional" frugal:"4,optional,InternalQuizJudge" json:"quizJudge,omitempty"`
+	QuizStatus     *InternalQuizStatus     `thrift:"quizStatus,5,optional" frugal:"5,optional,InternalQuizStatus" json:"quizStatus,omitempty"`
 }
 
 func NewInternalPayload() *InternalPayload {
@@ -278,11 +482,47 @@ func (p *InternalPayload) GetControlMessage() (v *InternalControlMessage) {
 	}
 	return p.ControlMessage
 }
+
+var InternalPayload_QuizChoice_DEFAULT *InternalQuizChoice
+
+func (p *InternalPayload) GetQuizChoice() (v *InternalQuizChoice) {
+	if !p.IsSetQuizChoice() {
+		return InternalPayload_QuizChoice_DEFAULT
+	}
+	return p.QuizChoice
+}
+
+var InternalPayload_QuizJudge_DEFAULT *InternalQuizJudge
+
+func (p *InternalPayload) GetQuizJudge() (v *InternalQuizJudge) {
+	if !p.IsSetQuizJudge() {
+		return InternalPayload_QuizJudge_DEFAULT
+	}
+	return p.QuizJudge
+}
+
+var InternalPayload_QuizStatus_DEFAULT *InternalQuizStatus
+
+func (p *InternalPayload) GetQuizStatus() (v *InternalQuizStatus) {
+	if !p.IsSetQuizStatus() {
+		return InternalPayload_QuizStatus_DEFAULT
+	}
+	return p.QuizStatus
+}
 func (p *InternalPayload) SetChatMessage(val *InternalChatMessage) {
 	p.ChatMessage = val
 }
 func (p *InternalPayload) SetControlMessage(val *InternalControlMessage) {
 	p.ControlMessage = val
+}
+func (p *InternalPayload) SetQuizChoice(val *InternalQuizChoice) {
+	p.QuizChoice = val
+}
+func (p *InternalPayload) SetQuizJudge(val *InternalQuizJudge) {
+	p.QuizJudge = val
+}
+func (p *InternalPayload) SetQuizStatus(val *InternalQuizStatus) {
+	p.QuizStatus = val
 }
 
 func (p *InternalPayload) CountSetFieldsInternalPayload() int {
@@ -291,6 +531,15 @@ func (p *InternalPayload) CountSetFieldsInternalPayload() int {
 		count++
 	}
 	if p.IsSetControlMessage() {
+		count++
+	}
+	if p.IsSetQuizChoice() {
+		count++
+	}
+	if p.IsSetQuizJudge() {
+		count++
+	}
+	if p.IsSetQuizStatus() {
 		count++
 	}
 	return count
@@ -304,6 +553,18 @@ func (p *InternalPayload) IsSetControlMessage() bool {
 	return p.ControlMessage != nil
 }
 
+func (p *InternalPayload) IsSetQuizChoice() bool {
+	return p.QuizChoice != nil
+}
+
+func (p *InternalPayload) IsSetQuizJudge() bool {
+	return p.QuizJudge != nil
+}
+
+func (p *InternalPayload) IsSetQuizStatus() bool {
+	return p.QuizStatus != nil
+}
+
 func (p *InternalPayload) String() string {
 	if p == nil {
 		return "<nil>"
@@ -314,4 +575,7 @@ func (p *InternalPayload) String() string {
 var fieldIDToName_InternalPayload = map[int16]string{
 	1: "chatMessage",
 	2: "controlMessage",
+	3: "quizChoice",
+	4: "quizJudge",
+	5: "quizStatus",
 }

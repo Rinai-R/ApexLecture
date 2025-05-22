@@ -375,6 +375,91 @@ var fieldIDToName_GetHistoryLectureResponse = map[int16]string{
 	2: "answer",
 }
 
+type RandomSelectRequest struct {
+	RoomId int64 `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
+	UserId int64 `thrift:"userId,2,required" frugal:"2,required,i64" json:"userId"`
+}
+
+func NewRandomSelectRequest() *RandomSelectRequest {
+	return &RandomSelectRequest{}
+}
+
+func (p *RandomSelectRequest) InitDefault() {
+}
+
+func (p *RandomSelectRequest) GetRoomId() (v int64) {
+	return p.RoomId
+}
+
+func (p *RandomSelectRequest) GetUserId() (v int64) {
+	return p.UserId
+}
+func (p *RandomSelectRequest) SetRoomId(val int64) {
+	p.RoomId = val
+}
+func (p *RandomSelectRequest) SetUserId(val int64) {
+	p.UserId = val
+}
+
+func (p *RandomSelectRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("RandomSelectRequest(%+v)", *p)
+}
+
+var fieldIDToName_RandomSelectRequest = map[int16]string{
+	1: "roomId",
+	2: "userId",
+}
+
+type RandomSelectResponse struct {
+	Response   *base.BaseResponse `thrift:"response,1,required" frugal:"1,required,base.BaseResponse" json:"response"`
+	SelectedId int64              `thrift:"selectedId,2,required" frugal:"2,required,i64" json:"selectedId"`
+}
+
+func NewRandomSelectResponse() *RandomSelectResponse {
+	return &RandomSelectResponse{}
+}
+
+func (p *RandomSelectResponse) InitDefault() {
+}
+
+var RandomSelectResponse_Response_DEFAULT *base.BaseResponse
+
+func (p *RandomSelectResponse) GetResponse() (v *base.BaseResponse) {
+	if !p.IsSetResponse() {
+		return RandomSelectResponse_Response_DEFAULT
+	}
+	return p.Response
+}
+
+func (p *RandomSelectResponse) GetSelectedId() (v int64) {
+	return p.SelectedId
+}
+func (p *RandomSelectResponse) SetResponse(val *base.BaseResponse) {
+	p.Response = val
+}
+func (p *RandomSelectResponse) SetSelectedId(val int64) {
+	p.SelectedId = val
+}
+
+func (p *RandomSelectResponse) IsSetResponse() bool {
+	return p.Response != nil
+}
+
+func (p *RandomSelectResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("RandomSelectResponse(%+v)", *p)
+}
+
+var fieldIDToName_RandomSelectResponse = map[int16]string{
+	1: "response",
+	2: "selectedId",
+}
+
 type LectureService interface {
 	Start(ctx context.Context, request *StartRequest) (r *StartResponse, err error)
 
@@ -383,6 +468,8 @@ type LectureService interface {
 	Record(ctx context.Context, request *RecordRequest) (r *RecordResponse, err error)
 
 	GetHistoryLecture(ctx context.Context, request *GetHistoryLectureRequest) (r *GetHistoryLectureResponse, err error)
+
+	RandomSelect(ctx context.Context, request *RandomSelectRequest) (r *RandomSelectResponse, err error)
 }
 
 type LectureServiceStartArgs struct {
@@ -686,5 +773,81 @@ func (p *LectureServiceGetHistoryLectureResult) String() string {
 }
 
 var fieldIDToName_LectureServiceGetHistoryLectureResult = map[int16]string{
+	0: "success",
+}
+
+type LectureServiceRandomSelectArgs struct {
+	Request *RandomSelectRequest `thrift:"request,1" frugal:"1,default,RandomSelectRequest" json:"request"`
+}
+
+func NewLectureServiceRandomSelectArgs() *LectureServiceRandomSelectArgs {
+	return &LectureServiceRandomSelectArgs{}
+}
+
+func (p *LectureServiceRandomSelectArgs) InitDefault() {
+}
+
+var LectureServiceRandomSelectArgs_Request_DEFAULT *RandomSelectRequest
+
+func (p *LectureServiceRandomSelectArgs) GetRequest() (v *RandomSelectRequest) {
+	if !p.IsSetRequest() {
+		return LectureServiceRandomSelectArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+func (p *LectureServiceRandomSelectArgs) SetRequest(val *RandomSelectRequest) {
+	p.Request = val
+}
+
+func (p *LectureServiceRandomSelectArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *LectureServiceRandomSelectArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("LectureServiceRandomSelectArgs(%+v)", *p)
+}
+
+var fieldIDToName_LectureServiceRandomSelectArgs = map[int16]string{
+	1: "request",
+}
+
+type LectureServiceRandomSelectResult struct {
+	Success *RandomSelectResponse `thrift:"success,0,optional" frugal:"0,optional,RandomSelectResponse" json:"success,omitempty"`
+}
+
+func NewLectureServiceRandomSelectResult() *LectureServiceRandomSelectResult {
+	return &LectureServiceRandomSelectResult{}
+}
+
+func (p *LectureServiceRandomSelectResult) InitDefault() {
+}
+
+var LectureServiceRandomSelectResult_Success_DEFAULT *RandomSelectResponse
+
+func (p *LectureServiceRandomSelectResult) GetSuccess() (v *RandomSelectResponse) {
+	if !p.IsSetSuccess() {
+		return LectureServiceRandomSelectResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *LectureServiceRandomSelectResult) SetSuccess(x interface{}) {
+	p.Success = x.(*RandomSelectResponse)
+}
+
+func (p *LectureServiceRandomSelectResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *LectureServiceRandomSelectResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("LectureServiceRandomSelectResult(%+v)", *p)
+}
+
+var fieldIDToName_LectureServiceRandomSelectResult = map[int16]string{
 	0: "success",
 }

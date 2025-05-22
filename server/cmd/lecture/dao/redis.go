@@ -20,8 +20,9 @@ func NewRedisManager(client *redis.Client) *RedisManagerImpl {
 	return &RedisManagerImpl{client: client}
 }
 
-func (r *RedisManagerImpl) CreateRoom(ctx context.Context, roomId int64) error {
-	return r.client.Set(ctx, fmt.Sprintf(consts.RoomKey, roomId), "true", 0).Err()
+// 将教师 id 作为值，roomid 作为键，存入 redis 中。
+func (r *RedisManagerImpl) CreateRoom(ctx context.Context, roomId int64, hostid int64) error {
+	return r.client.Set(ctx, fmt.Sprintf(consts.RoomKey, roomId), fmt.Sprintf("%d", hostid), 0).Err()
 }
 
 func (r *RedisManagerImpl) DeleteRoom(ctx context.Context, roomId int64) error {

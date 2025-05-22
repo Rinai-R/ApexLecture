@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -54,7 +55,7 @@ type MysqlManager interface {
 var _ MysqlManager = (*dao.MysqlManagerImpl)(nil)
 
 type RedisManager interface {
-	CreateRoom(ctx context.Context, roomId int64) error
+	CreateRoom(ctx context.Context, roomId int64, hostid int64) error
 	DeleteRoom(ctx context.Context, roomId int64) error
 	DeleteSignal(ctx context.Context, roomId int64) error
 }
@@ -64,6 +65,7 @@ var _ RedisManager = (*dao.RedisManagerImpl)(nil)
 // 房间号对应的 LectureSession 结构体
 // 每个结构体代表房间里面主播的轨道以及主播的 PeerConnection 以及观众的连接状况
 type LectureSession struct {
+	HostId          int64
 	PeerConnection  *webrtc.PeerConnection
 	AudioTrack      *webrtc.TrackLocalStaticRTP
 	VideoTrack      *webrtc.TrackLocalStaticRTP
@@ -134,7 +136,7 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 	}
 
 	// redis 存储房间号，使得消息服务可以知道这个房间的存在。
-	s.RedisManager.CreateRoom(ctx, roomid)
+	s.RedisManager.CreateRoom(ctx, roomid, request.HostId)
 
 	// 远程调用，创建交互房间。
 
@@ -248,6 +250,7 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 	// 存储转发音频轨道和视频轨道的管道，便于用户来的时候获取音视频的轨道。
 	s.goroutinePool.Submit(func() {
 		s.Sessions.Store(roomid, &LectureSession{
+			HostId:          request.HostId,
 			PeerConnection:  peerConnection,
 			AudioTrack:      <-audioLocalTrackChan,
 			VideoTrack:      <-videoLocalTrackChan,
@@ -757,4 +760,39 @@ func (s *LectureServiceImpl) GetOGGStream(ctx context.Context, roomId int64) (*o
 	}
 
 	return ogg, header, nil
+}
+
+// RandomSelect implements the LectureServiceImpl interface.
+// 随机点名一个人
+func (s *LectureServiceImpl) RandomSelect(ctx context.Context, request *lecture.RandomSelectRequest) (resp *lecture.RandomSelectResponse, err error) {
+	value, ok := s.Sessions.Load(request.RoomId)
+	if !ok {
+		return &lecture.RandomSelectResponse{
+			Response: rsp.ErrorRoomNotFound(),
+		}, nil
+	}
+	session := value.(*LectureSession)
+	if session.HostId != request.UserId {
+		return &lecture.RandomSelectResponse{
+			Response: rsp.ErrorNotTheOwner(),
+		}, nil
+	}
+	var keys []int64
+
+	session.Audiences.Range(func(key, _ any) bool {
+		keys = append(keys, key.(int64))
+		return true
+	})
+
+	if len(keys) == 0 {
+		return &lecture.RandomSelectResponse{
+			Response: rsp.ErrorNoAudience(),
+		}, nil
+	}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	selected := keys[r.Intn(len(keys))]
+	return &lecture.RandomSelectResponse{
+		Response:   rsp.OK(),
+		SelectedId: selected,
+	}, nil
 }

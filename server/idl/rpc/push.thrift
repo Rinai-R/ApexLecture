@@ -2,9 +2,8 @@ namespace go push
 
 include "../base/base.thrift"
 
-enum MessageType {
-    CHAT = 1,
-}
+// 推送服务
+// 负责统一推送消息，包括但不限于聊天，题目，教师端查看（有身份校验）的做题情况。
 
 struct ChatMessage {
     1: required i64 room_id,

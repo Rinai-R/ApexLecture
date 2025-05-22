@@ -37,9 +37,17 @@ struct GetHistoryLectureResponse {
     2: required string answer,
 }
 
+struct RandomSelectRequest {}
+
+struct RandomSelectResponse {
+    1: required base.BaseResponse response,
+    2: required i64 selectedId,
+}
+
 service LectureService {
     StartResponse startLecture(1: StartRequest request) (api.post = "lecture/"),
     AttendResponse attendLecture(1: AttendRequest request) (api.post = "lecture/:roomid/attend"),
     RecordResponse recordLecture(1: base.NilRequest request) (api.post = "lecture/:roomid/record"),
     GetHistoryLectureResponse getHistoryLecture(1: GetHistoryLectureRequest request) (api.get = "lecture/:roomid/history"),
+    RandomSelectResponse randomSelect(1: RandomSelectRequest request) (api.get = "lecture/:roomid/randomselect"),
 }

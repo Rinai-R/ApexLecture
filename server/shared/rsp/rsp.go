@@ -28,6 +28,8 @@ const (
 	SendMessageError          = 40022
 	RoomNotExists             = 40023
 	FailToConnect             = 40024
+	NotTheOwner               = 40025
+	NoAudienceInRoom          = 40026
 )
 
 func OK() *base.BaseResponse {
@@ -202,5 +204,19 @@ func ErrorFailToConnect() *base.BaseResponse {
 	return &base.BaseResponse{
 		Code:    FailToConnect,
 		Message: "Fail to connect the room",
+	}
+}
+
+func ErrorNotTheOwner() *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    NotTheOwner,
+		Message: "You are not the owner of the room",
+	}
+}
+
+func ErrorNoAudience() *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    NoAudienceInRoom,
+		Message: "No audience in the room",
 	}
 }
