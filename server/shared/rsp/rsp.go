@@ -1,6 +1,10 @@
 package rsp
 
-import "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/base"
+import (
+	"fmt"
+
+	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/base"
+)
 
 const (
 	Success                   = 20000
@@ -29,7 +33,10 @@ const (
 	FailToConnect             = 40024
 	NotTheOwner               = 40025
 	NoAudienceInRoom          = 40026
-	SendQuesiotnError         = 40027
+	SendQuestionError         = 40027
+	QuestionExpireOrNotExist  = 40028
+	WrongAnswer               = 40029
+	UserHasSubmittedAnswer    = 40030
 )
 
 func OK() *base.BaseResponse {
@@ -214,9 +221,30 @@ func ErrorNoAudience() *base.BaseResponse {
 	}
 }
 
-func ErrorSendQuesiotn(define string) *base.BaseResponse {
+func ErrorSendQuestion(define string) *base.BaseResponse {
 	return &base.BaseResponse{
-		Code:    SendQuesiotnError,
+		Code:    SendQuestionError,
+		Message: define,
+	}
+}
+
+func ErrorQuestionExpireOrNotExist(define string) *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    QuestionExpireOrNotExist,
+		Message: fmt.Sprintf("Question expire or not exist: %s", define),
+	}
+}
+
+func WA() *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    WrongAnswer,
+		Message: "Wrong answer",
+	}
+}
+
+func ErrorUserHasSubmittedAnswer(define string) *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    UserHasSubmittedAnswer,
 		Message: define,
 	}
 }

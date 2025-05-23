@@ -45,3 +45,13 @@ func (r *RedisManagerImpl) DeleteSignal(ctx context.Context, roomId int64) error
 	}
 	return r.client.Publish(ctx, fmt.Sprintf(consts.RoomKey, roomId), bytes).Err()
 }
+
+// 通知，房间人数增加，为了 quiz 向 push 推送答题状态。
+func (r *RedisManagerImpl) AddRoomPerson(ctx context.Context, roomId int64, userId int64) error {
+	return r.client.SAdd(ctx, fmt.Sprintf(consts.AudienceKey, roomId), fmt.Sprintf("%d", roomId)).Err()
+}
+
+// 通知，房间人数减少，为了 quiz 向 push 推送答题状态。
+func (r *RedisManagerImpl) SubRoomPerson(ctx context.Context, roomId int64, userId int64) error {
+	return r.client.SRem(ctx, fmt.Sprintf(consts.AudienceKey, roomId), fmt.Sprintf("%d", roomId)).Err()
+}

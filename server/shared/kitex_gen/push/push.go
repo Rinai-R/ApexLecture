@@ -4,52 +4,13 @@ package push
 
 import (
 	"context"
-	"database/sql"
-	"database/sql/driver"
 	"fmt"
 	"github.com/cloudwego/kitex/pkg/streaming"
 )
 
-type MessageType int64
-
-const (
-	MessageType_CHAT MessageType = 1
-)
-
-func (p MessageType) String() string {
-	switch p {
-	case MessageType_CHAT:
-		return "CHAT"
-	}
-	return "<UNSET>"
-}
-
-func MessageTypeFromString(s string) (MessageType, error) {
-	switch s {
-	case "CHAT":
-		return MessageType_CHAT, nil
-	}
-	return MessageType(0), fmt.Errorf("not a valid MessageType string")
-}
-
-func MessageTypePtr(v MessageType) *MessageType { return &v }
-func (p *MessageType) Scan(value interface{}) (err error) {
-	var result sql.NullInt64
-	err = result.Scan(value)
-	*p = MessageType(result.Int64)
-	return
-}
-
-func (p *MessageType) Value() (driver.Value, error) {
-	if p == nil {
-		return nil, nil
-	}
-	return int64(*p), nil
-}
-
 type ChatMessage struct {
-	RoomId int64  `thrift:"room_id,1,required" frugal:"1,required,i64" json:"room_id"`
-	UserId int64  `thrift:"user_id,2,required" frugal:"2,required,i64" json:"user_id"`
+	RoomId int64  `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
+	UserId int64  `thrift:"userId,2,required" frugal:"2,required,i64" json:"userId"`
 	Text   string `thrift:"text,3,required" frugal:"3,required,string" json:"text"`
 }
 
@@ -89,9 +50,213 @@ func (p *ChatMessage) String() string {
 }
 
 var fieldIDToName_ChatMessage = map[int16]string{
-	1: "room_id",
-	2: "user_id",
+	1: "roomId",
+	2: "userId",
 	3: "text",
+}
+
+type ChoiceQuestion struct {
+	RoomId     int64    `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
+	UserId     int64    `thrift:"userId,2,required" frugal:"2,required,i64" json:"userId"`
+	QuestionId int64    `thrift:"questionId,3,required" frugal:"3,required,i64" json:"questionId"`
+	Title      string   `thrift:"title,4,required" frugal:"4,required,string" json:"title"`
+	Options    []string `thrift:"options,5,required" frugal:"5,required,list<string>" json:"options"`
+	Ttl        int64    `thrift:"ttl,6,required" frugal:"6,required,i64" json:"ttl"`
+}
+
+func NewChoiceQuestion() *ChoiceQuestion {
+	return &ChoiceQuestion{}
+}
+
+func (p *ChoiceQuestion) InitDefault() {
+}
+
+func (p *ChoiceQuestion) GetRoomId() (v int64) {
+	return p.RoomId
+}
+
+func (p *ChoiceQuestion) GetUserId() (v int64) {
+	return p.UserId
+}
+
+func (p *ChoiceQuestion) GetQuestionId() (v int64) {
+	return p.QuestionId
+}
+
+func (p *ChoiceQuestion) GetTitle() (v string) {
+	return p.Title
+}
+
+func (p *ChoiceQuestion) GetOptions() (v []string) {
+	return p.Options
+}
+
+func (p *ChoiceQuestion) GetTtl() (v int64) {
+	return p.Ttl
+}
+func (p *ChoiceQuestion) SetRoomId(val int64) {
+	p.RoomId = val
+}
+func (p *ChoiceQuestion) SetUserId(val int64) {
+	p.UserId = val
+}
+func (p *ChoiceQuestion) SetQuestionId(val int64) {
+	p.QuestionId = val
+}
+func (p *ChoiceQuestion) SetTitle(val string) {
+	p.Title = val
+}
+func (p *ChoiceQuestion) SetOptions(val []string) {
+	p.Options = val
+}
+func (p *ChoiceQuestion) SetTtl(val int64) {
+	p.Ttl = val
+}
+
+func (p *ChoiceQuestion) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ChoiceQuestion(%+v)", *p)
+}
+
+var fieldIDToName_ChoiceQuestion = map[int16]string{
+	1: "roomId",
+	2: "userId",
+	3: "questionId",
+	4: "title",
+	5: "options",
+	6: "ttl",
+}
+
+type JudgeQuestion struct {
+	RoomId     int64  `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
+	UserId     int64  `thrift:"userId,2,required" frugal:"2,required,i64" json:"userId"`
+	QuestionId int64  `thrift:"questionId,3,required" frugal:"3,required,i64" json:"questionId"`
+	Title      string `thrift:"title,4,required" frugal:"4,required,string" json:"title"`
+	Ttl        int64  `thrift:"ttl,5,required" frugal:"5,required,i64" json:"ttl"`
+}
+
+func NewJudgeQuestion() *JudgeQuestion {
+	return &JudgeQuestion{}
+}
+
+func (p *JudgeQuestion) InitDefault() {
+}
+
+func (p *JudgeQuestion) GetRoomId() (v int64) {
+	return p.RoomId
+}
+
+func (p *JudgeQuestion) GetUserId() (v int64) {
+	return p.UserId
+}
+
+func (p *JudgeQuestion) GetQuestionId() (v int64) {
+	return p.QuestionId
+}
+
+func (p *JudgeQuestion) GetTitle() (v string) {
+	return p.Title
+}
+
+func (p *JudgeQuestion) GetTtl() (v int64) {
+	return p.Ttl
+}
+func (p *JudgeQuestion) SetRoomId(val int64) {
+	p.RoomId = val
+}
+func (p *JudgeQuestion) SetUserId(val int64) {
+	p.UserId = val
+}
+func (p *JudgeQuestion) SetQuestionId(val int64) {
+	p.QuestionId = val
+}
+func (p *JudgeQuestion) SetTitle(val string) {
+	p.Title = val
+}
+func (p *JudgeQuestion) SetTtl(val int64) {
+	p.Ttl = val
+}
+
+func (p *JudgeQuestion) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("JudgeQuestion(%+v)", *p)
+}
+
+var fieldIDToName_JudgeQuestion = map[int16]string{
+	1: "roomId",
+	2: "userId",
+	3: "questionId",
+	4: "title",
+	5: "ttl",
+}
+
+type QuizStatus struct {
+	RoomId      int64   `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
+	QuestionId  int64   `thrift:"questionId,2,required" frugal:"2,required,i64" json:"questionId"`
+	RequiredNum int64   `thrift:"requiredNum,3,required" frugal:"3,required,i64" json:"requiredNum"`
+	CurrentNum  int64   `thrift:"currentNum,4,required" frugal:"4,required,i64" json:"currentNum"`
+	AcceptRate  float64 `thrift:"acceptRate,5,required" frugal:"5,required,double" json:"acceptRate"`
+}
+
+func NewQuizStatus() *QuizStatus {
+	return &QuizStatus{}
+}
+
+func (p *QuizStatus) InitDefault() {
+}
+
+func (p *QuizStatus) GetRoomId() (v int64) {
+	return p.RoomId
+}
+
+func (p *QuizStatus) GetQuestionId() (v int64) {
+	return p.QuestionId
+}
+
+func (p *QuizStatus) GetRequiredNum() (v int64) {
+	return p.RequiredNum
+}
+
+func (p *QuizStatus) GetCurrentNum() (v int64) {
+	return p.CurrentNum
+}
+
+func (p *QuizStatus) GetAcceptRate() (v float64) {
+	return p.AcceptRate
+}
+func (p *QuizStatus) SetRoomId(val int64) {
+	p.RoomId = val
+}
+func (p *QuizStatus) SetQuestionId(val int64) {
+	p.QuestionId = val
+}
+func (p *QuizStatus) SetRequiredNum(val int64) {
+	p.RequiredNum = val
+}
+func (p *QuizStatus) SetCurrentNum(val int64) {
+	p.CurrentNum = val
+}
+func (p *QuizStatus) SetAcceptRate(val float64) {
+	p.AcceptRate = val
+}
+
+func (p *QuizStatus) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("QuizStatus(%+v)", *p)
+}
+
+var fieldIDToName_QuizStatus = map[int16]string{
+	1: "roomId",
+	2: "questionId",
+	3: "requiredNum",
+	4: "currentNum",
+	5: "acceptRate",
 }
 
 type PushMessageResponse struct {
@@ -180,7 +345,10 @@ var fieldIDToName_PushMessageRequest = map[int16]string{
 }
 
 type Payload struct {
-	ChatMessage *ChatMessage `thrift:"chat_message,1,optional" frugal:"1,optional,ChatMessage" json:"chat_message,omitempty"`
+	ChatMessage    *ChatMessage    `thrift:"chatMessage,1,optional" frugal:"1,optional,ChatMessage" json:"chatMessage,omitempty"`
+	ChoiceQuestion *ChoiceQuestion `thrift:"choiceQuestion,2,optional" frugal:"2,optional,ChoiceQuestion" json:"choiceQuestion,omitempty"`
+	JudgeQuestion  *JudgeQuestion  `thrift:"judgeQuestion,3,optional" frugal:"3,optional,JudgeQuestion" json:"judgeQuestion,omitempty"`
+	QuizStatus     *QuizStatus     `thrift:"quizStatus,4,optional" frugal:"4,optional,QuizStatus" json:"quizStatus,omitempty"`
 }
 
 func NewPayload() *Payload {
@@ -198,8 +366,44 @@ func (p *Payload) GetChatMessage() (v *ChatMessage) {
 	}
 	return p.ChatMessage
 }
+
+var Payload_ChoiceQuestion_DEFAULT *ChoiceQuestion
+
+func (p *Payload) GetChoiceQuestion() (v *ChoiceQuestion) {
+	if !p.IsSetChoiceQuestion() {
+		return Payload_ChoiceQuestion_DEFAULT
+	}
+	return p.ChoiceQuestion
+}
+
+var Payload_JudgeQuestion_DEFAULT *JudgeQuestion
+
+func (p *Payload) GetJudgeQuestion() (v *JudgeQuestion) {
+	if !p.IsSetJudgeQuestion() {
+		return Payload_JudgeQuestion_DEFAULT
+	}
+	return p.JudgeQuestion
+}
+
+var Payload_QuizStatus_DEFAULT *QuizStatus
+
+func (p *Payload) GetQuizStatus() (v *QuizStatus) {
+	if !p.IsSetQuizStatus() {
+		return Payload_QuizStatus_DEFAULT
+	}
+	return p.QuizStatus
+}
 func (p *Payload) SetChatMessage(val *ChatMessage) {
 	p.ChatMessage = val
+}
+func (p *Payload) SetChoiceQuestion(val *ChoiceQuestion) {
+	p.ChoiceQuestion = val
+}
+func (p *Payload) SetJudgeQuestion(val *JudgeQuestion) {
+	p.JudgeQuestion = val
+}
+func (p *Payload) SetQuizStatus(val *QuizStatus) {
+	p.QuizStatus = val
 }
 
 func (p *Payload) CountSetFieldsPayload() int {
@@ -207,11 +411,32 @@ func (p *Payload) CountSetFieldsPayload() int {
 	if p.IsSetChatMessage() {
 		count++
 	}
+	if p.IsSetChoiceQuestion() {
+		count++
+	}
+	if p.IsSetJudgeQuestion() {
+		count++
+	}
+	if p.IsSetQuizStatus() {
+		count++
+	}
 	return count
 }
 
 func (p *Payload) IsSetChatMessage() bool {
 	return p.ChatMessage != nil
+}
+
+func (p *Payload) IsSetChoiceQuestion() bool {
+	return p.ChoiceQuestion != nil
+}
+
+func (p *Payload) IsSetJudgeQuestion() bool {
+	return p.JudgeQuestion != nil
+}
+
+func (p *Payload) IsSetQuizStatus() bool {
+	return p.QuizStatus != nil
 }
 
 func (p *Payload) String() string {
@@ -222,7 +447,10 @@ func (p *Payload) String() string {
 }
 
 var fieldIDToName_Payload = map[int16]string{
-	1: "chat_message",
+	1: "chatMessage",
+	2: "choiceQuestion",
+	3: "judgeQuestion",
+	4: "quizStatus",
 }
 
 type PushService interface {

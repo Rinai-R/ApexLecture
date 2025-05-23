@@ -7,10 +7,14 @@ import (
 	"github.com/IBM/sarama"
 	"github.com/Rinai-R/ApexLecture/server/cmd/quiz/config"
 	"github.com/Rinai-R/ApexLecture/server/cmd/quiz/dao"
+	"github.com/Rinai-R/ApexLecture/server/cmd/quiz/model"
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
 	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/base"
 	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/quiz"
+	"github.com/bwmarrin/snowflake"
 	"github.com/bytedance/sonic"
+	"github.com/cloudwego/kitex/pkg/klog"
+	"gorm.io/gorm"
 )
 
 type ProducerManagerImpl struct {
@@ -100,9 +104,68 @@ func (h *ConsumerHandlerImpl) Cleanup(session sarama.ConsumerGroupSession) error
 }
 
 func (h *ConsumerHandlerImpl) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
-	for msg := range claim.Messages() {
-		fmt.Append(msg.Value)
-		panic("todo: handle message")
+	for {
+		select {
+		case message, ok := <-claim.Messages():
+			if !ok {
+				klog.Info("ConsumerHandlerImpl: 消费完毕")
+				return nil
+			}
+			var Message base.InternalMessage
+			err := sonic.Unmarshal(message.Value, &Message)
+			if err != nil {
+				klog.Error("Unmarshal failed", err)
+				continue
+			}
+			sf, err := snowflake.NewNode(consts.MessageIDSnowFlakeNode)
+			if err != nil {
+				klog.Error("NewNode failed", err)
+				continue
+			}
+			id := sf.Generate().Int64()
+			// 识别字段类型，确保正常处理。
+			switch base.InternalMessageType(Message.Type) {
+			case base.InternalMessageType_QUIZ_CHOICE:
+				err := h.MysqlManager.CreateQuizChoice(&model.QuizChoice{
+					Id:     id,
+					RoomId: Message.Payload.QuizChoice.RoomId,
+					UserId: Message.Payload.QuizChoice.UserId,
+					Title:  Message.Payload.QuizChoice.Title,
+					Option: Message.Payload.QuizChoice.Options,
+					Answer: Message.Payload.QuizChoice.Answers,
+				})
+				if err != nil {
+					if err == gorm.ErrDuplicatedKey {
+						klog.Error("QuizChoice already exists", err)
+					} else {
+						klog.Error("CreateQuizChoice failed", err)
+					}
+					continue
+				}
+				session.MarkMessage(message, "")
+
+			case base.InternalMessageType_QUIZ_JUDGE:
+				err := h.MysqlManager.CreateQuizJudge(&model.QuizJudge{
+					Id:     id,
+					RoomId: Message.Payload.QuizJudge.RoomId,
+					UserId: Message.Payload.QuizJudge.UserId,
+					Title:  Message.Payload.QuizJudge.Title,
+					Answer: Message.Payload.QuizJudge.Answer,
+				})
+				if err != nil {
+					if err == gorm.ErrDuplicatedKey {
+						klog.Error("QuizChoice already exists", err)
+					} else {
+						klog.Error("CreateQuizChoice failed", err)
+					}
+					continue
+				}
+				session.MarkMessage(message, "")
+			default:
+				klog.Error("Unknown message type", base.InternalMessageType(Message.Type))
+			}
+		case <-session.Context().Done():
+			return nil
+		}
 	}
-	return nil
 }

@@ -17,11 +17,13 @@ struct Choice {
     1: required string title,
     2: required list<string> options,
     3: required list<i8> answers,
+    4: required i64 ttl,
 }
 
 struct Judge {
     1: required string title,
     2: required bool answer,
+    3: required i64 ttl,
 }
 
 

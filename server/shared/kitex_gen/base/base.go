@@ -271,6 +271,7 @@ type InternalQuizChoice struct {
 	Title      string   `thrift:"title,4,required" frugal:"4,required,string" json:"title"`
 	Options    []string `thrift:"options,5,required" frugal:"5,required,list<string>" json:"options"`
 	Answers    []int8   `thrift:"answers,6,required" frugal:"6,required,list<i8>" json:"answers"`
+	Ttl        int64    `thrift:"ttl,7,required" frugal:"7,required,i64" json:"ttl"`
 }
 
 func NewInternalQuizChoice() *InternalQuizChoice {
@@ -303,6 +304,10 @@ func (p *InternalQuizChoice) GetOptions() (v []string) {
 func (p *InternalQuizChoice) GetAnswers() (v []int8) {
 	return p.Answers
 }
+
+func (p *InternalQuizChoice) GetTtl() (v int64) {
+	return p.Ttl
+}
 func (p *InternalQuizChoice) SetRoomId(val int64) {
 	p.RoomId = val
 }
@@ -321,6 +326,9 @@ func (p *InternalQuizChoice) SetOptions(val []string) {
 func (p *InternalQuizChoice) SetAnswers(val []int8) {
 	p.Answers = val
 }
+func (p *InternalQuizChoice) SetTtl(val int64) {
+	p.Ttl = val
+}
 
 func (p *InternalQuizChoice) String() string {
 	if p == nil {
@@ -336,6 +344,7 @@ var fieldIDToName_InternalQuizChoice = map[int16]string{
 	4: "title",
 	5: "options",
 	6: "answers",
+	7: "ttl",
 }
 
 type InternalQuizJudge struct {
@@ -344,6 +353,7 @@ type InternalQuizJudge struct {
 	Title      string `thrift:"title,3,required" frugal:"3,required,string" json:"title"`
 	QuestionId int64  `thrift:"questionId,4,required" frugal:"4,required,i64" json:"questionId"`
 	Answer     bool   `thrift:"answer,5,required" frugal:"5,required,bool" json:"answer"`
+	Ttl        int64  `thrift:"ttl,6,required" frugal:"6,required,i64" json:"ttl"`
 }
 
 func NewInternalQuizJudge() *InternalQuizJudge {
@@ -372,6 +382,10 @@ func (p *InternalQuizJudge) GetQuestionId() (v int64) {
 func (p *InternalQuizJudge) GetAnswer() (v bool) {
 	return p.Answer
 }
+
+func (p *InternalQuizJudge) GetTtl() (v int64) {
+	return p.Ttl
+}
 func (p *InternalQuizJudge) SetRoomId(val int64) {
 	p.RoomId = val
 }
@@ -387,6 +401,9 @@ func (p *InternalQuizJudge) SetQuestionId(val int64) {
 func (p *InternalQuizJudge) SetAnswer(val bool) {
 	p.Answer = val
 }
+func (p *InternalQuizJudge) SetTtl(val int64) {
+	p.Ttl = val
+}
 
 func (p *InternalQuizJudge) String() string {
 	if p == nil {
@@ -401,13 +418,15 @@ var fieldIDToName_InternalQuizJudge = map[int16]string{
 	3: "title",
 	4: "questionId",
 	5: "answer",
+	6: "ttl",
 }
 
 type InternalQuizStatus struct {
-	RoomId      int64 `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
-	RequiredNum int64 `thrift:"requiredNum,2,required" frugal:"2,required,i64" json:"requiredNum"`
-	CurrentNum  int64 `thrift:"currentNum,3,required" frugal:"3,required,i64" json:"currentNum"`
-	AcceptRate  int64 `thrift:"AcceptRate,4,required" frugal:"4,required,i64" json:"AcceptRate"`
+	RoomId      int64   `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
+	QuestionId  int64   `thrift:"questionId,2,required" frugal:"2,required,i64" json:"questionId"`
+	RequiredNum int64   `thrift:"requiredNum,3,required" frugal:"3,required,i64" json:"requiredNum"`
+	CurrentNum  int64   `thrift:"currentNum,4,required" frugal:"4,required,i64" json:"currentNum"`
+	AcceptRate  float64 `thrift:"AcceptRate,5,required" frugal:"5,required,double" json:"AcceptRate"`
 }
 
 func NewInternalQuizStatus() *InternalQuizStatus {
@@ -421,6 +440,10 @@ func (p *InternalQuizStatus) GetRoomId() (v int64) {
 	return p.RoomId
 }
 
+func (p *InternalQuizStatus) GetQuestionId() (v int64) {
+	return p.QuestionId
+}
+
 func (p *InternalQuizStatus) GetRequiredNum() (v int64) {
 	return p.RequiredNum
 }
@@ -429,11 +452,14 @@ func (p *InternalQuizStatus) GetCurrentNum() (v int64) {
 	return p.CurrentNum
 }
 
-func (p *InternalQuizStatus) GetAcceptRate() (v int64) {
+func (p *InternalQuizStatus) GetAcceptRate() (v float64) {
 	return p.AcceptRate
 }
 func (p *InternalQuizStatus) SetRoomId(val int64) {
 	p.RoomId = val
+}
+func (p *InternalQuizStatus) SetQuestionId(val int64) {
+	p.QuestionId = val
 }
 func (p *InternalQuizStatus) SetRequiredNum(val int64) {
 	p.RequiredNum = val
@@ -441,7 +467,7 @@ func (p *InternalQuizStatus) SetRequiredNum(val int64) {
 func (p *InternalQuizStatus) SetCurrentNum(val int64) {
 	p.CurrentNum = val
 }
-func (p *InternalQuizStatus) SetAcceptRate(val int64) {
+func (p *InternalQuizStatus) SetAcceptRate(val float64) {
 	p.AcceptRate = val
 }
 
@@ -454,9 +480,10 @@ func (p *InternalQuizStatus) String() string {
 
 var fieldIDToName_InternalQuizStatus = map[int16]string{
 	1: "roomId",
-	2: "requiredNum",
-	3: "currentNum",
-	4: "AcceptRate",
+	2: "questionId",
+	3: "requiredNum",
+	4: "currentNum",
+	5: "AcceptRate",
 }
 
 type InternalPayload struct {

@@ -50,6 +50,7 @@ struct InternalQuizChoice {
     4: required string title,
     5: required list<string> options,
     6: required list<i8> answers,
+    7: required i64 ttl,
 }
 
 struct InternalQuizJudge {
@@ -58,11 +59,13 @@ struct InternalQuizJudge {
     3: required string title;
     4: required i64 questionId;
     5: required bool answer;
+    6: required i64 ttl,
 }
 
 struct InternalQuizStatus {
     1: required i64 roomId;
-    2: required i64 requiredNum; // 课堂的人数
-    3: required i64 currentNum; // 当前参与答题人数
-    4: required i64 AcceptRate; // 正确率（AC率）
+    2: required i64 questionId;
+    3: required i64 requiredNum; // 课堂的人数
+    4: required i64 currentNum; // 当前参与答题人数
+    5: required double AcceptRate; // 正确率（AC率）
 }

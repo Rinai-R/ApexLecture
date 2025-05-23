@@ -6,13 +6,41 @@ include "../base/base.thrift"
 // 负责统一推送消息，包括但不限于聊天，题目，教师端查看（有身份校验）的做题情况。
 
 struct ChatMessage {
-    1: required i64 room_id,
-    2: required i64 user_id,
+    1: required i64 roomId,
+    2: required i64 userId,
     3: required string text,
 }
 
+struct ChoiceQuestion {
+    1: required i64 roomId,
+    2: required i64 userId,
+    3: required i64 questionId,
+    4: required string title,
+    5: required list<string> options,
+    6: required i64 ttl,
+}
+
+struct JudgeQuestion {
+    1: required i64 roomId,
+    2: required i64 userId,
+    3: required i64 questionId,
+    4: required string title,
+    5: required i64 ttl,
+}
+
+struct QuizStatus {
+    1: required i64 roomId,
+    2: required i64 questionId,
+    3: required i64 requiredNum,
+    4: required i64 currentNum,
+    5: required double acceptRate
+}
+
 union Payload {
-    1: optional ChatMessage chat_message,
+    1: optional ChatMessage chatMessage,
+    2: optional ChoiceQuestion choiceQuestion,
+    3: optional JudgeQuestion judgeQuestion,
+    4: optional QuizStatus quizStatus,
 }
 
 struct PushMessageResponse {

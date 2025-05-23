@@ -21,15 +21,21 @@ func NewRedisManager(redis *redis.Client) *RedisManagerImpl {
 
 // 使用公共的 InternalMessage 结构体作为消息的载体，便于转换。
 func (r *RedisManagerImpl) SendMessage(ctx context.Context, request *chat.ChatMessage) (err error) {
-	msg := &base.InternalMessage{
-		Type: base.InternalMessageType_CHAT_MESSAGE,
-		Payload: &base.InternalPayload{
-			ChatMessage: &base.InternalChatMessage{
-				RoomId:  request.RoomId,
-				UserId:  request.UserId,
-				Message: request.Text,
+	var msg *base.InternalMessage
+	switch base.InternalMessageType(request.Type) {
+	case base.InternalMessageType_CHAT_MESSAGE:
+		msg = &base.InternalMessage{
+			Type: base.InternalMessageType_CHAT_MESSAGE,
+			Payload: &base.InternalPayload{
+				ChatMessage: &base.InternalChatMessage{
+					RoomId:  request.RoomId,
+					UserId:  request.UserId,
+					Message: request.Text,
+				},
 			},
-		},
+		}
+	default:
+		return fmt.Errorf("unsupported message type: %d", request.Type)
 	}
 	msgbytes, err := sonic.Marshal(msg)
 	if err != nil {

@@ -98,6 +98,10 @@ const (
 
 // RedisMessage
 const (
-	RoomKey      = "room:%d"
-	DeleteSignal = "__DELETE__"
+	RoomKey               = "lecture:room:%d"
+	DeleteSignal          = "__DELETE__"
+	QuestionAnswerKey     = "quiz:answer:%d"
+	WrongAnswerRecordKey  = "quiz:wrong_answer:%d"
+	AcceptAnswerRecordKey = "quiz:accept_answer:%d"
+	AudienceKey           = "lecture:audiences:%d"
 )

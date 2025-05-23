@@ -58,6 +58,8 @@ type RedisManager interface {
 	CreateRoom(ctx context.Context, roomId int64, hostid int64) error
 	DeleteRoom(ctx context.Context, roomId int64) error
 	DeleteSignal(ctx context.Context, roomId int64) error
+	AddRoomPerson(ctx context.Context, roomId int64, userId int64) error
+	SubRoomPerson(ctx context.Context, roomId int64, userId int64) error
 }
 
 var _ RedisManager = (*dao.RedisManagerImpl)(nil)
@@ -312,14 +314,19 @@ func (s *LectureServiceImpl) Attend(ctx context.Context, request *lecture.Attend
 		RoomId:       request.RoomId,
 		UserId:       request.UserId,
 	})
+	// 增加 redis 中记录的房间人数，让其他服务可以实时获取人数，比如答题状态统计和推送
+	s.RedisManager.AddRoomPerson(ctx, request.RoomId, request.UserId)
 	// 监听 PeerConnection 的 ICE 连接状态
 	// 如果学生关闭网页，或者网络断开，就关闭这个 PeerConnection
 	// 并且记录退出时间，如果后续扩展，可以便于统计。
 	pc.OnICEConnectionStateChange(func(connectionState webrtc.ICEConnectionState) {
 		if connectionState == webrtc.ICEConnectionStateDisconnected || connectionState == webrtc.ICEConnectionStateFailed ||
 			connectionState == webrtc.ICEConnectionStateClosed {
+			// 记录退出时间
+			// 并且清理状态
 			s.RecordLeft(ctx, AttendanceId)
 			Session.Audiences.Delete(request.UserId)
+			s.RedisManager.SubRoomPerson(ctx, request.RoomId, request.UserId)
 			pc.Close()
 		}
 	})

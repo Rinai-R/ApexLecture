@@ -77,6 +77,7 @@ type Choice struct {
 	Title   string   `thrift:"title,1,required" frugal:"1,required,string" json:"title"`
 	Options []string `thrift:"options,2,required" frugal:"2,required,list<string>" json:"options"`
 	Answers []int8   `thrift:"answers,3,required" frugal:"3,required,list<i8>" json:"answers"`
+	Ttl     int64    `thrift:"ttl,4,required" frugal:"4,required,i64" json:"ttl"`
 }
 
 func NewChoice() *Choice {
@@ -97,6 +98,10 @@ func (p *Choice) GetOptions() (v []string) {
 func (p *Choice) GetAnswers() (v []int8) {
 	return p.Answers
 }
+
+func (p *Choice) GetTtl() (v int64) {
+	return p.Ttl
+}
 func (p *Choice) SetTitle(val string) {
 	p.Title = val
 }
@@ -105,6 +110,9 @@ func (p *Choice) SetOptions(val []string) {
 }
 func (p *Choice) SetAnswers(val []int8) {
 	p.Answers = val
+}
+func (p *Choice) SetTtl(val int64) {
+	p.Ttl = val
 }
 
 func (p *Choice) String() string {
@@ -118,11 +126,13 @@ var fieldIDToName_Choice = map[int16]string{
 	1: "title",
 	2: "options",
 	3: "answers",
+	4: "ttl",
 }
 
 type Judge struct {
 	Title  string `thrift:"title,1,required" frugal:"1,required,string" json:"title"`
 	Answer bool   `thrift:"answer,2,required" frugal:"2,required,bool" json:"answer"`
+	Ttl    int64  `thrift:"ttl,3,required" frugal:"3,required,i64" json:"ttl"`
 }
 
 func NewJudge() *Judge {
@@ -139,11 +149,18 @@ func (p *Judge) GetTitle() (v string) {
 func (p *Judge) GetAnswer() (v bool) {
 	return p.Answer
 }
+
+func (p *Judge) GetTtl() (v int64) {
+	return p.Ttl
+}
 func (p *Judge) SetTitle(val string) {
 	p.Title = val
 }
 func (p *Judge) SetAnswer(val bool) {
 	p.Answer = val
+}
+func (p *Judge) SetTtl(val int64) {
+	p.Ttl = val
 }
 
 func (p *Judge) String() string {
@@ -156,6 +173,7 @@ func (p *Judge) String() string {
 var fieldIDToName_Judge = map[int16]string{
 	1: "title",
 	2: "answer",
+	3: "ttl",
 }
 
 type SubmitQuestionResponse struct {

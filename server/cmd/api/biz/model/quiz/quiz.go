@@ -218,6 +218,7 @@ type Choice struct {
 	Title   string   `thrift:"title,1,required" form:"title,required" json:"title,required" query:"title,required"`
 	Options []string `thrift:"options,2,required" form:"options,required" json:"options,required" query:"options,required"`
 	Answers []int8   `thrift:"answers,3,required" form:"answers,required" json:"answers,required" query:"answers,required"`
+	TTL     int64    `thrift:"ttl,4,required" form:"ttl,required" json:"ttl,required" query:"ttl,required"`
 }
 
 func NewChoice() *Choice {
@@ -239,10 +240,15 @@ func (p *Choice) GetAnswers() (v []int8) {
 	return p.Answers
 }
 
+func (p *Choice) GetTTL() (v int64) {
+	return p.TTL
+}
+
 var fieldIDToName_Choice = map[int16]string{
 	1: "title",
 	2: "options",
 	3: "answers",
+	4: "ttl",
 }
 
 func (p *Choice) Read(iprot thrift.TProtocol) (err error) {
@@ -251,6 +257,7 @@ func (p *Choice) Read(iprot thrift.TProtocol) (err error) {
 	var issetTitle bool = false
 	var issetOptions bool = false
 	var issetAnswers bool = false
+	var issetTTL bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -293,6 +300,15 @@ func (p *Choice) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
+		case 4:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetTTL = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -318,6 +334,11 @@ func (p *Choice) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetAnswers {
 		fieldId = 3
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetTTL {
+		fieldId = 4
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -395,6 +416,17 @@ func (p *Choice) ReadField3(iprot thrift.TProtocol) error {
 	p.Answers = _field
 	return nil
 }
+func (p *Choice) ReadField4(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.TTL = _field
+	return nil
+}
 
 func (p *Choice) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -412,6 +444,10 @@ func (p *Choice) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField3(oprot); err != nil {
 			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
 			goto WriteFieldError
 		}
 	}
@@ -496,6 +532,22 @@ WriteFieldBeginError:
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
+func (p *Choice) writeField4(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("ttl", thrift.I64, 4); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.TTL); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
 
 func (p *Choice) String() string {
 	if p == nil {
@@ -508,6 +560,7 @@ func (p *Choice) String() string {
 type Judge struct {
 	Title  string `thrift:"title,1,required" form:"title,required" json:"title,required" query:"title,required"`
 	Answer bool   `thrift:"answer,2,required" form:"answer,required" json:"answer,required" query:"answer,required"`
+	TTL    int64  `thrift:"ttl,3,required" form:"ttl,required" json:"ttl,required" query:"ttl,required"`
 }
 
 func NewJudge() *Judge {
@@ -525,9 +578,14 @@ func (p *Judge) GetAnswer() (v bool) {
 	return p.Answer
 }
 
+func (p *Judge) GetTTL() (v int64) {
+	return p.TTL
+}
+
 var fieldIDToName_Judge = map[int16]string{
 	1: "title",
 	2: "answer",
+	3: "ttl",
 }
 
 func (p *Judge) Read(iprot thrift.TProtocol) (err error) {
@@ -535,6 +593,7 @@ func (p *Judge) Read(iprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	var issetTitle bool = false
 	var issetAnswer bool = false
+	var issetTTL bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -568,6 +627,15 @@ func (p *Judge) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
+		case 3:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetTTL = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -588,6 +656,11 @@ func (p *Judge) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetAnswer {
 		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetTTL {
+		fieldId = 3
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -630,6 +703,17 @@ func (p *Judge) ReadField2(iprot thrift.TProtocol) error {
 	p.Answer = _field
 	return nil
 }
+func (p *Judge) ReadField3(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.TTL = _field
+	return nil
+}
 
 func (p *Judge) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -643,6 +727,10 @@ func (p *Judge) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
 			goto WriteFieldError
 		}
 	}
@@ -694,6 +782,22 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+func (p *Judge) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("ttl", thrift.I64, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.TTL); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
 func (p *Judge) String() string {

@@ -50,10 +50,12 @@ func SubmitQuestion(ctx context.Context, c *app.RequestContext) {
 				Title:   req.Payload.Choice.Title,
 				Options: req.Payload.Choice.Options,
 				Answers: req.Payload.Choice.Answers,
+				Ttl:     req.Payload.Choice.TTL,
 			},
 			Judge: &rpc.Judge{
 				Title:  req.Payload.Judge.Title,
 				Answer: req.Payload.Judge.Answer,
+				Ttl:    req.Payload.Judge.TTL,
 			},
 		},
 	})

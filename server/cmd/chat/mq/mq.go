@@ -29,6 +29,7 @@ func (p *ProducerManagerImpl) SendMessage(ctx context.Context, request *chat.Cha
 	var msg *base.InternalMessage
 	// 通过公共的消息类型，实现消息结构的统一化。
 	switch base.InternalMessageType(request.Type) {
+	// 对于聊天消息的推送
 	case base.InternalMessageType_CHAT_MESSAGE:
 		msg = &base.InternalMessage{
 			Type: base.InternalMessageType_CHAT_MESSAGE,
@@ -132,10 +133,10 @@ func (h *ConsumerHandlerImpl) ConsumeClaim(session sarama.ConsumerGroupSession, 
 					Content:   Message.Payload.ChatMessage.Message,
 					CreatedAt: time.Now(),
 				})
+				session.MarkMessage(message, "")
 			default:
 				klog.Error("Unknown message type", base.InternalMessageType(Message.Type))
 			}
-			session.MarkMessage(message, "")
 		case <-session.Context().Done():
 			return nil
 		}
