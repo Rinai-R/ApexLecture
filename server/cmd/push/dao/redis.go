@@ -54,3 +54,7 @@ func (r *RedisManagerImpl) IsHost(ctx context.Context, req *push.PushMessageRequ
 	}
 	return true
 }
+
+func (r *RedisManagerImpl) GetHistoryMsg(ctx context.Context, req *push.PushMessageRequest) ([]string, error) {
+	return r.Redis.LRange(ctx, fmt.Sprintf(consts.LatestMsgListKey, req.RoomId), 0, -1).Result()
+}

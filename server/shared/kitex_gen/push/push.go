@@ -259,6 +259,44 @@ var fieldIDToName_QuizStatus = map[int16]string{
 	5: "acceptRate",
 }
 
+type ControlMessage struct {
+	RoomId    int64  `thrift:"roomId,2,required" frugal:"2,required,i64" json:"roomId"`
+	Operation string `thrift:"operation,3,required" frugal:"3,required,string" json:"operation"`
+}
+
+func NewControlMessage() *ControlMessage {
+	return &ControlMessage{}
+}
+
+func (p *ControlMessage) InitDefault() {
+}
+
+func (p *ControlMessage) GetRoomId() (v int64) {
+	return p.RoomId
+}
+
+func (p *ControlMessage) GetOperation() (v string) {
+	return p.Operation
+}
+func (p *ControlMessage) SetRoomId(val int64) {
+	p.RoomId = val
+}
+func (p *ControlMessage) SetOperation(val string) {
+	p.Operation = val
+}
+
+func (p *ControlMessage) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ControlMessage(%+v)", *p)
+}
+
+var fieldIDToName_ControlMessage = map[int16]string{
+	2: "roomId",
+	3: "operation",
+}
+
 type PushMessageResponse struct {
 	Type    int8     `thrift:"type,1,required" frugal:"1,required,i8" json:"type"`
 	Payload *Payload `thrift:"payload,2,required" frugal:"2,required,Payload" json:"payload"`
@@ -349,6 +387,7 @@ type Payload struct {
 	ChoiceQuestion *ChoiceQuestion `thrift:"choiceQuestion,2,optional" frugal:"2,optional,ChoiceQuestion" json:"choiceQuestion,omitempty"`
 	JudgeQuestion  *JudgeQuestion  `thrift:"judgeQuestion,3,optional" frugal:"3,optional,JudgeQuestion" json:"judgeQuestion,omitempty"`
 	QuizStatus     *QuizStatus     `thrift:"quizStatus,4,optional" frugal:"4,optional,QuizStatus" json:"quizStatus,omitempty"`
+	ControlMessage *ControlMessage `thrift:"controlMessage,5,optional" frugal:"5,optional,ControlMessage" json:"controlMessage,omitempty"`
 }
 
 func NewPayload() *Payload {
@@ -393,6 +432,15 @@ func (p *Payload) GetQuizStatus() (v *QuizStatus) {
 	}
 	return p.QuizStatus
 }
+
+var Payload_ControlMessage_DEFAULT *ControlMessage
+
+func (p *Payload) GetControlMessage() (v *ControlMessage) {
+	if !p.IsSetControlMessage() {
+		return Payload_ControlMessage_DEFAULT
+	}
+	return p.ControlMessage
+}
 func (p *Payload) SetChatMessage(val *ChatMessage) {
 	p.ChatMessage = val
 }
@@ -404,6 +452,9 @@ func (p *Payload) SetJudgeQuestion(val *JudgeQuestion) {
 }
 func (p *Payload) SetQuizStatus(val *QuizStatus) {
 	p.QuizStatus = val
+}
+func (p *Payload) SetControlMessage(val *ControlMessage) {
+	p.ControlMessage = val
 }
 
 func (p *Payload) CountSetFieldsPayload() int {
@@ -418,6 +469,9 @@ func (p *Payload) CountSetFieldsPayload() int {
 		count++
 	}
 	if p.IsSetQuizStatus() {
+		count++
+	}
+	if p.IsSetControlMessage() {
 		count++
 	}
 	return count
@@ -439,6 +493,10 @@ func (p *Payload) IsSetQuizStatus() bool {
 	return p.QuizStatus != nil
 }
 
+func (p *Payload) IsSetControlMessage() bool {
+	return p.ControlMessage != nil
+}
+
 func (p *Payload) String() string {
 	if p == nil {
 		return "<nil>"
@@ -451,6 +509,7 @@ var fieldIDToName_Payload = map[int16]string{
 	2: "choiceQuestion",
 	3: "judgeQuestion",
 	4: "quizStatus",
+	5: "controlMessage",
 }
 
 type PushService interface {

@@ -39,11 +39,15 @@ func (r *RedisManagerImpl) DeleteSignal(ctx context.Context, roomId int64) error
 			},
 		},
 	}
-	bytes, err := sonic.Marshal(&delSignal)
+	msgbytes, err := sonic.Marshal(&delSignal)
 	if err != nil {
 		return err
 	}
-	return r.client.Publish(ctx, fmt.Sprintf(consts.RoomKey, roomId), bytes).Err()
+	// 这个关闭消息也要存入 redis 列表，防止错失了关闭信息。
+	if err := r.client.LPush(ctx, fmt.Sprintf(consts.LatestMsgListKey, roomId), msgbytes).Err(); err != nil {
+		return err
+	}
+	return r.client.Publish(ctx, fmt.Sprintf(consts.RoomKey, roomId), msgbytes).Err()
 }
 
 // 通知，房间人数增加，为了 quiz 向 push 推送答题状态。

@@ -3,7 +3,7 @@ namespace go push
 include "../base/base.thrift"
 
 // 推送服务
-// 负责统一推送消息，包括但不限于聊天，题目，教师端查看（有身份校验）的做题情况。
+// 负责统一推送消息，包括但不限于聊天，题目，教师端统计做题情况（有身份校验）的做题情况。
 
 struct ChatMessage {
     1: required i64 roomId,
@@ -36,11 +36,17 @@ struct QuizStatus {
     5: required double acceptRate
 }
 
+struct ControlMessage {
+    2: required i64 roomId,
+    3: required string operation,
+}
+
 union Payload {
     1: optional ChatMessage chatMessage,
     2: optional ChoiceQuestion choiceQuestion,
     3: optional JudgeQuestion judgeQuestion,
     4: optional QuizStatus quizStatus,
+    5: optional ControlMessage controlMessage,
 }
 
 struct PushMessageResponse {

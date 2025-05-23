@@ -18,7 +18,7 @@ type QuizChoice struct {
 }
 
 type QuizStatus struct {
-	QuetionId   int64   `json:"question_id`
+	QuestionId  int64   `json:"question_id"`
 	RoomId      int64   `json:"room_id"`
 	RequiredNum int64   `json:"required_num"`
 	CurrentNum  int64   `json:"current_num"`

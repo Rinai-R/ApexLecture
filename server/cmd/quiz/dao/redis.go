@@ -9,6 +9,7 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
 	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/base"
 	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/quiz"
+	"github.com/bytedance/sonic"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -66,7 +67,14 @@ func (r *RedisManagerImpl) SendQuestion(ctx context.Context, req *quiz.SubmitQue
 			},
 		}
 	}
-	return r.client.Publish(ctx, fmt.Sprintf(consts.RoomKey, req.RoomId), msg).Err()
+	msgbytes, err := sonic.Marshal(msg)
+	if err != nil {
+		return err
+	}
+	if err := r.client.LPush(ctx, fmt.Sprintf(consts.LatestMsgListKey, req.RoomId), msgbytes).Err(); err != nil {
+		return err
+	}
+	return r.client.Publish(ctx, fmt.Sprintf(consts.RoomKey, req.RoomId), msgbytes).Err()
 }
 
 func (r *RedisManagerImpl) StoreAnswer(ctx context.Context, question *quiz.SubmitQuestionRequest, questionId int64) error {
@@ -112,6 +120,7 @@ func (r *RedisManagerImpl) CheckUserHasSubmittedAnswer(ctx context.Context, requ
 	return true, nil
 }
 
+// 这里是获取并统计对于特定题目做题的状态。
 func (r *RedisManagerImpl) GetQuizStatus(ctx context.Context, QuestionId int64, RoomId int64) (*model.QuizStatus, error) {
 	acceptNum, err := r.client.SCard(ctx, fmt.Sprintf(consts.AcceptAnswerRecordKey, QuestionId)).Result()
 	if err != nil {
@@ -128,7 +137,7 @@ func (r *RedisManagerImpl) GetQuizStatus(ctx context.Context, QuestionId int64, 
 	acceptRate := float64(acceptNum) / float64(requiredNum)
 
 	return &model.QuizStatus{
-		QuetionId:   QuestionId,
+		QuestionId:  QuestionId,
 		RoomId:      RoomId,
 		RequiredNum: requiredNum,
 		CurrentNum:  acceptNum + wrongNum,
@@ -136,12 +145,13 @@ func (r *RedisManagerImpl) GetQuizStatus(ctx context.Context, QuestionId int64, 
 	}, nil
 }
 
+// 向 redis 中发送当前的 quiz 状态，push 服务从 redis 中接受然后推送给客户端。
 func (r *RedisManagerImpl) SendQuizStatus(ctx context.Context, status *model.QuizStatus) error {
 	msg := &base.InternalMessage{
 		Type: base.InternalMessageType_QUIZ_STATUS,
 		Payload: &base.InternalPayload{
 			QuizStatus: &base.InternalQuizStatus{
-				QuestionId:  status.QuetionId,
+				QuestionId:  status.QuestionId,
 				RoomId:      status.RoomId,
 				RequiredNum: status.RequiredNum,
 				CurrentNum:  status.CurrentNum,
@@ -149,5 +159,9 @@ func (r *RedisManagerImpl) SendQuizStatus(ctx context.Context, status *model.Qui
 			},
 		},
 	}
-	return r.client.Publish(ctx, fmt.Sprintf(consts.RoomKey, status.RoomId), msg).Err()
+	msgbytes, err := sonic.Marshal(msg)
+	if err != nil {
+		return err
+	}
+	return r.client.Publish(ctx, fmt.Sprintf(consts.RoomKey, status.RoomId), msgbytes).Err()
 }

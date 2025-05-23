@@ -5,10 +5,12 @@ An online live classroom
 
 一个在线课堂直播平台。
 
+[完成情况](./completion.md)
+
 ## 简介
 
 - 使用 hertz 和 kitex 实现整个服务的骨架，网关通过 sse 实现轻量的推送消息服务。
-- 通过 pion/webrtc 实现直播推流功能，minio 实现对象存储，支持直播回放，可以通过 ./frontend 目录的前端文件进行基础的直播功能。
+- 通过 pion/webrtc 实现直播推流功能，minio 实现对象存储，支持直播回放，可以通过 ./frontend 目录的前端文件验证基础的直播功能。
 - 基于 lecture 服务的推流的连接变化实现学生观看直播的实时状态管理，可以统计学生的上课时长。
 - chat 服务，用于学生和老师之间的实时聊天。
 - quiz 服务，用于老师进行题目发布，学生进行答题，并且基于 lecture 服务的状态管理，统计答题情况，并提供统计数据。
@@ -17,3 +19,4 @@ An online live classroom
 - user 实现基本的用户注册登录以及鉴权。
 - 基于 ELK 实现分布式日志
 - 基于 Prometheus 和 Grafana 实现服务的监控。
+- jaeger 实现链路追踪。

@@ -41,6 +41,10 @@ func (r *RedisManagerImpl) SendMessage(ctx context.Context, request *chat.ChatMe
 	if err != nil {
 		return err
 	}
+	// 推到最近消息的缓存中。
+	if err := r.redis.LPush(ctx, fmt.Sprintf(consts.LatestMsgListKey, request.RoomId), msgbytes).Err(); err != nil {
+		return err
+	}
 	return r.redis.Publish(ctx, fmt.Sprintf(consts.RoomKey, request.RoomId), msgbytes).Err()
 }
 
