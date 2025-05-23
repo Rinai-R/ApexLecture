@@ -6,7 +6,10 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/cmd/quiz/dao"
 	"github.com/Rinai-R/ApexLecture/server/cmd/quiz/model"
 	"github.com/Rinai-R/ApexLecture/server/cmd/quiz/mq"
+	service "github.com/Rinai-R/ApexLecture/server/cmd/quiz/pkg/quiz_status"
+	setequal "github.com/Rinai-R/ApexLecture/server/cmd/quiz/pkg/set_equal"
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
+	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/base"
 	quiz "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/quiz"
 	"github.com/Rinai-R/ApexLecture/server/shared/rsp"
 	"github.com/bwmarrin/snowflake"
@@ -50,6 +53,8 @@ var _ ProducerManager = (*mq.ProducerManagerImpl)(nil)
 type QuizStatusHanlder interface {
 	HandleStatus(ctx context.Context, questionId int64, roomId int64) error
 }
+
+var _ QuizStatusHanlder = (*service.QuizStatusHanlderImpl)(nil)
 
 // SubmitQuestion implements the QuizServiceImpl interface.
 func (s *QuizServiceImpl) SubmitQuestion(ctx context.Context, request *quiz.SubmitQuestionRequest) (resp *quiz.SubmitQuestionResponse, err error) {
@@ -122,11 +127,26 @@ func (s *QuizServiceImpl) SubmitAnswer(ctx context.Context, request *quiz.Submit
 		}, nil
 	}
 	// 匹配答案，同时 redis 需要记录错误情况，方便统计状态给老师。
-	if answer != request.Payload {
-		s.RedisManager.RecordWrongAnswer(ctx, request)
-		return &quiz.SubmitAnswerResponse{
-			Response: rsp.WA(),
-		}, nil
+	switch request.Type {
+	case int8(base.InternalMessageType_QUIZ_JUDGE):
+		if answer.Judge.Answer != request.Payload.Judge.Answer {
+			s.RedisManager.RecordWrongAnswer(ctx, request)
+			return &quiz.SubmitAnswerResponse{
+				Response:  rsp.WA(),
+				IsCorrect: false,
+				Payload:   answer,
+			}, nil
+		}
+	case int8(base.InternalMessageType_QUIZ_CHOICE):
+		if !setequal.Compare(answer.Choice.Answer, request.Payload.Choice.Answer) {
+			s.RedisManager.RecordWrongAnswer(ctx, request)
+			return &quiz.SubmitAnswerResponse{
+				Response:  rsp.WA(),
+				IsCorrect: false,
+				Payload:   answer,
+			}, nil
+		}
+
 	}
 	s.RedisManager.RecordAcceptAnswer(ctx, request)
 	return &quiz.SubmitAnswerResponse{

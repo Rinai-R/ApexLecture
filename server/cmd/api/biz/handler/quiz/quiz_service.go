@@ -8,6 +8,7 @@ import (
 
 	quiz "github.com/Rinai-R/ApexLecture/server/cmd/api/biz/model/quiz"
 	"github.com/Rinai-R/ApexLecture/server/cmd/api/config"
+	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/base"
 	rpc "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/quiz"
 	"github.com/Rinai-R/ApexLecture/server/shared/rsp"
 	"github.com/cloudwego/hertz/pkg/app"
@@ -41,24 +42,37 @@ func SubmitQuestion(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter("roomid is invalid"))
 		return
 	}
-	resp, _ := config.QuizClient.SubmitQuestion(ctx, &rpc.SubmitQuestionRequest{
-		Type:   req.Type,
-		UserId: UserId,
-		RoomId: RoomId,
-		Payload: &rpc.Payload{
-			Choice: &rpc.Choice{
-				Title:   req.Payload.Choice.Title,
-				Options: req.Payload.Choice.Options,
-				Answers: req.Payload.Choice.Answers,
-				Ttl:     req.Payload.Choice.TTL,
+	var resp *rpc.SubmitQuestionResponse
+	switch req.Type {
+	case int8(base.InternalMessageType_QUIZ_CHOICE):
+		resp, _ = config.QuizClient.SubmitQuestion(ctx, &rpc.SubmitQuestionRequest{
+			Type:   req.Type,
+			UserId: UserId,
+			RoomId: RoomId,
+			Payload: &rpc.Payload{
+				Choice: &rpc.Choice{
+					Title:   req.Payload.Choice.Title,
+					Options: req.Payload.Choice.Options,
+					Answers: req.Payload.Choice.Answers,
+					Ttl:     req.Payload.Choice.TTL,
+				},
 			},
-			Judge: &rpc.Judge{
-				Title:  req.Payload.Judge.Title,
-				Answer: req.Payload.Judge.Answer,
-				Ttl:    req.Payload.Judge.TTL,
+		})
+	case int8(base.InternalMessageType_QUIZ_JUDGE):
+		resp, _ = config.QuizClient.SubmitQuestion(ctx, &rpc.SubmitQuestionRequest{
+			Type:   req.Type,
+			UserId: UserId,
+			RoomId: RoomId,
+			Payload: &rpc.Payload{
+				Judge: &rpc.Judge{
+					Title:  req.Payload.Judge.Title,
+					Answer: req.Payload.Judge.Answer,
+					Ttl:    req.Payload.Judge.TTL,
+				},
 			},
-		},
-	})
+		})
+	}
+
 	switch resp.Response.Code {
 	case rsp.Success:
 		c.JSON(consts.StatusOK, resp)
@@ -94,20 +108,33 @@ func SubmitAnswer(ctx context.Context, c *app.RequestContext) {
 		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter("roomid is invalid"))
 		return
 	}
-	resp, _ := config.QuizClient.SubmitAnswer(ctx, &rpc.SubmitAnswerRequest{
-		QuestionId: req.QuestionId,
-		Type:       req.Type,
-		UserId:     UserId,
-		RoomId:     RoomId,
-		Payload: &rpc.AnswerPayload{
-			Choice: &rpc.ChoiceAnswer{
-				Answer: req.Payload.Choice.Answer,
+	var resp *rpc.SubmitAnswerResponse
+	switch req.Type {
+	case int8(base.InternalMessageType_QUIZ_CHOICE):
+		resp, _ = config.QuizClient.SubmitAnswer(ctx, &rpc.SubmitAnswerRequest{
+			QuestionId: req.QuestionId,
+			Type:       req.Type,
+			UserId:     UserId,
+			RoomId:     RoomId,
+			Payload: &rpc.AnswerPayload{
+				Choice: &rpc.ChoiceAnswer{
+					Answer: req.Payload.Choice.Answer,
+				},
 			},
-			Judge: &rpc.JudgeAnswer{
-				Answer: req.Payload.Judge.Answer,
+		})
+	case int8(base.InternalMessageType_QUIZ_JUDGE):
+		resp, _ = config.QuizClient.SubmitAnswer(ctx, &rpc.SubmitAnswerRequest{
+			QuestionId: req.QuestionId,
+			Type:       req.Type,
+			UserId:     UserId,
+			RoomId:     RoomId,
+			Payload: &rpc.AnswerPayload{
+				Judge: &rpc.JudgeAnswer{
+					Answer: req.Payload.Judge.Answer,
+				},
 			},
-		},
-	})
+		})
+	}
 	switch resp.Response.Code {
 	case rsp.Success:
 		c.JSON(consts.StatusOK, resp)

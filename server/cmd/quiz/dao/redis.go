@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/base"
 	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/quiz"
 	"github.com/bytedance/sonic"
+	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -74,16 +76,58 @@ func (r *RedisManagerImpl) SendQuestion(ctx context.Context, req *quiz.SubmitQue
 	if err := r.client.LPush(ctx, fmt.Sprintf(consts.LatestMsgListKey, req.RoomId), msgbytes).Err(); err != nil {
 		return err
 	}
+	klog.Info("send question: ", fmt.Sprintf(consts.RoomKey, req.RoomId))
 	return r.client.Publish(ctx, fmt.Sprintf(consts.RoomKey, req.RoomId), msgbytes).Err()
 }
 
 func (r *RedisManagerImpl) StoreAnswer(ctx context.Context, question *quiz.SubmitQuestionRequest, questionId int64) error {
-	r.client.Set(ctx, fmt.Sprintf(consts.QuestionAnswerKey, questionId),
-		question.Payload,
+	var msg *base.InternalMessage
+	var ttlSec int64
+	switch question.Type {
+	case int8(base.InternalMessageType_QUIZ_CHOICE):
+		ttlSec = question.Payload.Choice.Ttl
+		msg = &base.InternalMessage{
+			Type: base.InternalMessageType_QUIZ_CHOICE,
+			Payload: &base.InternalPayload{
+				QuizChoice: &base.InternalQuizChoice{
+					RoomId:     question.RoomId,
+					UserId:     question.UserId,
+					QuestionId: questionId,
+					Title:      question.Payload.Choice.Title,
+					Options:    question.Payload.Choice.Options,
+					Answers:    question.Payload.Choice.Answers,
+					Ttl:        question.Payload.Choice.Ttl,
+				},
+			},
+		}
+	case int8(base.InternalMessageType_QUIZ_JUDGE):
+		ttlSec = question.Payload.Judge.Ttl
+		msg = &base.InternalMessage{
+			Type: base.InternalMessageType_QUIZ_JUDGE,
+			Payload: &base.InternalPayload{
+				QuizJudge: &base.InternalQuizJudge{
+					RoomId:     question.RoomId,
+					UserId:     question.UserId,
+					QuestionId: questionId,
+					Title:      question.Payload.Judge.Title,
+					Answer:     question.Payload.Judge.Answer,
+					Ttl:        question.Payload.Judge.Ttl,
+				},
+			},
+		}
+	default:
+		return errors.New("unknown question type")
+	}
+	msgbytes, err := sonic.Marshal(msg)
+	if err != nil {
+		return err
+	}
+	err = r.client.Set(ctx, fmt.Sprintf(consts.QuestionAnswerKey, questionId),
+		msgbytes,
 		// ttl 相加是因为其中一个一定为 0，为了减少判断，所以直接加起来
-		time.Duration(question.Payload.Choice.Ttl+question.Payload.Judge.Ttl)*time.Second,
-	)
-	return nil
+		time.Duration(ttlSec)*time.Second,
+	).Err()
+	return err
 }
 
 func (r *RedisManagerImpl) GetAnswer(ctx context.Context, questionId int64) (*quiz.AnswerPayload, error) {
@@ -91,11 +135,32 @@ func (r *RedisManagerImpl) GetAnswer(ctx context.Context, questionId int64) (*qu
 	if answer.Err() != nil {
 		return nil, answer.Err()
 	}
-	var payload quiz.AnswerPayload
-	if err := answer.Scan(&payload); err != nil {
+	var msgbytes []byte
+	if err := answer.Scan(&msgbytes); err != nil {
 		return nil, err
 	}
-	return &payload, nil
+	var msg base.InternalMessage
+	if err := sonic.Unmarshal(msgbytes, &msg); err != nil {
+		return nil, err
+	}
+	var payload *quiz.AnswerPayload
+	switch msg.Type {
+	case base.InternalMessageType_QUIZ_CHOICE:
+		payload = &quiz.AnswerPayload{
+			Choice: &quiz.ChoiceAnswer{
+				Answer: msg.Payload.QuizChoice.Answers,
+			},
+		}
+	case base.InternalMessageType_QUIZ_JUDGE:
+		payload = &quiz.AnswerPayload{
+			Judge: &quiz.JudgeAnswer{
+				Answer: msg.Payload.QuizJudge.Answer,
+			},
+		}
+	default:
+		return nil, errors.New("unknown question type")
+	}
+	return payload, nil
 }
 
 func (r *RedisManagerImpl) RecordWrongAnswer(ctx context.Context, request *quiz.SubmitAnswerRequest) error {
@@ -130,11 +195,16 @@ func (r *RedisManagerImpl) GetQuizStatus(ctx context.Context, QuestionId int64, 
 	if err != nil {
 		return nil, err
 	}
-	requiredNum, err := r.client.SCard(ctx, fmt.Sprintf(consts.RoomKey, QuestionId)).Result()
+	requiredNum, err := r.client.SCard(ctx, fmt.Sprintf(consts.AudienceKey, RoomId)).Result()
 	if err != nil {
 		return nil, err
 	}
-	acceptRate := float64(acceptNum) / float64(requiredNum)
+	var acceptRate float64
+	if requiredNum == 0 {
+		acceptRate = 0
+	} else {
+		acceptRate = float64(acceptNum) / float64(requiredNum)
+	}
 
 	return &model.QuizStatus{
 		QuestionId:  QuestionId,
@@ -161,7 +231,9 @@ func (r *RedisManagerImpl) SendQuizStatus(ctx context.Context, status *model.Qui
 	}
 	msgbytes, err := sonic.Marshal(msg)
 	if err != nil {
+		klog.Error("failed to marshal message: %v", err)
 		return err
 	}
+	klog.Info("send quiz status:", fmt.Sprintf(consts.RoomKey, status.RoomId))
 	return r.client.Publish(ctx, fmt.Sprintf(consts.RoomKey, status.RoomId), msgbytes).Err()
 }

@@ -27,17 +27,17 @@ func (q *QuizStatusHanlderImpl) HandleStatus(ctx context.Context, questionId int
 		select {
 		case <-ticker.C:
 			if _, err := q.RedisManager.GetAnswer(ctx, questionId); err != nil {
-				klog.Info("Question Has Ended")
-				return err
+				klog.Info("Question Has Ended", err)
+				return nil
 			}
 			klog.Info("Question is still running")
-			status, err := q.RedisManager.GetQuizStatus(ctx, roomId, questionId)
+			status, err := q.RedisManager.GetQuizStatus(ctx, questionId, roomId)
 			if err != nil {
-				klog.Error("Get Quiz Status Error: %v", err)
+				klog.Error("Get Quiz Status Error: ", err)
 				continue
 			}
 			if err := q.RedisManager.SendQuizStatus(ctx, status); err != nil {
-				klog.Error("Send Quiz Status Error: %v", err)
+				klog.Error("Send Quiz Status Error: ", err)
 				continue
 			}
 		case <-ctx.Done():

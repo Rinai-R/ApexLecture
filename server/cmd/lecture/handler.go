@@ -140,8 +140,6 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 	// redis 存储房间号，使得消息服务可以知道这个房间的存在。
 	s.RedisManager.CreateRoom(ctx, roomid, request.HostId)
 
-	// 远程调用，创建交互房间。
-
 	// localTrackChan 用来拿到“转发用”的本地Track
 	// localTrackChan 用来拿到“转发用”的本地Track
 	audioLocalTrackChan := make(chan *webrtc.TrackLocalStaticRTP)

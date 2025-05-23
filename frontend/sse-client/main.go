@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-	token := "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDc4OTgwOTUsInN1YiI6MTkyNTQyMDA3MDA3OTU2OTkyMH0.manKPlNCqyduev5ogOW21618Mkr5aDEpleOI08fAPjEBLZtQFPDpqmxORgh9WLW84zlF2TTVIoLwE4h3F7LW-0fmg0Qa5z3MSuew7iZjPsUI55MBqxPuG9dmCyj7sqGD-4Fj4vxoNN2C8pojmpWoVxLIUEnKbpUXOjYQiB6ss77VpKKp7FJcRRe2YPnabyJ5PXJjnSIW5Oi153xz997yXAkFlZDo1sr1cItNey1KXJmPdWgXDxsJDVXjA4JUm7H1bi5g5_8qmeOlI1vUAAiaozZL-7wh-fWxCFyl1n-6pqvOHa98MDpljfBSK0hZGNo2fBYgldSbDlZa35nJKQxktA"
-	req, _ := http.NewRequest("GET", "http://localhost:10000/receive/1925420168754769920", nil)
+	token := "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDgwMTU0OTUsInN1YiI6MTkyNTQyMDA3MDA3OTU2OTkyMH0.xJxrqYNVZzKpM6oy5CzDa98ZGA1qE_mcrnENkFkIzxFDZIlCfigBG21Rs4q2AoQQS_LR4cF4ALthgLA5wytSBlm4vEH0a7IDMY3bHxkdCK3atbycn-cu_22VXgeXLFjfoI4U-KLdcsLzq-bObTjhv_nXDus2ekA10F53uRBHXqGKK0gRejLoCVyC5LDEoZaf-iXru9zcWv27SLL816Sm5DJDYBSdVEj4AxfCxR2rt8eQash5WxLSKvLffYmAcmOs-gY1S5Vha323vh0X6Itwu2RynVJUXRgOGiVzxgUIaINrFAOsM81YLQ01vdahxRIzgx9jOH9W2nNmJZQcRjuTQw"
+	req, _ := http.NewRequest("GET", "http://localhost:10000/receive/1925898343783870464", nil)
 	req.Header.Set("Authorization", token)
 	client := &http.Client{}
 	resp, err := client.Do(req)
