@@ -339,10 +339,11 @@ var fieldIDToName_InternalQuizChoice = map[int16]string{
 }
 
 type InternalQuizJudge struct {
-	RoomId     int64 `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
-	UserId     int64 `thrift:"userId,2,required" frugal:"2,required,i64" json:"userId"`
-	QuestionId int64 `thrift:"questionId,3,required" frugal:"3,required,i64" json:"questionId"`
-	Answer     int64 `thrift:"answer,4,required" frugal:"4,required,i64" json:"answer"`
+	RoomId     int64  `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
+	UserId     int64  `thrift:"userId,2,required" frugal:"2,required,i64" json:"userId"`
+	Title      string `thrift:"title,3,required" frugal:"3,required,string" json:"title"`
+	QuestionId int64  `thrift:"questionId,4,required" frugal:"4,required,i64" json:"questionId"`
+	Answer     bool   `thrift:"answer,5,required" frugal:"5,required,bool" json:"answer"`
 }
 
 func NewInternalQuizJudge() *InternalQuizJudge {
@@ -360,11 +361,15 @@ func (p *InternalQuizJudge) GetUserId() (v int64) {
 	return p.UserId
 }
 
+func (p *InternalQuizJudge) GetTitle() (v string) {
+	return p.Title
+}
+
 func (p *InternalQuizJudge) GetQuestionId() (v int64) {
 	return p.QuestionId
 }
 
-func (p *InternalQuizJudge) GetAnswer() (v int64) {
+func (p *InternalQuizJudge) GetAnswer() (v bool) {
 	return p.Answer
 }
 func (p *InternalQuizJudge) SetRoomId(val int64) {
@@ -373,10 +378,13 @@ func (p *InternalQuizJudge) SetRoomId(val int64) {
 func (p *InternalQuizJudge) SetUserId(val int64) {
 	p.UserId = val
 }
+func (p *InternalQuizJudge) SetTitle(val string) {
+	p.Title = val
+}
 func (p *InternalQuizJudge) SetQuestionId(val int64) {
 	p.QuestionId = val
 }
-func (p *InternalQuizJudge) SetAnswer(val int64) {
+func (p *InternalQuizJudge) SetAnswer(val bool) {
 	p.Answer = val
 }
 
@@ -390,8 +398,9 @@ func (p *InternalQuizJudge) String() string {
 var fieldIDToName_InternalQuizJudge = map[int16]string{
 	1: "roomId",
 	2: "userId",
-	3: "questionId",
-	4: "answer",
+	3: "title",
+	4: "questionId",
+	5: "answer",
 }
 
 type InternalQuizStatus struct {

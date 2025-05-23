@@ -13,7 +13,7 @@ import (
 type ChatServiceImpl struct {
 	MysqlManager
 	RedisManager
-	MQManager
+	ProducerManager
 }
 
 type RedisManager interface {
@@ -28,11 +28,11 @@ type MysqlManager interface {
 
 var _ MysqlManager = (*dao.MysqlManagerImpl)(nil)
 
-type MQManager interface {
+type ProducerManager interface {
 	SendMessage(ctx context.Context, request *chat.ChatMessage) (err error)
 }
 
-var _ MQManager = (*mq.ProducerManagerImpl)(nil)
+var _ ProducerManager = (*mq.ProducerManagerImpl)(nil)
 
 // SendChat implements the ChatServiceImpl interface.
 func (s *ChatServiceImpl) SendChat(ctx context.Context, msg *chat.ChatMessage) (*chat.ChatMessageResponse, error) {
@@ -52,7 +52,7 @@ func (s *ChatServiceImpl) SendChat(ctx context.Context, msg *chat.ChatMessage) (
 	}
 
 	// 消息队列异步保存
-	err = s.MQManager.SendMessage(ctx, msg)
+	err = s.ProducerManager.SendMessage(ctx, msg)
 	if err != nil {
 		return &chat.ChatMessageResponse{
 			Response: rsp.ErrorSendMessage(err.Error()),

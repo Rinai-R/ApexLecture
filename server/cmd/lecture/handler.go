@@ -292,7 +292,7 @@ func (s *LectureServiceImpl) Attend(ctx context.Context, request *lecture.Attend
 	if !ok {
 		klog.Error("Failed to find session: ", request.RoomId)
 		return &lecture.AttendResponse{
-			Response: rsp.ErrorRoomNotFound(),
+			Response: rsp.ErrorRoomNotExists("Room Not Found"),
 		}, nil
 	}
 	Session := session.(*LectureSession)
@@ -395,7 +395,7 @@ func (s *LectureServiceImpl) Record(ctx context.Context, request *lecture.Record
 	if !ok {
 		klog.Error("Failed to find session: ", request.RoomId)
 		return &lecture.RecordResponse{
-			Response: rsp.ErrorRoomNotFound(),
+			Response: rsp.ErrorRoomNotExists("Room Not Found"),
 		}, nil
 	}
 	Session := session.(*LectureSession)
@@ -768,7 +768,7 @@ func (s *LectureServiceImpl) RandomSelect(ctx context.Context, request *lecture.
 	value, ok := s.Sessions.Load(request.RoomId)
 	if !ok {
 		return &lecture.RandomSelectResponse{
-			Response: rsp.ErrorRoomNotFound(),
+			Response: rsp.ErrorRoomNotExists("Room Not Found"),
 		}, nil
 	}
 	session := value.(*LectureSession)

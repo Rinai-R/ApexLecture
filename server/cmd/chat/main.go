@@ -40,9 +40,9 @@ func main() {
 	}()
 	svr := chatservice.NewServer(
 		&ChatServiceImpl{
-			MysqlManager: dao.NewMysqlManager(d),
-			RedisManager: dao.NewRedisManager(rdb),
-			MQManager:    mq.NewProducerManager(pro),
+			MysqlManager:    dao.NewMysqlManager(d),
+			RedisManager:    dao.NewRedisManager(rdb),
+			ProducerManager: mq.NewProducerManager(pro),
 		},
 		server.WithRegistry(r),
 		server.WithRegistryInfo(i),

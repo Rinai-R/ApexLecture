@@ -4,7 +4,8 @@ include "../base/base.thrift"
 
 
 struct SendMessageRequest {
-    1: string message
+    1: i8 type
+    2: string message
 }
 
 struct SendMessageResponse {

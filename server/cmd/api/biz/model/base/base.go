@@ -1466,10 +1466,11 @@ func (p *InternalQuizChoice) String() string {
 }
 
 type InternalQuizJudge struct {
-	RoomId     int64 `thrift:"roomId,1,required" form:"roomId,required" json:"roomId,required" query:"roomId,required"`
-	UserId     int64 `thrift:"userId,2,required" form:"userId,required" json:"userId,required" query:"userId,required"`
-	QuestionId int64 `thrift:"questionId,3,required" form:"questionId,required" json:"questionId,required" query:"questionId,required"`
-	Answer     int64 `thrift:"answer,4,required" form:"answer,required" json:"answer,required" query:"answer,required"`
+	RoomId     int64  `thrift:"roomId,1,required" form:"roomId,required" json:"roomId,required" query:"roomId,required"`
+	UserId     int64  `thrift:"userId,2,required" form:"userId,required" json:"userId,required" query:"userId,required"`
+	Title      string `thrift:"title,3,required" form:"title,required" json:"title,required" query:"title,required"`
+	QuestionId int64  `thrift:"questionId,4,required" form:"questionId,required" json:"questionId,required" query:"questionId,required"`
+	Answer     bool   `thrift:"answer,5,required" form:"answer,required" json:"answer,required" query:"answer,required"`
 }
 
 func NewInternalQuizJudge() *InternalQuizJudge {
@@ -1487,19 +1488,24 @@ func (p *InternalQuizJudge) GetUserId() (v int64) {
 	return p.UserId
 }
 
+func (p *InternalQuizJudge) GetTitle() (v string) {
+	return p.Title
+}
+
 func (p *InternalQuizJudge) GetQuestionId() (v int64) {
 	return p.QuestionId
 }
 
-func (p *InternalQuizJudge) GetAnswer() (v int64) {
+func (p *InternalQuizJudge) GetAnswer() (v bool) {
 	return p.Answer
 }
 
 var fieldIDToName_InternalQuizJudge = map[int16]string{
 	1: "roomId",
 	2: "userId",
-	3: "questionId",
-	4: "answer",
+	3: "title",
+	4: "questionId",
+	5: "answer",
 }
 
 func (p *InternalQuizJudge) Read(iprot thrift.TProtocol) (err error) {
@@ -1507,6 +1513,7 @@ func (p *InternalQuizJudge) Read(iprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	var issetRoomId bool = false
 	var issetUserId bool = false
+	var issetTitle bool = false
 	var issetQuestionId bool = false
 	var issetAnswer bool = false
 
@@ -1543,17 +1550,26 @@ func (p *InternalQuizJudge) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 3:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetQuestionId = true
+				issetTitle = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
 		case 4:
 			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetQuestionId = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 5:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
 				issetAnswer = true
@@ -1583,13 +1599,18 @@ func (p *InternalQuizJudge) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetQuestionId {
+	if !issetTitle {
 		fieldId = 3
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetAnswer {
+	if !issetQuestionId {
 		fieldId = 4
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetAnswer {
+		fieldId = 5
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -1634,6 +1655,17 @@ func (p *InternalQuizJudge) ReadField2(iprot thrift.TProtocol) error {
 }
 func (p *InternalQuizJudge) ReadField3(iprot thrift.TProtocol) error {
 
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Title = _field
+	return nil
+}
+func (p *InternalQuizJudge) ReadField4(iprot thrift.TProtocol) error {
+
 	var _field int64
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
@@ -1643,10 +1675,10 @@ func (p *InternalQuizJudge) ReadField3(iprot thrift.TProtocol) error {
 	p.QuestionId = _field
 	return nil
 }
-func (p *InternalQuizJudge) ReadField4(iprot thrift.TProtocol) error {
+func (p *InternalQuizJudge) ReadField5(iprot thrift.TProtocol) error {
 
-	var _field int64
-	if v, err := iprot.ReadI64(); err != nil {
+	var _field bool
+	if v, err := iprot.ReadBool(); err != nil {
 		return err
 	} else {
 		_field = v
@@ -1675,6 +1707,10 @@ func (p *InternalQuizJudge) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField4(oprot); err != nil {
 			fieldId = 4
+			goto WriteFieldError
+		}
+		if err = p.writeField5(oprot); err != nil {
+			fieldId = 5
 			goto WriteFieldError
 		}
 	}
@@ -1728,10 +1764,10 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 func (p *InternalQuizJudge) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("questionId", thrift.I64, 3); err != nil {
+	if err = oprot.WriteFieldBegin("title", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.QuestionId); err != nil {
+	if err := oprot.WriteString(p.Title); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1744,10 +1780,10 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 func (p *InternalQuizJudge) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("answer", thrift.I64, 4); err != nil {
+	if err = oprot.WriteFieldBegin("questionId", thrift.I64, 4); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.Answer); err != nil {
+	if err := oprot.WriteI64(p.QuestionId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1758,6 +1794,22 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+func (p *InternalQuizJudge) writeField5(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("answer", thrift.BOOL, 5); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteBool(p.Answer); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
 func (p *InternalQuizJudge) String() string {

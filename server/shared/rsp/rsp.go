@@ -17,7 +17,6 @@ const (
 	SetRemoteDescriptionError = 40011
 	CreateAnswerError         = 40012
 	SetLocalDescriptionError  = 40013
-	RoomNotFound              = 40014
 	AddTrackError             = 40015
 	SaveLectureError          = 40016
 	RecordAlreadyStarted      = 40017
@@ -30,6 +29,7 @@ const (
 	FailToConnect             = 40024
 	NotTheOwner               = 40025
 	NoAudienceInRoom          = 40026
+	SendQuesiotnError         = 40027
 )
 
 func OK() *base.BaseResponse {
@@ -130,13 +130,6 @@ func ErrorSetLocalDescription(define string) *base.BaseResponse {
 	}
 }
 
-func ErrorRoomNotFound() *base.BaseResponse {
-	return &base.BaseResponse{
-		Code:    RoomNotFound,
-		Message: "Room not found",
-	}
-}
-
 func ErrorAddTrack(define string) *base.BaseResponse {
 	return &base.BaseResponse{
 		Code:    AddTrackError,
@@ -218,5 +211,12 @@ func ErrorNoAudience() *base.BaseResponse {
 	return &base.BaseResponse{
 		Code:    NoAudienceInRoom,
 		Message: "No audience in the room",
+	}
+}
+
+func ErrorSendQuesiotn(define string) *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    SendQuesiotnError,
+		Message: define,
 	}
 }

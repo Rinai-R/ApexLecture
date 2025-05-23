@@ -10,7 +10,8 @@ import (
 )
 
 type SendMessageRequest struct {
-	Message string `thrift:"message,1" form:"message" json:"message" query:"message"`
+	Type    int8   `thrift:"type,1" form:"type" json:"type" query:"type"`
+	Message string `thrift:"message,2" form:"message" json:"message" query:"message"`
 }
 
 func NewSendMessageRequest() *SendMessageRequest {
@@ -20,12 +21,17 @@ func NewSendMessageRequest() *SendMessageRequest {
 func (p *SendMessageRequest) InitDefault() {
 }
 
+func (p *SendMessageRequest) GetType() (v int8) {
+	return p.Type
+}
+
 func (p *SendMessageRequest) GetMessage() (v string) {
 	return p.Message
 }
 
 var fieldIDToName_SendMessageRequest = map[int16]string{
-	1: "message",
+	1: "type",
+	2: "message",
 }
 
 func (p *SendMessageRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -47,8 +53,16 @@ func (p *SendMessageRequest) Read(iprot thrift.TProtocol) (err error) {
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.BYTE {
 				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -85,6 +99,17 @@ ReadStructEndError:
 
 func (p *SendMessageRequest) ReadField1(iprot thrift.TProtocol) error {
 
+	var _field int8
+	if v, err := iprot.ReadByte(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Type = _field
+	return nil
+}
+func (p *SendMessageRequest) ReadField2(iprot thrift.TProtocol) error {
+
 	var _field string
 	if v, err := iprot.ReadString(); err != nil {
 		return err
@@ -103,6 +128,10 @@ func (p *SendMessageRequest) Write(oprot thrift.TProtocol) (err error) {
 	if p != nil {
 		if err = p.writeField1(oprot); err != nil {
 			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
 			goto WriteFieldError
 		}
 	}
@@ -124,10 +153,10 @@ WriteStructEndError:
 }
 
 func (p *SendMessageRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("message", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("type", thrift.BYTE, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Message); err != nil {
+	if err := oprot.WriteByte(p.Type); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -138,6 +167,22 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+func (p *SendMessageRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("message", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Message); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
 func (p *SendMessageRequest) String() string {

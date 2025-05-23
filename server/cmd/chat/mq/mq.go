@@ -10,6 +10,7 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/cmd/chat/dao"
 	"github.com/Rinai-R/ApexLecture/server/cmd/chat/model"
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
+	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/base"
 	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/chat"
 	"github.com/bwmarrin/snowflake"
 	"github.com/bytedance/sonic"
@@ -25,16 +26,30 @@ func NewProducerManager(producer sarama.AsyncProducer) *ProducerManagerImpl {
 }
 
 func (p *ProducerManagerImpl) SendMessage(ctx context.Context, request *chat.ChatMessage) error {
-	bytes, err := sonic.Marshal(request)
+	var msg *base.InternalMessage
+	// 通过公共的消息类型，实现消息结构的统一化。
+	switch base.InternalMessageType(request.Type) {
+	case base.InternalMessageType_CHAT_MESSAGE:
+		msg = &base.InternalMessage{
+			Type: base.InternalMessageType_CHAT_MESSAGE,
+			Payload: &base.InternalPayload{
+				ChatMessage: &base.InternalChatMessage{
+					Message: request.Text,
+					RoomId:  request.RoomId,
+					UserId:  request.UserId,
+				},
+			},
+		}
+	}
+	bytes, err := sonic.Marshal(msg)
 	if err != nil {
 		return err
 	}
-	msg := &sarama.ProducerMessage{
+	p.producer.Input() <- &sarama.ProducerMessage{
 		Topic: config.GlobalServerConfig.Kafka.Topic,
-		Key:   sarama.StringEncoder(fmt.Sprintf("room:%d", request.RoomId)),
+		Key:   sarama.StringEncoder(fmt.Sprintf(consts.RoomKey, request.RoomId)),
 		Value: sarama.StringEncoder(string(bytes)),
 	}
-	p.producer.Input() <- msg
 	return nil
 }
 
@@ -95,8 +110,8 @@ func (h *ConsumerHandlerImpl) ConsumeClaim(session sarama.ConsumerGroupSession, 
 				klog.Info("ConsumerHandlerImpl: 消费完毕")
 				return nil
 			}
-			var chatMessage chat.ChatMessage
-			err := sonic.Unmarshal(message.Value, &chatMessage)
+			var Message base.InternalMessage
+			err := sonic.Unmarshal(message.Value, &Message)
 			if err != nil {
 				klog.Error("Unmarshal failed", err)
 				continue
@@ -107,13 +122,19 @@ func (h *ConsumerHandlerImpl) ConsumeClaim(session sarama.ConsumerGroupSession, 
 				continue
 			}
 			id := sf.Generate().Int64()
-			h.MySQLManager.CreateChatMessage(context.Background(), &model.ChatMessage{
-				ID:        id,
-				SenderID:  chatMessage.UserId,
-				RoomID:    chatMessage.RoomId,
-				Content:   chatMessage.Text,
-				CreatedAt: time.Now(),
-			})
+			// 识别字段类型，确保正常处理。
+			switch base.InternalMessageType(Message.Type) {
+			case base.InternalMessageType_CHAT_MESSAGE:
+				h.MySQLManager.CreateChatMessage(context.Background(), &model.ChatMessage{
+					ID:        id,
+					SenderID:  Message.Payload.ChatMessage.UserId,
+					RoomID:    Message.Payload.ChatMessage.RoomId,
+					Content:   Message.Payload.ChatMessage.Message,
+					CreatedAt: time.Now(),
+				})
+			default:
+				klog.Error("Unknown message type", base.InternalMessageType(Message.Type))
+			}
 			session.MarkMessage(message, "")
 		case <-session.Context().Done():
 			return nil

@@ -44,6 +44,7 @@ func Chat(ctx context.Context, c *app.RequestContext) {
 	resp, _ := config.ChatClient.SendChat(ctx, &rpc.ChatMessage{
 		UserId: UserId,
 		RoomId: RoomId,
+		Type:   req.Type,
 		Text:   req.Message,
 	})
 	switch resp.Response.Code {

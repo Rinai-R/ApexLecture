@@ -5,10 +5,12 @@ include "../base/base.thrift"
 
 namespace go chat
 
+// 加上 type 字段，增强可扩展性
 struct ChatMessage {
     1: i64 roomId,
     2: i64 userId,
-    3: string text,
+    3: i8 type,
+    4: string text,
 }
 
 struct ChatMessageResponse {

@@ -55,8 +55,9 @@ struct InternalQuizChoice {
 struct InternalQuizJudge {
     1: required i64 roomId;
     2: required i64 userId;
-    3: required i64 questionId;
-    4: required i64 answer;
+    3: required string title;
+    4: required i64 questionId;
+    5: required bool answer;
 }
 
 struct InternalQuizStatus {
