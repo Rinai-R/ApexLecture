@@ -15,6 +15,7 @@ require (
 	github.com/hertz-contrib/obs-opentelemetry/tracing v0.4.1
 	github.com/hertz-contrib/registry/etcd v0.0.0-20250319055937-8a220332e808
 	github.com/hertz-contrib/sse v0.1.0
+	github.com/importcjj/sensitive v0.0.0-20200106142752-42d1c505be7b
 	github.com/kitex-contrib/obs-opentelemetry v0.2.9
 	github.com/kitex-contrib/obs-opentelemetry/logging/logrus v0.0.0-20241120035129-55da83caab1b
 	github.com/kitex-contrib/registry-etcd v0.2.6

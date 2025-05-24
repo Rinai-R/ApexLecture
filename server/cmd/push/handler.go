@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/Rinai-R/ApexLecture/server/cmd/push/dao"
+	"github.com/Rinai-R/ApexLecture/server/cmd/push/pkg/sensitive"
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
 	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/base"
 	push "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/push"
@@ -15,6 +16,7 @@ import (
 // PushServiceImpl implements the last service interface defined in the IDL.
 type PushServiceImpl struct {
 	RedisManager
+	Filter
 }
 
 type RedisManager interface {
@@ -25,6 +27,13 @@ type RedisManager interface {
 }
 
 var _ RedisManager = (*dao.RedisManagerImpl)(nil)
+
+type Filter interface {
+	ReplaceWithChar(text string, char rune) string
+	MultiReplaceWithChar(text []string, replace rune) []string
+}
+
+var _ Filter = (*sensitive.FilterImpl)(nil)
 
 func (s *PushServiceImpl) Receive(ctx context.Context, request *push.PushMessageRequest, stream push.PushService_ReceiveServer) error {
 	ok, err := s.RedisManager.CheckRoomExists(ctx, request.RoomId)
@@ -69,7 +78,7 @@ func (s *PushServiceImpl) Receive(ctx context.Context, request *push.PushMessage
 				Type: int8(env.Type),
 				Payload: &push.Payload{
 					ChatMessage: &push.ChatMessage{
-						Text:   env.Payload.ChatMessage.Message,
+						Text:   s.ReplaceWithChar(env.Payload.ChatMessage.Message, '<'),
 						UserId: env.Payload.ChatMessage.UserId,
 						RoomId: env.Payload.ChatMessage.RoomId,
 					},
@@ -118,8 +127,8 @@ func (s *PushServiceImpl) Receive(ctx context.Context, request *push.PushMessage
 						UserId:     env.Payload.QuizChoice.UserId,
 						RoomId:     env.Payload.QuizChoice.RoomId,
 						QuestionId: env.Payload.QuizChoice.QuestionId,
-						Title:      env.Payload.QuizChoice.Title,
-						Options:    env.Payload.QuizChoice.Options,
+						Title:      s.ReplaceWithChar(env.Payload.QuizChoice.Title, '<'),
+						Options:    s.MultiReplaceWithChar(env.Payload.QuizChoice.Options, '<'),
 						Ttl:        env.Payload.QuizChoice.Ttl,
 					},
 				},
@@ -140,7 +149,7 @@ func (s *PushServiceImpl) Receive(ctx context.Context, request *push.PushMessage
 						UserId:     env.Payload.QuizJudge.UserId,
 						RoomId:     env.Payload.QuizJudge.RoomId,
 						QuestionId: env.Payload.QuizJudge.QuestionId,
-						Title:      env.Payload.QuizJudge.Title,
+						Title:      s.ReplaceWithChar(env.Payload.QuizJudge.Title, '<'),
 						Ttl:        env.Payload.QuizJudge.Ttl,
 					},
 				},
@@ -194,7 +203,7 @@ func (s *PushServiceImpl) Receive(ctx context.Context, request *push.PushMessage
 				Type: int8(env.Type),
 				Payload: &push.Payload{
 					ChatMessage: &push.ChatMessage{
-						Text:   env.Payload.ChatMessage.Message,
+						Text:   s.ReplaceWithChar(env.Payload.ChatMessage.Message, '<'),
 						UserId: env.Payload.ChatMessage.UserId,
 						RoomId: env.Payload.ChatMessage.RoomId,
 					},
@@ -243,8 +252,8 @@ func (s *PushServiceImpl) Receive(ctx context.Context, request *push.PushMessage
 						UserId:     env.Payload.QuizChoice.UserId,
 						RoomId:     env.Payload.QuizChoice.RoomId,
 						QuestionId: env.Payload.QuizChoice.QuestionId,
-						Title:      env.Payload.QuizChoice.Title,
-						Options:    env.Payload.QuizChoice.Options,
+						Title:      s.ReplaceWithChar(env.Payload.QuizChoice.Title, '<'),
+						Options:    s.MultiReplaceWithChar(env.Payload.QuizChoice.Options, '<'),
 						Ttl:        env.Payload.QuizChoice.Ttl,
 					},
 				},
@@ -265,7 +274,7 @@ func (s *PushServiceImpl) Receive(ctx context.Context, request *push.PushMessage
 						UserId:     env.Payload.QuizJudge.UserId,
 						RoomId:     env.Payload.QuizJudge.RoomId,
 						QuestionId: env.Payload.QuizJudge.QuestionId,
-						Title:      env.Payload.QuizJudge.Title,
+						Title:      s.ReplaceWithChar(env.Payload.QuizJudge.Title, '<'),
 						Ttl:        env.Payload.QuizJudge.Ttl,
 					},
 				},

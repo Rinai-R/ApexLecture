@@ -141,10 +141,10 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 	s.RedisManager.CreateRoom(ctx, roomid, request.HostId)
 
 	// localTrackChan 用来拿到“转发用”的本地Track
-	// localTrackChan 用来拿到“转发用”的本地Track
 	audioLocalTrackChan := make(chan *webrtc.TrackLocalStaticRTP)
 	videoLocalTrackChan := make(chan *webrtc.TrackLocalStaticRTP)
-	// 这两个管道用于同步，保证两个轨道都准备好了。
+
+	// 这两个管道用于同步，在之后会看到，保证两个轨道都准备好了。
 	Check := make(chan struct{}, 2)
 	// 当收到主播发过来的远端轨道（OnTrack）时：
 	peerConnection.OnTrack(func(remoteTrack *webrtc.TrackRemote, receiver *webrtc.RTPReceiver) {
@@ -243,22 +243,26 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 	gatherComplete := webrtc.GatheringCompletePromise(peerConnection)
 	if err = peerConnection.SetLocalDescription(answer); err != nil {
 		klog.Error("Failed to set local description: ", err)
-
+		return &lecture.StartResponse{
+			Response: rsp.ErrorSetLocalDescription(err.Error()),
+		}, nil
 	}
 	<-gatherComplete
 	// 等 ICE 候选收集完
 	// 存储转发音频轨道和视频轨道的管道，便于用户来的时候获取音视频的轨道。
 	s.goroutinePool.Submit(func() {
 		s.Sessions.Store(roomid, &LectureSession{
-			HostId:          request.HostId,
-			PeerConnection:  peerConnection,
-			AudioTrack:      <-audioLocalTrackChan,
-			VideoTrack:      <-videoLocalTrackChan,
-			Audiences:       &sync.Map{},
+			HostId:         request.HostId,
+			PeerConnection: peerConnection,
+			AudioTrack:     <-audioLocalTrackChan,
+			VideoTrack:     <-videoLocalTrackChan,
+			Audiences:      &sync.Map{},
+			// 这里用于保存录制功能所需要的转发管道。
 			VideoRecordChan: make(chan *rtp.Packet, 200),
 			AudioRecordChan: make(chan *rtp.Packet, 200),
 			RecordStarted:   false,
 		})
+		// 这里是为了 ontrack 回调函数	能够拿到轨道，所以需要等待两个轨道都准备好了。
 		Check <- struct{}{}
 		Check <- struct{}{}
 		close(Check)

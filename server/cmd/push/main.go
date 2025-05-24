@@ -6,6 +6,7 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/cmd/push/config"
 	"github.com/Rinai-R/ApexLecture/server/cmd/push/dao"
 	"github.com/Rinai-R/ApexLecture/server/cmd/push/initialize"
+	"github.com/Rinai-R/ApexLecture/server/cmd/push/pkg/sensitive"
 	push "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/push/pushservice"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -21,6 +22,7 @@ func main() {
 	svr := push.NewServer(
 		&PushServiceImpl{
 			RedisManager: dao.NewRedisManager(rdb),
+			Filter:       sensitive.NewFilter(),
 		},
 		server.WithRegistry(r),
 		server.WithRegistryInfo(i),
