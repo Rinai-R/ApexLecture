@@ -9,6 +9,7 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/cmd/api/config"
 	"github.com/Rinai-R/ApexLecture/server/cmd/api/initialize"
 	"github.com/Rinai-R/ApexLecture/server/cmd/api/initialize/rpc"
+	"github.com/Rinai-R/ApexLecture/server/cmd/api/middleware"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/hertz-contrib/obs-opentelemetry/provider"
 	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
@@ -17,6 +18,7 @@ import (
 func main() {
 	initialize.Initlogger()
 	initialize.InitConfig()
+	initialize.InitSentinel()
 	r, i := initialize.InitRegistry()
 	rpc.Initrpc()
 	p := provider.NewOpenTelemetryProvider(
@@ -32,6 +34,7 @@ func main() {
 		server.WithHostPorts(net.JoinHostPort(config.GlobalServerConfig.Host, config.GlobalServerConfig.Port)),
 	)
 	h.Use(hertztracing.ServerMiddleware(trcCfg))
+	h.Use(middleware.Sentinel)
 	register(h)
 	h.Spin()
 }

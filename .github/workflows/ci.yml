@@ -19,3 +19,5 @@ jobs:
       - name: Vet
         run: |
           go vet -stdmethods=false $(go list ./...)
+      - name: Test
+        run: go test -v ./...

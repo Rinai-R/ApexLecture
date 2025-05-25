@@ -237,3 +237,11 @@ func (r *RedisManagerImpl) SendQuizStatus(ctx context.Context, status *model.Qui
 	klog.Info("send quiz status:", fmt.Sprintf(consts.RoomKey, status.RoomId))
 	return r.client.Publish(ctx, fmt.Sprintf(consts.RoomKey, status.RoomId), msgbytes).Err()
 }
+
+func (r *RedisManagerImpl) QuizLock(ctx context.Context, userId int64) error {
+	return r.client.SetNX(ctx, fmt.Sprintf(consts.QuizLockKey, userId), "lock", time.Second*5).Err()
+}
+
+func (r *RedisManagerImpl) QuizUnlock(ctx context.Context, userId int64) error {
+	return r.client.Del(ctx, fmt.Sprintf(consts.QuizLockKey, userId)).Err()
+}

@@ -104,6 +104,7 @@ const (
 	QuestionAnswerKey     = "quiz:answer:%d"
 	WrongAnswerRecordKey  = "quiz:wrong_answer:%d"
 	AcceptAnswerRecordKey = "quiz:accept_answer:%d"
+	QuizLockKey           = "quiz:lock:%d"
 	AudienceKey           = "lecture:audiences:%d"
 	LatestMsgListKey      = "lecture:latest_msg_list:%d"
 )

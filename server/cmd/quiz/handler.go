@@ -40,6 +40,8 @@ type RedisManager interface {
 	CheckUserHasSubmittedAnswer(ctx context.Context, request *quiz.SubmitAnswerRequest) (bool, error)
 	GetQuizStatus(ctx context.Context, QuestionId int64, RoomId int64) (*model.QuizStatus, error)
 	SendQuizStatus(ctx context.Context, status *model.QuizStatus) error
+	QuizLock(ctx context.Context, userId int64) error
+	QuizUnlock(ctx context.Context, userId int64) error
 }
 
 var _ RedisManager = (*dao.RedisManagerImpl)(nil)
@@ -111,6 +113,16 @@ func (s *QuizServiceImpl) SubmitAnswer(ctx context.Context, request *quiz.Submit
 			Response: rsp.ErrorRoomNotExists(err.Error()),
 		}, nil
 	}
+	// 双重检查，防止短时间和长时间内重复提交答案。
+	// 这里加个大锁，防止短时间内多次提交答案。
+	err = s.RedisManager.QuizLock(ctx, request.UserId)
+	if err != nil {
+		return &quiz.SubmitAnswerResponse{
+			Response: rsp.ErrorRequestFrequency(err.Error()),
+		}, nil
+	}
+
+	defer s.RedisManager.QuizUnlock(ctx, request.UserId)
 
 	// 检查用户是否已经提交过答案
 	if ok, err := s.RedisManager.CheckUserHasSubmittedAnswer(ctx, request); !ok {

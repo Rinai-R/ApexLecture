@@ -37,6 +37,8 @@ const (
 	QuestionExpireOrNotExist  = 40028
 	WrongAnswer               = 40029
 	UserHasSubmittedAnswer    = 40030
+	RequestFrequency          = 40031
+	ServerBusy                = 40032
 )
 
 func OK() *base.BaseResponse {
@@ -246,5 +248,19 @@ func ErrorUserHasSubmittedAnswer(define string) *base.BaseResponse {
 	return &base.BaseResponse{
 		Code:    UserHasSubmittedAnswer,
 		Message: define,
+	}
+}
+
+func ErrorRequestFrequency(define string) *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    RequestFrequency,
+		Message: define,
+	}
+}
+
+func ErrorServerBusy() *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    ServerBusy,
+		Message: "Too many requests. Try again later.",
 	}
 }
