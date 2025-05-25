@@ -77,6 +77,16 @@ const (
 	ChatKafkaGroup    = "chat"
 	QuizKafkaTopic    = "quiz"
 	QuizKafkaGroup    = "quiz"
+	AgentKafkaTopic   = "agent"
+	AgentKafkaGroup   = "agent"
+)
+
+// ChatModel
+const (
+	AgentBaseURL = "https://ark.cn-beijing.volces.com/api/v3"
+	AgentRegion  = "cn-beijing"
+	AgentAPIKey  = "a02b51ca-cf7e-4cb2-bad4-266cb3714137"
+	AgentModel   = "deepseek-r1-250120"
 )
 
 // key
@@ -111,4 +121,5 @@ const (
 	QuizLockKey           = "quiz:lock:%d"
 	AudienceKey           = "lecture:audiences:%d"
 	LatestMsgListKey      = "lecture:latest_msg_list:%d"
+	HistoryMsgKey         = "agent:history_msg:%d:%d"
 )

@@ -39,6 +39,7 @@ const (
 	UserHasSubmittedAnswer    = 40030
 	RequestFrequency          = 40031
 	ServerBusy                = 40032
+	GetHistoryError           = 40033
 	InternalServerError       = 50000
 )
 
@@ -269,6 +270,13 @@ func ErrorServerBusy() *base.BaseResponse {
 func ErrorInternalServer(define string) *base.BaseResponse {
 	return &base.BaseResponse{
 		Code:    InternalServerError,
+		Message: define,
+	}
+}
+
+func ErrorGetHistory(define string) *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    GetHistoryError,
 		Message: define,
 	}
 }

@@ -16,6 +16,7 @@
   - ✅ **异步入库**：部分数据使用 Kafka 异步写入数据库，提升性能。
   - ✅ **用户管理**：支持用户注册、登录和身份校验。
   - ✅ **可观测性**：基于 ELK 集成日志系统，jaeger/Prometheus/opentelemetry 实现监控。
+  - ✅ **集成AI**：基于 eino 框架实现了问答女仆功能，可自动回答学生提问。
 
   ------
 
@@ -23,6 +24,7 @@
 
   - 后端框架：Hertz + Kitex
   - 推流：pion/webrtc
+  - 大模型: eino
   - 消息队列：Redis Pub/Sub + Kafka
   - 数据库：MySQL + Redis + MinIO（对象存储）
   - 监控工具：Prometheus + Grafana + Jaeger
@@ -52,7 +54,7 @@
   go mod tidy
   ```
 
-  3. 拉取依赖： 
+  3. 拉取依赖：
 
   ```bash
   make up
