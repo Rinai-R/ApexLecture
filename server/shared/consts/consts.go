@@ -122,4 +122,15 @@ const (
 	AudienceKey           = "lecture:audiences:%d"
 	LatestMsgListKey      = "lecture:latest_msg_list:%d"
 	HistoryMsgKey         = "agent:history_msg:%d:%d"
+	SummaryStartedLock    = "agent:summary_started_lock:%d"
+)
+
+// some status
+// agent 服务里面，有几个状态，不好梳理
+// 在这里用常量表示
+const (
+	NotCreate  = 0
+	NoSummary  = 1
+	Summarized = 2
+	OtherError = 3
 )

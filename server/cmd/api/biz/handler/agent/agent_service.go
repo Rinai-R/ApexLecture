@@ -57,6 +57,7 @@ func Ask(ctx context.Context, c *app.RequestContext) {
 
 // StartSummary .
 // @router /agent/:roomid/summary [POST]
+// 该接口暂不可用
 func StartSummary(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req agent.StartSummaryRequest
@@ -90,6 +91,7 @@ func StartSummary(ctx context.Context, c *app.RequestContext) {
 
 // GetSummary .
 // @router /agent/:roomid/summary [GET]
+// 该接口暂不可用
 func GetSummary(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req agent.GetSummaryRequest

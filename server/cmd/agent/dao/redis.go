@@ -41,5 +41,15 @@ func (r *RedisManagerImpl) AppendMsg(ctx context.Context, msg *model.RedisHistor
 	if err != nil {
 		return err
 	}
-	return r.client.RPush(ctx, fmt.Sprintf(consts.HistoryMsgKey, roomId, userId), str).Err()
+	err = r.client.RPush(ctx, fmt.Sprintf(consts.HistoryMsgKey, roomId, userId), str).Err()
+	if err != nil {
+		return err
+	}
+	// 设置过期时间
+	err = r.client.Expire(ctx, fmt.Sprintf(consts.HistoryMsgKey, roomId, userId), 3600).Err()
+	return err
+}
+
+func (r *RedisManagerImpl) LockSummaryStarted(ctx context.Context, roomId int64) (bool, error) {
+	return r.client.SetNX(ctx, fmt.Sprintf(consts.SummaryStartedLock, roomId), "lock", 60).Result()
 }

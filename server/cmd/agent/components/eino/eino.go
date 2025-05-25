@@ -8,20 +8,35 @@ import (
 	"github.com/cloudwego/eino/schema"
 )
 
-type BotManager struct {
-	AskApp compose.Runnable[*model.Ask, *schema.Message]
+type BotManagerImpl struct {
+	AskApp     compose.Runnable[*model.Ask, *schema.Message]
+	SummaryApp compose.Runnable[*model.SummaryRequest, *schema.Message]
 }
 
-func NewBotManaer(AskApp compose.Runnable[*model.Ask, *schema.Message]) *BotManager {
-	return &BotManager{
-		AskApp: AskApp,
+func NewBotManaer(AskApp compose.Runnable[*model.Ask, *schema.Message], SummaryApp compose.Runnable[*model.SummaryRequest, *schema.Message]) *BotManagerImpl {
+	return &BotManagerImpl{
+		AskApp:     AskApp,
+		SummaryApp: SummaryApp,
 	}
 }
 
-func (bm *BotManager) Ask(ctx context.Context, AskMsg *model.Ask) string {
+func (bm *BotManagerImpl) Ask(ctx context.Context, AskMsg *model.Ask) *model.AskResponse {
 	output, err := bm.AskApp.Invoke(ctx, AskMsg)
 	if err != nil {
-		return ""
+		return nil
 	}
-	return output.Content
+	return &model.AskResponse{
+		Role:    string(output.Role),
+		Message: output.Content,
+	}
+}
+
+func (bm *BotManagerImpl) Summary(ctx context.Context, SummaryReq *model.SummaryRequest) *model.SummaryResponse {
+	output, err := bm.SummaryApp.Invoke(ctx, SummaryReq)
+	if err != nil {
+		return nil
+	}
+	return &model.SummaryResponse{
+		Summary: output.Content,
+	}
 }

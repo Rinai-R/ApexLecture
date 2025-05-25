@@ -40,6 +40,10 @@ const (
 	RequestFrequency          = 40031
 	ServerBusy                = 40032
 	GetHistoryError           = 40033
+	SummaryStarted            = 40034
+	SummaryError              = 40035
+	HaveSummarized            = 40036
+	GetSummaryError           = 40037
 	InternalServerError       = 50000
 )
 
@@ -277,6 +281,34 @@ func ErrorInternalServer(define string) *base.BaseResponse {
 func ErrorGetHistory(define string) *base.BaseResponse {
 	return &base.BaseResponse{
 		Code:    GetHistoryError,
+		Message: define,
+	}
+}
+
+func ErrorSummaryStarted(define string) *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    SummaryStarted,
+		Message: fmt.Sprintf("Summary has already started, %s", define),
+	}
+}
+
+func ErrorSummary(define string) *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    SummaryError,
+		Message: define,
+	}
+}
+
+func ErrorHaveSummarized() *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    HaveSummarized,
+		Message: "You have summarized this lecture",
+	}
+}
+
+func ErrorGetSummary(define string) *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    GetSummaryError,
 		Message: define,
 	}
 }
