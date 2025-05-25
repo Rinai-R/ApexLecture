@@ -10,6 +10,9 @@ re:
 
 up:
 	docker-compose up -d
+	chmod -R 0777 ./data
+	docker-compose down
+	docker-compose up -d
 	make conf
 
 down:
