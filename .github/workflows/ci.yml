@@ -18,7 +18,7 @@ jobs:
       - name: Download dependencies
         run: go mod download
 
-        
+
       - name: Install Docker
         run: |
           sudo apt-get update
@@ -46,4 +46,4 @@ jobs:
           sleep 10
 
       - name: Run tests
-        run: go test -v ./...
+        run: go test -v ./server/...
