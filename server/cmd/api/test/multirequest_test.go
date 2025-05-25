@@ -1,6 +1,7 @@
 package test
 
 import (
+	"net/http"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -17,9 +18,11 @@ func TestMultiGet(t *testing.T) {
 	for i := 0; i < GetNum; i++ {
 		go func() {
 			res, _ := client.R().SetHeaders(map[string]string{}).Get("http://localhost:10000/ping")
-			if res != nil && res.StatusCode() != 200 {
+			if res != nil && res.StatusCode() != http.StatusOK {
 				t.Log("get status code", res.StatusCode())
-				atomic.AddInt64(&check, 1)
+				if res.StatusCode() == http.StatusTooManyRequests {
+					atomic.AddInt64(&check, 1)
+				}
 			}
 			wg.Done()
 		}()
