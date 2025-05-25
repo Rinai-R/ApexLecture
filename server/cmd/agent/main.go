@@ -23,10 +23,11 @@ func main() {
 	pro, con := initialize.InitMQ()
 	r, i := initialize.InitRegistry()
 	db := initialize.InitDB()
+	m := initialize.InitMinio()
 	rdb := initialize.InitRedis()
 	AskApp := initialize.InitAskApp()
 	SummaryApp := initialize.InitSummaryApp()
-	handler := mq.NewConsumerHandler(dao.NewMysqlManager(db))
+	handler := mq.NewConsumerHandler(dao.NewMysqlManager(db), m, eino.NewBotManaer(AskApp, SummaryApp))
 	p := provider.NewOpenTelemetryProvider(
 		provider.WithServiceName(config.GlobalServerConfig.Name),
 		provider.WithExportEndpoint(config.GlobalServerConfig.OtelEndpoint),

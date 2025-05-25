@@ -7,6 +7,7 @@ type ServerConfig struct {
 	Mysql        MysqlConfig `json:"mysql"`
 	Redis        RedisConfig `json:"redis"`
 	Kafka        KafkaConfig `json:"kafka"`
+	Minio        MinioConfig `json:"minio"`
 	OtelEndpoint string      `json:"otel_endpoint"`
 }
 
@@ -37,4 +38,12 @@ type KafkaConfig struct {
 	Brokers  []string `json:"brokers"`
 	Topic    string   `json:"topic"`
 	Group    string   `json:"group"`
+}
+
+type MinioConfig struct {
+	Endpoint        string `json:"endpoint"`
+	AccessKeyID     string `json:"access_key_id"`
+	SecretAccessKey string `json:"secret_access_key"`
+	BucketName      string `json:"bucket_name"`
+	Secure          bool   `json:"secure"`
 }

@@ -56,3 +56,21 @@ func (m *MysqlManagerImpl) GetSummary(ctx context.Context, RoomId int64) (*model
 
 	return &summary, nil
 }
+
+// 这里表示总结完成之后，更新状态和智能纪要内容。
+func (m *MysqlManagerImpl) SetSummary(ctx context.Context, RoomId int64, summary string) error {
+	updateData := map[string]interface{}{
+		"status":  true,
+		"summary": summary,
+	}
+
+	result := m.db.Model(&model.Summary{}).
+		Where("room_id = ?", RoomId).
+		Updates(updateData)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}

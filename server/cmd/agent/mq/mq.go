@@ -5,11 +5,16 @@ import (
 	"fmt"
 	"strconv"
 
+	speech "cloud.google.com/go/speech/apiv1"
+	"cloud.google.com/go/speech/apiv1/speechpb"
 	"github.com/IBM/sarama"
+	"github.com/Rinai-R/ApexLecture/server/cmd/agent/components/eino"
 	"github.com/Rinai-R/ApexLecture/server/cmd/agent/config"
 	"github.com/Rinai-R/ApexLecture/server/cmd/agent/dao"
+	"github.com/Rinai-R/ApexLecture/server/cmd/agent/model"
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/minio/minio-go/v7"
 )
 
 type ProducerManagerImpl struct {
@@ -58,12 +63,16 @@ func (c *ConsumerManagerImpl) Consume(ctx context.Context, topic string, handler
 }
 
 type ConsumerHandlerImpl struct {
-	MysqlManager *dao.MysqlManagerImpl
+	MysqlManager   *dao.MysqlManagerImpl
+	MinioClient    *minio.Client
+	SummaryManager *eino.BotManagerImpl
 }
 
-func NewConsumerHandler(MysqlManager *dao.MysqlManagerImpl) *ConsumerHandlerImpl {
+func NewConsumerHandler(MysqlManager *dao.MysqlManagerImpl, MinioClient *minio.Client, SummaryManager *eino.BotManagerImpl) *ConsumerHandlerImpl {
 	return &ConsumerHandlerImpl{
-		MysqlManager: MysqlManager,
+		MysqlManager:   MysqlManager,
+		MinioClient:    MinioClient,
+		SummaryManager: SummaryManager,
 	}
 }
 
@@ -92,6 +101,49 @@ func (h *ConsumerHandlerImpl) ConsumeClaim(session sarama.ConsumerGroupSession, 
 			// 然后交给 agent 分析并且存储到 MySQL 数据库中
 			// 暂时没找到可以转换的对应的第三方包
 			// TODO
+
+			ctx := context.Background()
+			object, err := h.MinioClient.GetObject(ctx,
+				config.GlobalServerConfig.Minio.BucketName,
+				fmt.Sprintf(consts.MinioObjectName, RoomId, "audio.ogg"),
+				minio.GetObjectOptions{})
+			if err != nil {
+				klog.Error("MinioGetObject failed", err)
+				continue
+			}
+			defer object.Close()
+			var audioBytes []byte
+			_, err = object.Read(audioBytes)
+			if err != nil {
+				klog.Error("ReadAll failed", err)
+				continue
+			}
+			client, _ := speech.NewClient(ctx)
+			resp, _ := client.Recognize(ctx, &speechpb.RecognizeRequest{
+				Audio: &speechpb.RecognitionAudio{
+					AudioSource: &speechpb.RecognitionAudio_Content{
+						Content: audioBytes,
+					},
+				},
+				Config: &speechpb.RecognitionConfig{
+					Encoding:                   speechpb.RecognitionConfig_OGG_OPUS,
+					LanguageCode:               "zh-CN",
+					EnableAutomaticPunctuation: true,
+				},
+			})
+			text := resp.Results[0].Alternatives[0].Transcript
+
+			SummarizedText := h.SummaryManager.Summary(ctx, &model.SummaryRequest{
+				SummarizedText:   "",
+				UnsummarizedText: text,
+			})
+			// 存储到 MySQL 数据库中
+			err = h.MysqlManager.SetSummary(ctx, RoomId, SummarizedText.Summary)
+			if err != nil {
+				klog.Error("MysqlSetSummary failed", err)
+				continue
+			}
+			session.MarkMessage(msg, "")
 		case <-session.Context().Done():
 			return nil
 		}

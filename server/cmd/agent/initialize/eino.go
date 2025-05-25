@@ -76,6 +76,7 @@ func InitSummaryApp() compose.Runnable[*model.SummaryRequest, *schema.Message] {
 		schema.SystemMessage("当前时间为: {current_time}"),
 		schema.UserMessage("你还需要总结以下内容: {unsummarized_text}"),
 		schema.SystemMessage("虽然你持有两部分内容，但是你最终需要将总结合并在一个文本之中，注意，你需要使用markdown格式总结"),
+		schema.SystemMessage("如果需要总结的内容被分割得很奇怪，可以选择记录到总结之中，便于总结下一次分片的时候进一步分析。"),
 	)
 
 	lamda := compose.InvokableLambda(func(ctx context.Context, summary *model.SummaryRequest) (map[string]any, error) {

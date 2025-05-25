@@ -101,7 +101,7 @@ func main() {
 				Content: "你好，我是 ApexLecture 的在线课堂平台的问答助手，请问有什么可以帮助您？",
 			},
 		},
-		Message: "想日你",
+		Message: "你好，你是谁？",
 	})
 	fmt.Println(res.Role)
 	fmt.Println(res.Content)
