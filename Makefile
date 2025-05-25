@@ -40,6 +40,9 @@ push-run:
 quiz-run:
 	go run $(CMD_PATH)/quiz/
 
+agent-run:
+	go run $(CMD_PATH)/agent/
+
 # ============================= 更新 API 脚手架文件 ========================
 hz-update:
 	make api-update service=user
@@ -47,6 +50,7 @@ hz-update:
 	make api-update service=chat
 	make api-update service=push
 	make api-update service=quiz
+	make api-update service=agent
 
 hz-new:
 	make api-new service=user
@@ -54,6 +58,7 @@ hz-new:
 	make api-new service=push
 	make api-new service=chat
 	make api-new service=quiz
+	make api-new service=agent
 
 # ============================= 更新 rpc 脚手架文件 ========================
 rpc-all:
@@ -67,6 +72,8 @@ rpc-all:
 	make push-rpc
 	make quiz-gen
 	make quiz-rpc
+	make agent-gen
+	make agent-rpc
 
 user-rpc:
 	cd 	./server/cmd/user && \
@@ -118,6 +125,16 @@ quiz-gen:
 	cd 	./server/shared && \
 	kitex -module github.com/Rinai-R/ApexLecture ../idl/rpc/quiz.thrift
 
+agent-rpc:
+	cd 	./server/cmd/agent && \
+	kitex -module $(MODULE_NAME) -service agent \
+	-use github.com/Rinai-R/ApexLecture/server/shared/kitex_gen \
+	../../idl/rpc/agent.thrift
+
+agent-gen:
+	cd 	./server/shared && \
+	kitex -module github.com/Rinai-R/ApexLecture ../idl/rpc/agent.thrift
+
 # =================================== 更新配置文件 ==================================
 hz-conf:
 	go run $(CMD_PATH)/api/script/preprocess.go
@@ -137,6 +154,9 @@ chat-conf:
 quiz-conf:
 	go run $(CMD_PATH)/quiz/script/preprocess.go
 
+agent-conf:
+	go run $(CMD_PATH)/agent/script/preprocess.go
+
 conf:
 	make hz-conf
 	make user-conf
@@ -144,6 +164,8 @@ conf:
 	make push-conf
 	make chat-conf
 	make quiz-conf
+	make agent-conf
+	
 # ============================ 杂项，给其他 make 指令用的 ==========================
 api-update:
 	cd 	./server/cmd/api && \

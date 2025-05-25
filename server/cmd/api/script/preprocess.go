@@ -65,6 +65,9 @@ func main() {
 		QuizSrvInfo: config.RPCSrvConfig{
 			Name: consts.QuizSrvPrefix,
 		},
+		AgentSrvInfo: config.RPCSrvConfig{
+			Name: consts.AgentSrvPrefix,
+		},
 		OtelEndpoint: consts.OtelEndpoint,
 	}
 	// 序列化 ServerConfig

@@ -5,7 +5,7 @@ include "../base/base.thrift"
 
 struct SendMessageRequest {
     1: i8 type
-    2: string message
+    2: string message  (api.vd="len($) <= 1000")
 }
 
 struct SendMessageResponse {

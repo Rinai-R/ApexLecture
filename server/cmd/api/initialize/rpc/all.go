@@ -6,4 +6,5 @@ func Initrpc() {
 	initChat()
 	initPush()
 	initQuiz()
+	initAgent()
 }

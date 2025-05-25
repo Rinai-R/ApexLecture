@@ -11,7 +11,7 @@ import (
 
 type SendMessageRequest struct {
 	Type    int8   `thrift:"type,1" form:"type" json:"type" query:"type"`
-	Message string `thrift:"message,2" form:"message" json:"message" query:"message"`
+	Message string `thrift:"message,2" form:"message" json:"message" query:"message" vd:"len($) <= 1000"`
 }
 
 func NewSendMessageRequest() *SendMessageRequest {

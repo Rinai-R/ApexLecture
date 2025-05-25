@@ -39,6 +39,7 @@ const (
 	UserHasSubmittedAnswer    = 40030
 	RequestFrequency          = 40031
 	ServerBusy                = 40032
+	InternalServerError       = 50000
 )
 
 func OK() *base.BaseResponse {
@@ -262,5 +263,12 @@ func ErrorServerBusy() *base.BaseResponse {
 	return &base.BaseResponse{
 		Code:    ServerBusy,
 		Message: "Too many requests. Try again later.",
+	}
+}
+
+func ErrorInternalServer(define string) *base.BaseResponse {
+	return &base.BaseResponse{
+		Code:    InternalServerError,
+		Message: define,
 	}
 }

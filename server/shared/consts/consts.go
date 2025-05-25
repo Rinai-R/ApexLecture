@@ -8,6 +8,7 @@ const (
 	ChatHost    = "0.0.0.0"
 	PushHost    = "0.0.0.0"
 	QuizHost    = "0.0.0.0"
+	AgentHost   = "0.0.0.0"
 
 	ApiPort     = "10000"
 	UserPort    = "10001"
@@ -15,6 +16,7 @@ const (
 	ChatPort    = "10003"
 	PushPort    = "10004"
 	QuizPort    = "10005"
+	AgentPort   = "10006"
 
 	ApiConfig     = "./server/cmd/api/config.yaml"
 	UserConfig    = "./server/cmd/user/config.yaml"
@@ -22,6 +24,7 @@ const (
 	ChatConfig    = "./server/cmd/chat/config.yaml"
 	PushConfig    = "./server/cmd/push/config.yaml"
 	QuizConfig    = "./server/cmd/quiz/config.yaml"
+	AgentConfig   = "./server/cmd/agent/config.yaml"
 
 	ApiSrvPrefix     = "api"
 	UserSrvPrefix    = "user"
@@ -29,6 +32,7 @@ const (
 	ChatSrvPrefix    = "chat"
 	PushSrvPrefix    = "push"
 	QuizSrvPrefix    = "quiz"
+	AgentSrvPrefix   = "agent"
 
 	OtelEndpoint = "localhost:4317"
 )

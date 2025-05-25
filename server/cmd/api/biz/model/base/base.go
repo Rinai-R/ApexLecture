@@ -1925,13 +1925,14 @@ func (p *InternalQuizJudge) String() string {
 }
 
 type InternalQuizStatus struct {
-	RoomId int64 `thrift:"roomId,1,required" form:"roomId,required" json:"roomId,required" query:"roomId,required"`
+	RoomId     int64 `thrift:"roomId,1,required" form:"roomId,required" json:"roomId,required" query:"roomId,required"`
+	QuestionId int64 `thrift:"questionId,2,required" form:"questionId,required" json:"questionId,required" query:"questionId,required"`
 	// 课堂的人数
-	RequiredNum int64 `thrift:"requiredNum,2,required" form:"requiredNum,required" json:"requiredNum,required" query:"requiredNum,required"`
+	RequiredNum int64 `thrift:"requiredNum,3,required" form:"requiredNum,required" json:"requiredNum,required" query:"requiredNum,required"`
 	// 当前参与答题人数
-	CurrentNum int64 `thrift:"currentNum,3,required" form:"currentNum,required" json:"currentNum,required" query:"currentNum,required"`
+	CurrentNum int64 `thrift:"currentNum,4,required" form:"currentNum,required" json:"currentNum,required" query:"currentNum,required"`
 	// 正确率（AC率）
-	AcceptRate int64 `thrift:"AcceptRate,4,required" form:"AcceptRate,required" json:"AcceptRate,required" query:"AcceptRate,required"`
+	AcceptRate float64 `thrift:"AcceptRate,5,required" form:"AcceptRate,required" json:"AcceptRate,required" query:"AcceptRate,required"`
 }
 
 func NewInternalQuizStatus() *InternalQuizStatus {
@@ -1945,6 +1946,10 @@ func (p *InternalQuizStatus) GetRoomId() (v int64) {
 	return p.RoomId
 }
 
+func (p *InternalQuizStatus) GetQuestionId() (v int64) {
+	return p.QuestionId
+}
+
 func (p *InternalQuizStatus) GetRequiredNum() (v int64) {
 	return p.RequiredNum
 }
@@ -1953,21 +1958,23 @@ func (p *InternalQuizStatus) GetCurrentNum() (v int64) {
 	return p.CurrentNum
 }
 
-func (p *InternalQuizStatus) GetAcceptRate() (v int64) {
+func (p *InternalQuizStatus) GetAcceptRate() (v float64) {
 	return p.AcceptRate
 }
 
 var fieldIDToName_InternalQuizStatus = map[int16]string{
 	1: "roomId",
-	2: "requiredNum",
-	3: "currentNum",
-	4: "AcceptRate",
+	2: "questionId",
+	3: "requiredNum",
+	4: "currentNum",
+	5: "AcceptRate",
 }
 
 func (p *InternalQuizStatus) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 	var issetRoomId bool = false
+	var issetQuestionId bool = false
 	var issetRequiredNum bool = false
 	var issetCurrentNum bool = false
 	var issetAcceptRate bool = false
@@ -2000,7 +2007,7 @@ func (p *InternalQuizStatus) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetRequiredNum = true
+				issetQuestionId = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -2009,13 +2016,22 @@ func (p *InternalQuizStatus) Read(iprot thrift.TProtocol) (err error) {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
-				issetCurrentNum = true
+				issetRequiredNum = true
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
 		case 4:
 			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetCurrentNum = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 5:
+			if fieldTypeId == thrift.DOUBLE {
+				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
 				issetAcceptRate = true
@@ -2040,18 +2056,23 @@ func (p *InternalQuizStatus) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetRequiredNum {
+	if !issetQuestionId {
 		fieldId = 2
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetCurrentNum {
+	if !issetRequiredNum {
 		fieldId = 3
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetAcceptRate {
+	if !issetCurrentNum {
 		fieldId = 4
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetAcceptRate {
+		fieldId = 5
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -2091,7 +2112,7 @@ func (p *InternalQuizStatus) ReadField2(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.RequiredNum = _field
+	p.QuestionId = _field
 	return nil
 }
 func (p *InternalQuizStatus) ReadField3(iprot thrift.TProtocol) error {
@@ -2102,13 +2123,24 @@ func (p *InternalQuizStatus) ReadField3(iprot thrift.TProtocol) error {
 	} else {
 		_field = v
 	}
-	p.CurrentNum = _field
+	p.RequiredNum = _field
 	return nil
 }
 func (p *InternalQuizStatus) ReadField4(iprot thrift.TProtocol) error {
 
 	var _field int64
 	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.CurrentNum = _field
+	return nil
+}
+func (p *InternalQuizStatus) ReadField5(iprot thrift.TProtocol) error {
+
+	var _field float64
+	if v, err := iprot.ReadDouble(); err != nil {
 		return err
 	} else {
 		_field = v
@@ -2137,6 +2169,10 @@ func (p *InternalQuizStatus) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField4(oprot); err != nil {
 			fieldId = 4
+			goto WriteFieldError
+		}
+		if err = p.writeField5(oprot); err != nil {
+			fieldId = 5
 			goto WriteFieldError
 		}
 	}
@@ -2174,10 +2210,10 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 func (p *InternalQuizStatus) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("requiredNum", thrift.I64, 2); err != nil {
+	if err = oprot.WriteFieldBegin("questionId", thrift.I64, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.RequiredNum); err != nil {
+	if err := oprot.WriteI64(p.QuestionId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -2190,10 +2226,10 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 func (p *InternalQuizStatus) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("currentNum", thrift.I64, 3); err != nil {
+	if err = oprot.WriteFieldBegin("requiredNum", thrift.I64, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.CurrentNum); err != nil {
+	if err := oprot.WriteI64(p.RequiredNum); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -2206,10 +2242,10 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 func (p *InternalQuizStatus) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("AcceptRate", thrift.I64, 4); err != nil {
+	if err = oprot.WriteFieldBegin("currentNum", thrift.I64, 4); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.AcceptRate); err != nil {
+	if err := oprot.WriteI64(p.CurrentNum); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -2220,6 +2256,22 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+func (p *InternalQuizStatus) writeField5(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("AcceptRate", thrift.DOUBLE, 5); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteDouble(p.AcceptRate); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
 func (p *InternalQuizStatus) String() string {
