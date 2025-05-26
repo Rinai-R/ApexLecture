@@ -15,6 +15,7 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/shared/consts"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/minio/minio-go/v7"
+	"google.golang.org/api/option"
 )
 
 type ProducerManagerImpl struct {
@@ -118,8 +119,15 @@ func (h *ConsumerHandlerImpl) ConsumeClaim(session sarama.ConsumerGroupSession, 
 				klog.Error("ReadAll failed", err)
 				continue
 			}
-			client, _ := speech.NewClient(ctx)
-			resp, _ := client.Recognize(ctx, &speechpb.RecognizeRequest{
+			// 此处凭证需要自行添加。
+			client, err := speech.NewClient(ctx,
+				option.WithCredentialsFile(consts.GoogleCredentialsFile),
+			)
+			if err != nil {
+				klog.Error("NewClient failed", err)
+				continue
+			}
+			resp, err := client.Recognize(ctx, &speechpb.RecognizeRequest{
 				Audio: &speechpb.RecognitionAudio{
 					AudioSource: &speechpb.RecognitionAudio_Content{
 						Content: audioBytes,
@@ -131,6 +139,10 @@ func (h *ConsumerHandlerImpl) ConsumeClaim(session sarama.ConsumerGroupSession, 
 					EnableAutomaticPunctuation: true,
 				},
 			})
+			if err != nil {
+				klog.Error("Recognize failed", err)
+				continue
+			}
 			text := resp.Results[0].Alternatives[0].Transcript
 
 			SummarizedText := h.SummaryManager.Summary(ctx, &model.SummaryRequest{

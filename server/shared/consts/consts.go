@@ -134,3 +134,8 @@ const (
 	Summarized = 2
 	OtherError = 3
 )
+
+// GoogleCredentials
+const (
+	GoogleCredentialsFile = "./path/to/your/credentials.json"
+)
