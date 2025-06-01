@@ -33,6 +33,8 @@
   - 数据库：MySQL + Redis + MinIO（对象存储）
   - 监控工具：Prometheus + Grafana + Jaeger
   - 协程控制：使用 [ants](https://github.com/panjf2000/ants) 协程池限制协程数量
+  - 限流：使用 sentinel-golang 实现限流
+  - 一致性哈希：直播推流依赖于内存，故基于一致性哈希算法，确保同一个房间的请求落在同一个直播节点上。
   - 敏感词屏蔽：使用第三方库 [sensitive](https://github.com/importcjj/sensitive) 实现敏感词屏蔽
 
   ------

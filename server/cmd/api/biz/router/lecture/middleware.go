@@ -25,8 +25,9 @@ func _createlectureMw() []app.HandlerFunc {
 }
 
 func _roomidMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{
+		middleware.ConsistenceHashStoreKey,
+	}
 }
 
 func _attendlectureMw() []app.HandlerFunc {

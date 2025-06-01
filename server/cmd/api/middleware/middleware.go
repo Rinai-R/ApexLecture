@@ -49,3 +49,14 @@ func JwtAuth(ctx context.Context, c *app.RequestContext) {
 	c.Set("userid", userid)
 	c.Next(ctx)
 }
+
+// 用于给具有内存依赖性的 lecture 服务提供一致性哈希的中间件。
+func ConsistenceHashStoreKey(ctx context.Context, c *app.RequestContext) {
+	roomid, ok := c.Params.Get("roomid")
+	if !ok {
+		c.JSON(consts.StatusBadRequest, rsp.ErrorParameter("Unknown room"))
+		return
+	}
+	ctx = context.WithValue(ctx, "roomid", roomid)
+	c.Next(ctx)
+}

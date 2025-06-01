@@ -7,6 +7,7 @@ import (
 	"github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/chat/chatservice"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/kitex/client"
+	"github.com/cloudwego/kitex/pkg/loadbalance"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/kitex-contrib/obs-opentelemetry/provider"
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
@@ -31,6 +32,7 @@ func initChat() {
 		config.GlobalServerConfig.ChatSrvInfo.Name,
 		client.WithResolver(r),
 		client.WithSuite(tracing.NewClientSuite()),
+		client.WithLoadBalancer(loadbalance.NewInterleavedWeightedRoundRobinBalancer()),
 		client.WithClientBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: config.GlobalServerConfig.ChatSrvInfo.Name,
 		}),
