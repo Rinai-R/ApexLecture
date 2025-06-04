@@ -81,6 +81,18 @@ const (
 	AgentKafkaGroup   = "agent"
 )
 
+const (
+	RabbitMqDNS      = "amqp://%s:%s@%s:%s/"
+	RabbitMqHost     = "localhost"
+	RabbitMqUser     = "guest"
+	RabbitMqPassword = "guest"
+	RabbitMqPort     = "5672"
+	LectureExchange  = "lecture"
+	ChatExchange     = "chat"
+	QuizExchange     = "quiz"
+	AgentExchange    = "agent"
+)
+
 // ChatModel
 const (
 	AgentBaseURL = "https://ark.cn-beijing.volces.com/api/v3"

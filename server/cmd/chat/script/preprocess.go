@@ -74,6 +74,13 @@ func main() {
 			Topic: consts.ChatKafkaTopic,
 			Group: consts.ChatKafkaGroup,
 		},
+		RabbitMQ: config.RabbitMQConfig{
+			Host:     consts.RabbitMqHost,
+			Port:     consts.RabbitMqPort,
+			Username: consts.RabbitMqUser,
+			Password: consts.RabbitMqPassword,
+			Exchange: consts.ChatExchange,
+		},
 		OtelEndpoint: consts.OtelEndpoint,
 	}
 	// 序列化 ServerConfig

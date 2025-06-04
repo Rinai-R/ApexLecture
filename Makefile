@@ -10,8 +10,10 @@ re:
 
 up:
 	docker-compose up -d
-	sudo chmod -R 0777 ./data
+	sleep 5
 	docker-compose down
+	sudo chmod -R 0777 ./data
+	sudo chmod 400 ./data/rabbitmq/.erlang.cookie
 	docker-compose up -d
 	make conf
 

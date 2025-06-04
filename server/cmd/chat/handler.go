@@ -34,6 +34,8 @@ type ProducerManager interface {
 
 var _ ProducerManager = (*mq.ProducerManagerImpl)(nil)
 
+var _ ProducerManager = (*mq.PublisherManagerImpl)(nil)
+
 // SendChat implements the ChatServiceImpl interface.
 func (s *ChatServiceImpl) SendChat(ctx context.Context, msg *chat.ChatMessage) (*chat.ChatMessageResponse, error) {
 	// 检查 room 是否存在
