@@ -41,10 +41,11 @@ type KafkaConfig struct {
 }
 
 type RabbitMQConfig struct {
-	Host     string `json:"host"`
-	Port     string `json:"port"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Vhost    string `json:"vhost"`
-	Exchange string `json:"exchange"`
+	Host               string `json:"host"`
+	Port               string `json:"port"`
+	Username           string `json:"username"`
+	Password           string `json:"password"`
+	Vhost              string `json:"vhost"`
+	Exchange           string `json:"exchange"`
+	DeadLetterExchange string `json:"dead_letter_exchange"`
 }

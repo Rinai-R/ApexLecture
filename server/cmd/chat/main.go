@@ -22,7 +22,7 @@ func main() {
 	initialize.InitConfig()
 	d := initialize.InitDB()
 	rdb := initialize.InitRedis()
-	pro, con := initialize.InitMQ()
+	conn := initialize.InitMqConn()
 	r, i := initialize.InitRegistry()
 	handler := mq.NewConsumerHandler(dao.NewMysqlManager(d))
 	p := provider.NewOpenTelemetryProvider(
@@ -31,10 +31,10 @@ func main() {
 		provider.WithInsecure(),
 	)
 	defer p.Shutdown(context.Background())
-
+	subscriber := mq.NewSubscriberManager(conn, config.GlobalServerConfig.RabbitMQ.Exchange, config.GlobalServerConfig.RabbitMQ.DeadLetterExchange)
+	publisher := mq.NewPublisherManager(conn, config.GlobalServerConfig.RabbitMQ.Exchange)
 	go func() {
-		consumer := mq.NewConsumerManager(con)
-		err := consumer.Consume(context.Background(), config.GlobalServerConfig.Kafka.Topic, handler)
+		err := subscriber.Consume(context.Background(), config.GlobalServerConfig.Kafka.Topic, handler)
 		if err != nil {
 			klog.Error("Consume failed", err)
 		}
@@ -43,7 +43,7 @@ func main() {
 		&ChatServiceImpl{
 			MysqlManager:    dao.NewMysqlManager(d),
 			RedisManager:    dao.NewRedisManager(rdb),
-			ProducerManager: mq.NewProducerManager(pro),
+			ProducerManager: publisher,
 		},
 		server.WithRegistry(r),
 		server.WithRegistryInfo(i),

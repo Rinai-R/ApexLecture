@@ -75,11 +75,12 @@ func main() {
 			Group: consts.ChatKafkaGroup,
 		},
 		RabbitMQ: config.RabbitMQConfig{
-			Host:     consts.RabbitMqHost,
-			Port:     consts.RabbitMqPort,
-			Username: consts.RabbitMqUser,
-			Password: consts.RabbitMqPassword,
-			Exchange: consts.ChatExchange,
+			Host:               consts.RabbitMqHost,
+			Port:               consts.RabbitMqPort,
+			Username:           consts.RabbitMqUser,
+			Password:           consts.RabbitMqPassword,
+			Exchange:           consts.ChatExchange,
+			DeadLetterExchange: consts.ChatDeadLetterExchange,
 		},
 		OtelEndpoint: consts.OtelEndpoint,
 	}

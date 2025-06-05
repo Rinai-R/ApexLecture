@@ -18,6 +18,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
+// 前面是使用 kafka 的部分，已经弃用
 type ProducerManagerImpl struct {
 	producer sarama.AsyncProducer
 }
@@ -200,14 +201,14 @@ func (p *PublisherManagerImpl) SendMessage(ctx context.Context, request *chat.Ch
 	if err != nil {
 		return err
 	}
+	klog.Info("RabbitMQ 发布")
 	err = p.ch.Publish(
 		p.Exchange, // 交换机名称
-		fmt.Sprintf(consts.RoomKey, request.RoomId), // 路由键
+		"",
 		false, // 是否持久化
 		false, // 是否等待确认（即消息持久化）
 		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        bytes,
+			Body: bytes,
 		},
 	)
 	if err != nil {
@@ -220,16 +221,18 @@ func (p *PublisherManagerImpl) SendMessage(ctx context.Context, request *chat.Ch
 var _ ConsumerManager = (*SubscriberManagerImpl)(nil)
 
 type SubscriberManagerImpl struct {
-	ch       *amqp.Channel
-	Exchange string
+	conn        *amqp.Connection
+	Exchange    string
+	DlxExchange string
 }
 
-func NewSubscriberManager(conn *amqp.Connection, exchange string) *SubscriberManagerImpl {
+func NewSubscriberManager(conn *amqp.Connection, exchange string, dlxExchange string) *SubscriberManagerImpl {
 	ch, err := conn.Channel()
 	if err != nil {
-		klog.Error("NewChannel failed", err)
-		return nil
+		klog.Fatal("NewChannel failed", err)
 	}
+	defer ch.Close()
+	// 声明交换机
 	err = ch.ExchangeDeclare(
 		exchange,           // 交换机名称
 		amqp.ExchangeTopic, // 交换机类型
@@ -241,49 +244,37 @@ func NewSubscriberManager(conn *amqp.Connection, exchange string) *SubscriberMan
 	)
 	if err != nil {
 		klog.Fatal("ExchangeDeclare failed", err)
-		return nil
 	}
-	return &SubscriberManagerImpl{ch: ch, Exchange: exchange}
+	dlxch, err := conn.Channel()
+	if err != nil {
+		klog.Fatal("NewChannel failed", err)
+	}
+	defer dlxch.Close()
+	// 声明死信交换机
+	err = dlxch.ExchangeDeclare(
+		config.GlobalServerConfig.RabbitMQ.DeadLetterExchange, // 死信交换机
+		amqp.ExchangeTopic, // 交换机类型
+		true,               // 是否持久化
+		false,              // 是否自动删除
+		false,              // 是否排他交换机
+		false,              // 是否等待确认（即消息持久化）
+		nil,                // 附加参数
+	)
+	if err != nil {
+		klog.Fatal("ExchangeDeclare failed", err)
+	}
+
+	return &SubscriberManagerImpl{conn: conn, Exchange: exchange, DlxExchange: dlxExchange}
 }
 
 func (s *SubscriberManagerImpl) Consume(ctx context.Context, topic string, handler *ConsumerHandlerImpl) error {
 	klog.Info("RabbitMQ 消费")
-	queue, err := s.ch.QueueDeclare(
-		"",    // 队列名称
-		false, // 是否持久化
-		false, // 是否排他
-		false, // 是否自动删除
-		false, // 是否阻塞
-		nil,   // 附加参数
-	)
-	if err != nil {
-		klog.Error("QueueDeclare failed", err)
-		return err
+	msgs := s.SubscribeCh()
+	if msgs == nil {
+		klog.Fatal("SubscribeCh failed")
+		return fmt.Errorf("SubscribeCh failed")
 	}
-	err = s.ch.QueueBind(
-		queue.Name, // 队列名称
-		"",
-		s.Exchange, // 交换机名称
-		false,      // 是否持久化
-		nil,        // 附加参数
-	)
-	if err != nil {
-		klog.Error("QueueBind failed", err)
-		return err
-	}
-	msgs, err := s.ch.Consume(
-		queue.Name, // 队列名称
-		"",         // 用来区分多个消费者的标识符
-		false,      // 是否自动应答
-		false,      // 是否消费者持久化
-		false,      // 是否等待确认（即消息持久化）
-		false,      // 是否排他
-		nil,        // 附加参数
-	)
-	if err != nil {
-		klog.Error("Consume failed", err)
-		return err
-	}
+	// 进行信息的消费。
 	for {
 		select {
 		case msg := <-msgs:
@@ -293,6 +284,8 @@ func (s *SubscriberManagerImpl) Consume(ctx context.Context, topic string, handl
 				klog.Error("Unmarshal failed", err)
 				continue
 			}
+		retry:
+			tryNum := 0
 			sf, err := snowflake.NewNode(consts.MessageIDSnowFlakeNode)
 			if err != nil {
 				klog.Error("NewNode failed", err)
@@ -302,13 +295,26 @@ func (s *SubscriberManagerImpl) Consume(ctx context.Context, topic string, handl
 			// 识别字段类型，确保正常处理。
 			switch base.InternalMessageType(Message.Type) {
 			case base.InternalMessageType_CHAT_MESSAGE:
-				handler.MySQLManager.CreateChatMessage(context.Background(), &model.ChatMessage{
+				err := handler.MySQLManager.CreateChatMessage(context.Background(), &model.ChatMessage{
 					ID:        id,
 					SenderID:  Message.Payload.ChatMessage.UserId,
 					RoomID:    Message.Payload.ChatMessage.RoomId,
 					Content:   Message.Payload.ChatMessage.Message,
 					CreatedAt: time.Now(),
 				})
+				if err != nil {
+					klog.Error("CreateChatMessage failed", err)
+					if tryNum < 3 {
+						tryNum++
+						goto retry
+					}
+					err = msg.Nack(false, true)
+					if err != nil {
+						klog.Error("Nack failed", err)
+						continue
+					}
+
+				}
 			default:
 				klog.Error("Unknown message type", base.InternalMessageType(Message.Type))
 			}
@@ -321,4 +327,65 @@ func (s *SubscriberManagerImpl) Consume(ctx context.Context, topic string, handl
 			return nil
 		}
 	}
+}
+
+// 获取接受消息的通道
+func (s *SubscriberManagerImpl) SubscribeCh() <-chan amqp.Delivery {
+	ch, err := s.conn.Channel()
+	if err != nil {
+		klog.Fatal("NewChannel failed", err)
+	}
+	err = ch.ExchangeDeclare(
+		s.Exchange,         // 交换机名称
+		amqp.ExchangeTopic, // 交换机类型
+		true,               // 是否持久化
+		false,              // 是否自动删除
+		false,              // 是否排他交换机
+		false,              // 是否等待确认（即消息持久化）
+		amqp.Table{
+			"x-dead-letter-exchange":    config.GlobalServerConfig.RabbitMQ.DeadLetterExchange, // 死信交换机
+			"x-dead-letter-routing-key": config.GlobalServerConfig.RabbitMQ.DeadLetterExchange, // 死信路由键
+		},
+	)
+	if err != nil {
+		klog.Fatal("ExchangeDeclare failed", err)
+		return nil
+	}
+	queue, err := ch.QueueDeclare(
+		"",    // 队列名称
+		false, // 是否持久化
+		false, // 是否排他
+		false, // 是否自动删除
+		false, // 是否阻塞
+		nil,   // 附加参数
+	)
+	if err != nil {
+		klog.Fatal("QueueDeclare failed", err)
+		return nil
+	}
+	err = ch.QueueBind(
+		queue.Name, // 队列名称
+		"",
+		s.Exchange, // 交换机名称
+		false,      // 是否持久化
+		nil,        // 附加参数
+	)
+	if err != nil {
+		klog.Fatal("QueueBind failed", err)
+		return nil
+	}
+	msgs, err := ch.Consume(
+		queue.Name, // 队列名称
+		"",         // 用来区分多个消费者的标识符
+		false,      // 是否自动应答
+		false,      // 是否消费者持久化
+		false,      // 是否等待确认（即消息持久化）
+		false,      // 是否排他
+		nil,        // 附加参数
+	)
+	if err != nil {
+		klog.Fatal("Consume failed", err)
+		return nil
+	}
+	return msgs
 }

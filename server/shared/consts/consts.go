@@ -82,15 +82,20 @@ const (
 )
 
 const (
-	RabbitMqDNS      = "amqp://%s:%s@%s:%s/"
-	RabbitMqHost     = "localhost"
-	RabbitMqUser     = "guest"
-	RabbitMqPassword = "guest"
-	RabbitMqPort     = "5672"
-	LectureExchange  = "lecture"
-	ChatExchange     = "chat"
-	QuizExchange     = "quiz"
-	AgentExchange    = "agent"
+	RabbitMqDNS               = "amqp://%s:%s@%s:%s/"
+	RabbitMqHost              = "localhost"
+	RabbitMqUser              = "guest"
+	RabbitMqPassword          = "guest"
+	RabbitMqPort              = "5672"
+	LectureExchange           = "lecture"
+	LectureDeadLetterExchange = "dlx_lecture"
+
+	ChatExchange            = "chat"
+	ChatDeadLetterExchange  = "dlx_chat"
+	QuizExchange            = "quiz"
+	QuizDeadLetterExchange  = "dlx_quiz"
+	AgentExchange           = "agent"
+	AgentDeadLetterExchange = "dlx_agent"
 )
 
 // ChatModel
