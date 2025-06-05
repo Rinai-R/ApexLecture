@@ -1,11 +1,14 @@
 package initialize
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/IBM/sarama"
 	"github.com/Rinai-R/ApexLecture/server/cmd/agent/config"
+	"github.com/Rinai-R/ApexLecture/server/shared/consts"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/streadway/amqp"
 )
 
 func InitMQ() (sarama.AsyncProducer, sarama.ConsumerGroup) {
@@ -57,4 +60,19 @@ func InitMQ() (sarama.AsyncProducer, sarama.ConsumerGroup) {
 		klog.Fatal("failed to create consumer: ", err)
 	}
 	return producer, consumer
+}
+
+func InitMqConn() *amqp.Connection {
+	conn, err := amqp.Dial(
+		fmt.Sprintf(consts.RabbitMqDNS,
+			config.GlobalServerConfig.RabbitMQ.Username,
+			config.GlobalServerConfig.RabbitMQ.Password,
+			config.GlobalServerConfig.RabbitMQ.Host,
+			config.GlobalServerConfig.RabbitMQ.Port,
+		),
+	)
+	if err != nil {
+		klog.Fatal("Failed to connect to RabbitMQ ", err)
+	}
+	return conn
 }

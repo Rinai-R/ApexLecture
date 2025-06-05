@@ -16,6 +16,8 @@ import (
 )
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	initialize.Initlogger()
 	initialize.InitConfig()
 
@@ -28,7 +30,7 @@ func main() {
 		provider.WithExportEndpoint(config.GlobalServerConfig.OtelEndpoint),
 		provider.WithInsecure(),
 	)
-	defer p.Shutdown(context.Background())
+	defer p.Shutdown(ctx)
 	svr := user.NewServer(&UserServiceImpl{
 		MysqlManager: dao.NewDM(db),
 		PrivateKey:   private,

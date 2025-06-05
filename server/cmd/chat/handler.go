@@ -32,8 +32,6 @@ type ProducerManager interface {
 	SendMessage(ctx context.Context, request *chat.ChatMessage) (err error)
 }
 
-var _ ProducerManager = (*mq.ProducerManagerImpl)(nil)
-
 var _ ProducerManager = (*mq.PublisherManagerImpl)(nil)
 
 // SendChat implements the ChatServiceImpl interface.

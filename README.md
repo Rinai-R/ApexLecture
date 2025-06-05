@@ -17,7 +17,7 @@
   - ✅ **答题互动**：支持选择题和判断题，学生作答后系统自动记录答题情况，并且会实时通过 push 将答题状态同步给老师。
   - ✅ **实时聊天**：学生和老师可进行简单文本交流。
   - ✅ **消息推送**：chat 和 quiz 消息通过 Redis 发布，由 push 服务通过 SSE 发送给前端。
-  - ✅ **异步入库**：部分数据使用 Kafka 异步写入数据库，提升性能。
+  - ✅ **异步入库**：部分数据使用 RabbitMQ 异步入库，多次重试后，将消息丢入死信队列，后台重新放入队列，并且定期打印日志。
   - ✅ **用户管理**：支持用户注册、登录和身份校验。
   - ✅ **可观测性**：基于 ELK 集成日志系统，jaeger/Prometheus/opentelemetry 实现监控。
   - ✅ **集成AI**：基于 eino 框架实现了可爱问答女仆功能，可以随时与学生进行交互，理论支持智能纪要(智能纪要没测试过，语音识别那个crediential好像有点麻烦)。
@@ -29,7 +29,7 @@
   - 后端框架：Hertz + Kitex
   - 推流：pion/webrtc
   - 大模型：eino
-  - 消息队列：Redis Pub/Sub + Kafka
+  - 消息队列：Redis Pub/Sub + RabbitMQ
   - 数据库：MySQL + Redis + MinIO（对象存储）
   - 监控工具：Prometheus + Grafana + Jaeger
   - 协程控制：使用 [ants](https://github.com/panjf2000/ants) 协程池限制协程数量
@@ -64,6 +64,7 @@
   ```bash
   make up
   ```
+  注：目前不知道出于什么原因，容器间没办法通信，导致 ELK 和 Prometheus 无法正常工作，其实换用 rabbitmq 的原因也是因为 kafka 集群没办法通信了。
 
   4. 启动服务：
 

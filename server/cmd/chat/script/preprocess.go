@@ -63,17 +63,6 @@ func main() {
 			Password: consts.RedisPassword,
 			Database: consts.RedisDatabase,
 		},
-		Kafka: config.KafkaConfig{
-			Username: consts.KafkaUsername,
-			Password: consts.KafkaPassword,
-			Brokers: []string{
-				consts.KafkaBroker1,
-				consts.KafkaBroker2,
-				consts.KafkaBroker3,
-			},
-			Topic: consts.ChatKafkaTopic,
-			Group: consts.ChatKafkaGroup,
-		},
 		RabbitMQ: config.RabbitMQConfig{
 			Host:               consts.RabbitMqHost,
 			Port:               consts.RabbitMqPort,

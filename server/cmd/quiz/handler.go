@@ -50,7 +50,7 @@ type ProducerManager interface {
 	ProduceQuestion(ctx context.Context, req *quiz.SubmitQuestionRequest, questionId int64) error
 }
 
-var _ ProducerManager = (*mq.ProducerManagerImpl)(nil)
+var _ ProducerManager = (*mq.PublisherManagerImpl)(nil)
 
 type QuizStatusHanlder interface {
 	HandleStatus(ctx context.Context, questionId int64, roomId int64) error

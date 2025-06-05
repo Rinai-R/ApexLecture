@@ -3,6 +3,7 @@ module github.com/Rinai-R/ApexLecture
 go 1.24.3
 
 require (
+	cloud.google.com/go/speech v1.27.1
 	github.com/IBM/sarama v1.45.1
 	github.com/alibaba/sentinel-golang v1.0.4
 	github.com/apache/thrift v0.21.0
@@ -30,7 +31,9 @@ require (
 	github.com/pion/rtp v1.8.15
 	github.com/pion/webrtc/v4 v4.1.0
 	github.com/redis/go-redis/v9 v9.8.0
+	github.com/streadway/amqp v1.1.0
 	golang.org/x/crypto v0.38.0
+	google.golang.org/api v0.229.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
@@ -40,7 +43,6 @@ require (
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
 	cloud.google.com/go/longrunning v0.6.7 // indirect
-	cloud.google.com/go/speech v1.27.1 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -123,7 +125,6 @@ require (
 	github.com/spf13/afero v1.14.0 // indirect
 	github.com/spf13/cast v1.8.0 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
-	github.com/streadway/amqp v1.1.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.6 // indirect
 	github.com/tklauser/numcpus v0.2.2 // indirect
@@ -154,7 +155,6 @@ require (
 	golang.org/x/exp v0.0.0-20250506013437-ce4c2cf36ca6 // indirect
 	golang.org/x/oauth2 v0.29.0 // indirect
 	golang.org/x/time v0.11.0 // indirect
-	google.golang.org/api v0.229.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250512202823-5a2f75b736a9 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250512202823-5a2f75b736a9 // indirect
 	google.golang.org/grpc v1.72.1 // indirect

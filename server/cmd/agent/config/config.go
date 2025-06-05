@@ -1,14 +1,15 @@
 package config
 
 type ServerConfig struct {
-	Name         string      `json:"name"`
-	Host         string      `json:"host"`
-	Port         string      `json:"port"`
-	Mysql        MysqlConfig `json:"mysql"`
-	Redis        RedisConfig `json:"redis"`
-	Kafka        KafkaConfig `json:"kafka"`
-	Minio        MinioConfig `json:"minio"`
-	OtelEndpoint string      `json:"otel_endpoint"`
+	Name         string         `json:"name"`
+	Host         string         `json:"host"`
+	Port         string         `json:"port"`
+	Mysql        MysqlConfig    `json:"mysql"`
+	Redis        RedisConfig    `json:"redis"`
+	Kafka        KafkaConfig    `json:"kafka"`
+	Minio        MinioConfig    `json:"minio"`
+	RabbitMQ     RabbitMQConfig `json:"rabbitmq"`
+	OtelEndpoint string         `json:"otel_endpoint"`
 }
 
 type EtcdConfig struct {
@@ -46,4 +47,14 @@ type MinioConfig struct {
 	SecretAccessKey string `json:"secret_access_key"`
 	BucketName      string `json:"bucket_name"`
 	Secure          bool   `json:"secure"`
+}
+
+type RabbitMQConfig struct {
+	Host               string `json:"host"`
+	Port               string `json:"port"`
+	Username           string `json:"username"`
+	Password           string `json:"password"`
+	Vhost              string `json:"vhost"`
+	Exchange           string `json:"exchange"`
+	DeadLetterExchange string `json:"dead_letter_exchange"`
 }

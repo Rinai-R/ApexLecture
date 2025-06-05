@@ -49,7 +49,7 @@ type ProducerManager interface {
 	Send(ctx context.Context, RoomId int64) error
 }
 
-var _ ProducerManager = (*mq.ProducerManagerImpl)(nil)
+var _ ProducerManager = (*mq.PublisherManagerImpl)(nil)
 
 // Ask implements the AgentServiceImpl interface.
 func (s *AgentServiceImpl) Ask(ctx context.Context, askRequest *agent.AskRequest) (*agent.AskResponse, error) {

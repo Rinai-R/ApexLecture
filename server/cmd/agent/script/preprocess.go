@@ -81,6 +81,14 @@ func main() {
 			BucketName:      consts.MinioBucket,
 			Secure:          consts.MinioSecure,
 		},
+		RabbitMQ: config.RabbitMQConfig{
+			Host:               consts.RabbitMqHost,
+			Port:               consts.RabbitMqPort,
+			Username:           consts.RabbitMqUser,
+			Password:           consts.RabbitMqPassword,
+			Exchange:           consts.AgentExchange,
+			DeadLetterExchange: consts.AgentDeadLetterExchange,
+		},
 		OtelEndpoint: consts.OtelEndpoint,
 	}
 	// 序列化 ServerConfig

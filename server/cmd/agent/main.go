@@ -14,14 +14,16 @@ import (
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
-	"github.com/hertz-contrib/obs-opentelemetry/provider"
+	"github.com/kitex-contrib/obs-opentelemetry/provider"
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 )
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	initialize.InitConfig()
 	initialize.Initlogger()
-	pro, con := initialize.InitMQ()
+	conn := initialize.InitMqConn()
 	r, i := initialize.InitRegistry()
 	db := initialize.InitDB()
 	m := initialize.InitMinio()
@@ -29,17 +31,26 @@ func main() {
 	AskApp := initialize.InitAskApp()
 	SummaryApp := initialize.InitSummaryApp()
 	handler := mq.NewConsumerHandler(dao.NewMysqlManager(db), m, eino.NewBotManaer(AskApp, SummaryApp))
+
 	p := provider.NewOpenTelemetryProvider(
 		provider.WithServiceName(config.GlobalServerConfig.Name),
 		provider.WithExportEndpoint(config.GlobalServerConfig.OtelEndpoint),
 		provider.WithInsecure(),
 	)
-	defer p.Shutdown(context.Background())
+	defer p.Shutdown(ctx)
+	subscriber := mq.NewSubscriberManager(conn, config.GlobalServerConfig.RabbitMQ.Exchange, config.GlobalServerConfig.RabbitMQ.DeadLetterExchange)
+	publisher := mq.NewPublisherManager(conn, config.GlobalServerConfig.RabbitMQ.Exchange)
+	dlx_subscriber := mq.NewDLQConsumerManager(conn, config.GlobalServerConfig.RabbitMQ.DeadLetterExchange, "")
 	go func() {
-		consumer := mq.NewConsumerManager(con)
-		err := consumer.Consume(context.Background(), config.GlobalServerConfig.Kafka.Topic, handler)
+		err := subscriber.Consume(context.Background(), config.GlobalServerConfig.RabbitMQ.Exchange, handler)
 		if err != nil {
 			klog.Error("Consume failed", err)
+		}
+	}()
+	go func() {
+		err := dlx_subscriber.Consume(context.Background(), config.GlobalServerConfig.RabbitMQ.DeadLetterExchange, handler)
+		if err != nil {
+			klog.Error("DLX Consume failed", err)
 		}
 	}()
 	svr := agentservice.NewServer(
@@ -47,7 +58,7 @@ func main() {
 			RedisManager:    dao.NewRedisManager(rdb),
 			BotManager:      eino.NewBotManaer(AskApp, SummaryApp),
 			MysqlManager:    dao.NewMysqlManager(db),
-			ProducerManager: mq.NewProducerManager(pro),
+			ProducerManager: publisher,
 		},
 		server.WithRegistry(r),
 		server.WithRegistryInfo(i),

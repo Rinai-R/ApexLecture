@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"github.com/Rinai-R/ApexLecture/server/cmd/push/config"
@@ -11,14 +12,23 @@ import (
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
+	"github.com/kitex-contrib/obs-opentelemetry/provider"
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 )
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	initialize.InitConfig()
 	initialize.Initlogger()
 	r, i := initialize.InitRegistry()
 	rdb := initialize.InitRedis()
+	p := provider.NewOpenTelemetryProvider(
+		provider.WithServiceName(config.GlobalServerConfig.Name),
+		provider.WithExportEndpoint(config.GlobalServerConfig.OtelEndpoint),
+		provider.WithInsecure(),
+	)
+	defer p.Shutdown(ctx)
 
 	svr := push.NewServer(
 		&PushServiceImpl{

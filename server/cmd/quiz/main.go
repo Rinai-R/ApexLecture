@@ -20,12 +20,13 @@ import (
 )
 
 func main() {
-
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	initialize.Initlogger()
 	initialize.InitConfig()
 	d := initialize.InitDB()
 	rdb := initialize.InitRedis()
-	pro, con := initialize.InitMQ()
+	conn := initialize.InitMqConn()
 	r, i := initialize.InitRegistry()
 	handler := mq.NewConsumerHandler(dao.NewMysqlManager(d))
 	p := provider.NewOpenTelemetryProvider(
@@ -33,20 +34,27 @@ func main() {
 		provider.WithExportEndpoint(config.GlobalServerConfig.OtelEndpoint),
 		provider.WithInsecure(),
 	)
-	defer p.Shutdown(context.Background())
-
+	defer p.Shutdown(ctx)
+	subscriber := mq.NewSubscriberManager(conn, config.GlobalServerConfig.RabbitMQ.Exchange, config.GlobalServerConfig.RabbitMQ.DeadLetterExchange)
+	publisher := mq.NewPublisherManager(conn, config.GlobalServerConfig.RabbitMQ.Exchange, config.GlobalServerConfig.RabbitMQ.DeadLetterExchange)
+	DLQsubscriber := mq.NewDLQsubscriberManager(conn, config.GlobalServerConfig.RabbitMQ.DeadLetterExchange, "")
 	go func() {
-		consumer := mq.NewConsumerManager(con)
-		err := consumer.Consume(context.Background(), config.GlobalServerConfig.Kafka.Topic, handler)
+		err := subscriber.Consume(ctx, config.GlobalServerConfig.RabbitMQ.Exchange, handler)
 		if err != nil {
 			klog.Error("Consume failed", err)
+		}
+	}()
+	go func() {
+		err := DLQsubscriber.Consume(ctx, config.GlobalServerConfig.RabbitMQ.DeadLetterExchange, handler)
+		if err != nil {
+			klog.Error("DLQConsume failed", err)
 		}
 	}()
 	svr := quizservice.NewServer(
 		&QuizServiceImpl{
 			MysqlManager:      dao.NewMysqlManager(d),
 			RedisManager:      dao.NewRedisManager(rdb),
-			ProducerManager:   mq.NewProducerManager(pro),
+			ProducerManager:   publisher,
 			goroutinePool:     goroutine.NewPool(1000),
 			QuizStatusHanlder: service.NewQuizStatusHanlder(dao.NewRedisManager(rdb)),
 		},
