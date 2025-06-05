@@ -9,11 +9,12 @@ import (
 )
 
 type StartRequest struct {
-	HostId      int64  `thrift:"hostId,1,required" frugal:"1,required,i64" json:"hostId"`
-	Title       string `thrift:"title,2,required" frugal:"2,required,string" json:"title"`
-	Description string `thrift:"description,3,required" frugal:"3,required,string" json:"description"`
-	Speaker     string `thrift:"speaker,4,required" frugal:"4,required,string" json:"speaker"`
-	Offer       string `thrift:"offer,5,required" frugal:"5,required,string" json:"offer"`
+	RoomId      int64  `thrift:"roomId,1,required" frugal:"1,required,i64" json:"roomId"`
+	HostId      int64  `thrift:"hostId,2,required" frugal:"2,required,i64" json:"hostId"`
+	Title       string `thrift:"title,3,required" frugal:"3,required,string" json:"title"`
+	Description string `thrift:"description,4,required" frugal:"4,required,string" json:"description"`
+	Speaker     string `thrift:"speaker,5,required" frugal:"5,required,string" json:"speaker"`
+	Offer       string `thrift:"offer,6,required" frugal:"6,required,string" json:"offer"`
 }
 
 func NewStartRequest() *StartRequest {
@@ -21,6 +22,10 @@ func NewStartRequest() *StartRequest {
 }
 
 func (p *StartRequest) InitDefault() {
+}
+
+func (p *StartRequest) GetRoomId() (v int64) {
+	return p.RoomId
 }
 
 func (p *StartRequest) GetHostId() (v int64) {
@@ -41,6 +46,9 @@ func (p *StartRequest) GetSpeaker() (v string) {
 
 func (p *StartRequest) GetOffer() (v string) {
 	return p.Offer
+}
+func (p *StartRequest) SetRoomId(val int64) {
+	p.RoomId = val
 }
 func (p *StartRequest) SetHostId(val int64) {
 	p.HostId = val
@@ -66,11 +74,12 @@ func (p *StartRequest) String() string {
 }
 
 var fieldIDToName_StartRequest = map[int16]string{
-	1: "hostId",
-	2: "title",
-	3: "description",
-	4: "speaker",
-	5: "offer",
+	1: "roomId",
+	2: "hostId",
+	3: "title",
+	4: "description",
+	5: "speaker",
+	6: "offer",
 }
 
 type StartResponse struct {

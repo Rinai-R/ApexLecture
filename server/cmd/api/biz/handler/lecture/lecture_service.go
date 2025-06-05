@@ -8,8 +8,10 @@ import (
 
 	lecture "github.com/Rinai-R/ApexLecture/server/cmd/api/biz/model/lecture"
 	"github.com/Rinai-R/ApexLecture/server/cmd/api/config"
+	consts2 "github.com/Rinai-R/ApexLecture/server/shared/consts"
 	rpc "github.com/Rinai-R/ApexLecture/server/shared/kitex_gen/lecture"
 	"github.com/Rinai-R/ApexLecture/server/shared/rsp"
+	"github.com/bwmarrin/snowflake"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -31,7 +33,17 @@ func StartLecture(ctx context.Context, c *app.RequestContext) {
 	}
 	host := id.(float64)
 	hostid := int64(host)
+	// 由于需要一致性哈希的支持，直接在 api 层生成 roomid 即可
+	sf, err := snowflake.NewNode(consts2.LectureIDSnowFlakeNode)
+	if err != nil {
+		c.JSON(consts.StatusBadRequest, rsp.ErrorSnowFalke(err.Error()))
+		return
+	}
+	roomid := sf.Generate().Int64()
+	ctx = context.WithValue(ctx, "roomid", strconv.Itoa(int(roomid)))
+
 	resp, _ := config.LectureClient.Start(ctx, &rpc.StartRequest{
+		RoomId:      roomid,
 		HostId:      hostid,
 		Title:       req.Title,
 		Description: req.Description,

@@ -112,19 +112,10 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 			Response: rsp.ErrorAddtTransceiver(err.Error()),
 		}, nil
 	}
-	// 此处，数据库操作。
-	// 雪花算法生成唯一的房间号，作为 id
-	sf, err := snowflake.NewNode(consts.LectureIDSnowFlakeNode)
-	if err != nil {
-		klog.Error("Failed to create snowflake node: ", err)
-		return &lecture.StartResponse{
-			Response: rsp.ErrorSnowFalke(err.Error()),
-		}, nil
-	}
-	roomid := sf.Generate().Int64()
+
 	err = s.CreateLecture(ctx, &model.Lecture{
 		HostId:      request.HostId,
-		RoomId:      roomid,
+		RoomId:      request.RoomId,
 		Title:       request.Title,
 		Description: request.Description,
 		Speaker:     request.Speaker,
@@ -138,7 +129,7 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 	}
 
 	// redis 存储房间号，使得消息服务可以知道这个房间的存在。
-	s.RedisManager.CreateRoom(ctx, roomid, request.HostId)
+	s.RedisManager.CreateRoom(ctx, request.RoomId, request.HostId)
 
 	// localTrackChan 用来拿到“转发用”的本地Track
 	audioLocalTrackChan := make(chan *webrtc.TrackLocalStaticRTP)
@@ -162,9 +153,9 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 		if remoteTrack.Kind() == webrtc.RTPCodecTypeAudio {
 			audioLocalTrackChan <- localTrack
 			<-Check
-			session, ok := s.Sessions.Load(roomid)
+			session, ok := s.Sessions.Load(request.RoomId)
 			if !ok {
-				klog.Error("Failed to find session: ", roomid)
+				klog.Error("Failed to find session: ", request.RoomId)
 				return
 			}
 			Session := session.(*LectureSession)
@@ -188,9 +179,9 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 		} else if remoteTrack.Kind() == webrtc.RTPCodecTypeVideo {
 			videoLocalTrackChan <- localTrack
 			<-Check
-			session, ok := s.Sessions.Load(roomid)
+			session, ok := s.Sessions.Load(request.RoomId)
 			if !ok {
-				klog.Error("Failed to find session: ", roomid)
+				klog.Error("Failed to find session: ", request.RoomId)
 				return
 			}
 			Session := session.(*LectureSession)
@@ -219,9 +210,9 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 			klog.Info("主播连接断开")
 			// 此处也需要告诉其他服务，这个房间已经关闭了
 			// 使得消息服务可以正常运作。
-			s.RedisManager.DeleteRoom(ctx, roomid)
-			s.RedisManager.DeleteSignal(ctx, roomid)
-			s.Sessions.Delete(roomid)
+			s.RedisManager.DeleteRoom(ctx, request.RoomId)
+			s.RedisManager.DeleteSignal(ctx, request.RoomId)
+			s.Sessions.Delete(request.RoomId)
 			peerConnection.Close()
 		}
 	})
@@ -251,7 +242,7 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 	// 等 ICE 候选收集完
 	// 存储转发音频轨道和视频轨道的管道，便于用户来的时候获取音视频的轨道。
 	s.goroutinePool.Submit(func() {
-		s.Sessions.Store(roomid, &LectureSession{
+		s.Sessions.Store(request.RoomId, &LectureSession{
 			HostId:         request.HostId,
 			PeerConnection: peerConnection,
 			AudioTrack:     <-audioLocalTrackChan,
@@ -269,7 +260,7 @@ func (s *LectureServiceImpl) Start(ctx context.Context, request *lecture.StartRe
 	})
 	return &lecture.StartResponse{
 		Response: rsp.OK(),
-		RoomId:   roomid,
+		RoomId:   request.RoomId,
 		Answer:   util.Encode(peerConnection.LocalDescription()),
 	}, nil
 }

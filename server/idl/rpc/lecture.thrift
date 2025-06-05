@@ -6,11 +6,12 @@ include "../base/base.thrift"
 // 防止直播间压力比较大，把很多服务都独立出去了。
 
 struct StartRequest {
-    1: required i64 hostId,
-    2: required string title,
-    3: required string description,
-    4: required string speaker,
-    5: required string offer,
+    1: required i64 roomId,
+    2: required i64 hostId,
+    3: required string title,
+    4: required string description,
+    5: required string speaker,
+    6: required string offer,
 }
 
 struct StartResponse {
