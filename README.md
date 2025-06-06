@@ -39,9 +39,10 @@
 
   ------
 
-  ## 📎 接口文档
+  ## 📎 资料
 
   - 📄 [接口文档（Apifox）](https://apifox.com/apidoc/shared/ec05339a-ba50-46d9-9971-1d9ef2347f2c/297132962e0)
+  - 📄 [项目详细介绍（DeepWiki）](https://deepwiki.com/Rinai-R/ApexLecture)
 
   ## 快速开始
 
