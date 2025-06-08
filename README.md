@@ -65,7 +65,6 @@
   ```bash
   make up
   ```
-  注：目前不知道出于什么原因，容器间没办法通信，导致 ELK 和 Prometheus 无法正常工作，其实换用 rabbitmq 的原因也是因为 kafka 集群没办法通信了。
 
   4. 启动服务：
 
