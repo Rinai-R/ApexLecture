@@ -18,6 +18,7 @@ func NewQuizStatusHanlder(RedisManager *dao.RedisManagerImpl) *QuizStatusHanlder
 	}
 }
 
+// 这里如果 mysql 数据插入失败不会及时停止，可以加个定期检查 mysql 库存。
 func (q *QuizStatusHanlderImpl) HandleStatus(ctx context.Context, questionId int64, roomId int64) error {
 	// 固定三秒推送一次。
 	ticker := time.NewTicker(time.Second * 3)
@@ -30,7 +31,6 @@ func (q *QuizStatusHanlderImpl) HandleStatus(ctx context.Context, questionId int
 				klog.Info("Question Has Ended", err)
 				return nil
 			}
-			klog.Info("Question is still running")
 			status, err := q.RedisManager.GetQuizStatus(ctx, questionId, roomId)
 			if err != nil {
 				klog.Error("Get Quiz Status Error: ", err)

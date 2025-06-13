@@ -3,6 +3,7 @@ package mq
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Rinai-R/ApexLecture/server/cmd/chat/dao"
@@ -125,10 +126,7 @@ func NewSubscriberManager(conn *amqp.Connection, exchange string, dlxExchange st
 		false,              // 是否自动删除
 		false,              // 是否排他交换机
 		false,              // 是否等待确认（即消息持久化）
-		amqp.Table{
-			"x-dead-letter-exchange":    dlxExchange, // 死信交换机
-			"x-dead-letter-routing-key": dlxExchange, // 死信路由键
-		},
+		nil,
 	)
 	if err != nil {
 		klog.Fatal("ExchangeDeclare failed", err)
@@ -191,6 +189,11 @@ func (s *SubscriberManagerImpl) Consume(ctx context.Context, _ string, handler *
 					CreatedAt: time.Now(),
 				})
 				if err != nil {
+					if strings.Contains(err.Error(), "Error 1062") {
+						klog.Warn("Duplicate entry", err)
+						msg.Ack(false)
+						continue
+					}
 					klog.Error("CreateChatMessage failed", err)
 					if tryNum < 3 {
 						tryNum++
@@ -230,10 +233,7 @@ func (s *SubscriberManagerImpl) SubscribeCh() <-chan amqp.Delivery {
 		false,              // 是否自动删除
 		false,              // 是否排他交换机
 		false,              // 是否等待确认（即消息持久化）
-		amqp.Table{
-			"x-dead-letter-exchange":    s.DlxExchange, // 死信交换机
-			"x-dead-letter-routing-key": s.DlxExchange, // 死信路由键
-		},
+		nil,
 	)
 	if err != nil {
 		klog.Fatal("ExchangeDeclare failed", err)
@@ -245,7 +245,10 @@ func (s *SubscriberManagerImpl) SubscribeCh() <-chan amqp.Delivery {
 		false, // 是否排他
 		false, // 是否自动删除
 		false, // 是否阻塞
-		nil,   // 附加参数
+		amqp.Table{
+			"x-dead-letter-exchange":    s.DlxExchange, // 死信交换机
+			"x-dead-letter-routing-key": "",            // 死信路由键，这里统一管理就滞空了。
+		},
 	)
 	if err != nil {
 		klog.Fatal("QueueDeclare failed", err)
@@ -322,12 +325,12 @@ func (d *DLQConsumerManager) Consume(ctx context.Context, _ string, h *ConsumerH
 	defer ch.Close()
 
 	queue, err := ch.QueueDeclare(
-		"",    // 队列名称
-		false, // 是否持久化
-		false, // 是否排他
-		false, // 是否自动删除
-		false, // 是否阻塞
-		nil,   // 附加参数
+		d.DeadLetterExchange, // 队列名称
+		false,                // 是否持久化
+		false,                // 是否排他
+		false,                // 是否自动删除
+		false,                // 是否阻塞
+		nil,                  // 附加参数
 	)
 	if err != nil {
 		klog.Fatal("QueueDeclare failed", err)
@@ -335,8 +338,8 @@ func (d *DLQConsumerManager) Consume(ctx context.Context, _ string, h *ConsumerH
 	}
 
 	err = ch.QueueBind(
-		queue.Name, // 队列名称
-		"",
+		queue.Name,           // 队列名称
+		"",                   // 路由键
 		d.DeadLetterExchange, // 死信交换机名称
 		false,                // 是否持久化
 		nil,                  // 附加参数

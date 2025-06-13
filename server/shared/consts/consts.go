@@ -58,8 +58,8 @@ const (
 // MinioConfig
 const (
 	MinioEndpoint  = "localhost:9000"
-	MinioAccessKey = "QIEZXMXgmp537hF4oUni"
-	MinioSecretKey = "Aw8FvzDjIWSqi3tkYdOTHXSFCTWV6ed3UXZ4ssPu"
+	MinioAccessKey = "minio"
+	MinioSecretKey = "123456789"
 	MinioBucket    = "lecture"
 	MinioSecure    = false
 )
@@ -102,7 +102,7 @@ const (
 const (
 	AgentBaseURL = "https://ark.cn-beijing.volces.com/api/v3"
 	AgentRegion  = "cn-beijing"
-	AgentAPIKey  = "a02b51ca-cf7e-4cb2-bad4-266cb3714137"
+	AgentAPIKey  = "cce9cdd5-95db-4be7-8417-5e9cc3c16fed"
 	AgentModel   = "deepseek-r1-250120"
 )
 

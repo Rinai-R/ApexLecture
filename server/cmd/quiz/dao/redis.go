@@ -234,7 +234,7 @@ func (r *RedisManagerImpl) SendQuizStatus(ctx context.Context, status *model.Qui
 		klog.Error("failed to marshal message: %v", err)
 		return err
 	}
-	klog.Info("send quiz status:", fmt.Sprintf(consts.RoomKey, status.RoomId))
+	// klog.Info("send quiz status:", fmt.Sprintf(consts.RoomKey, status.RoomId))
 	return r.client.Publish(ctx, fmt.Sprintf(consts.RoomKey, status.RoomId), msgbytes).Err()
 }
 

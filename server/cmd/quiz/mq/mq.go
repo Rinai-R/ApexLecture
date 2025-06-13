@@ -3,6 +3,7 @@ package mq
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Rinai-R/ApexLecture/server/cmd/quiz/dao"
@@ -12,7 +13,6 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/streadway/amqp"
-	"gorm.io/gorm"
 )
 
 type ConsumerHandlerImpl struct {
@@ -44,10 +44,7 @@ func NewPublisherManager(conn *amqp.Connection, exchange, DeadLetterExchange str
 		false,              // 是否自动删除
 		false,              // 是否排他交换机
 		false,              // 是否等待确认（即消息持久化）
-		amqp.Table{
-			"x-dead-letter-exchange":    DeadLetterExchange, // 死信交换机
-			"x-dead-letter-routing-key": DeadLetterExchange, // 死信路由键
-		},
+		nil,                // 附加参数
 	)
 	if err != nil {
 		klog.Fatal("ExchangeDeclare failed", err)
@@ -128,10 +125,7 @@ func NewSubscriberManager(conn *amqp.Connection, exchange string, dlxExchange st
 		false,              // 是否自动删除
 		false,              // 是否排他交换机
 		false,              // 是否等待确认（即消息持久化）
-		amqp.Table{
-			"x-dead-letter-exchange":    dlxExchange, // 死信交换机
-			"x-dead-letter-routing-key": dlxExchange, // 死信路由键
-		},
+		nil,                // 附加参数
 	)
 	if err != nil {
 		klog.Fatal("ExchangeDeclare failed", err)
@@ -172,7 +166,10 @@ func (s *SubscriberManagerImpl) Consume(ctx context.Context, queue string, handl
 		false, // 是否排他
 		false, // 是否自动删除
 		false, // 是否等待确认（即消息持久化）
-		nil,   // 附加参数
+		amqp.Table{
+			"x-dead-letter-exchange":    s.DeadLetterExchange, // 死信交换机
+			"x-dead-letter-routing-key": "",                   // 死信路由键
+		},
 	)
 	if err != nil {
 		klog.Error("QueueDeclare failed", err)
@@ -185,31 +182,6 @@ func (s *SubscriberManagerImpl) Consume(ctx context.Context, queue string, handl
 		s.Exchange, // 交换机名称
 		false,      // 是否等待确认
 		nil,        // 附加参数
-	)
-	if err != nil {
-		klog.Error("QueueBind failed", err)
-		return err
-	}
-	// 声明死信队列
-	dlxq, err := ch.QueueDeclare(
-		queue+".dlx", // 死信队列名称
-		true,         // 是否持久化
-		false,        // 是否排他
-		false,        // 是否自动删除
-		false,        // 是否等待确认（即消息持久化）
-		nil,          // 附加参数
-	)
-	if err != nil {
-		klog.Error("QueueDeclare failed", err)
-		return err
-	}
-	// 绑定死信队列到死信交换机
-	err = ch.QueueBind(
-		dlxq.Name,            // 死信队列名称
-		"",                   // 路由键
-		s.DeadLetterExchange, // 死信交换机名称
-		false,                // 是否等待确认
-		nil,                  // 附加参数
 	)
 	if err != nil {
 		klog.Error("QueueBind failed", err)
@@ -234,6 +206,7 @@ func (s *SubscriberManagerImpl) Consume(ctx context.Context, queue string, handl
 		case message := <-consumer:
 			retryCount := 0
 		retry:
+			fmt.Println(string(message.Body))
 			var Message base.InternalMessage
 			err := sonic.Unmarshal(message.Body, &Message)
 			if err != nil {
@@ -251,11 +224,17 @@ func (s *SubscriberManagerImpl) Consume(ctx context.Context, queue string, handl
 					Answer: Message.Payload.QuizChoice.Answers,
 				})
 				if err != nil {
-					if err == gorm.ErrDuplicatedKey {
-						klog.Error("QuizChoice already exists", err)
-					} else {
-						klog.Error("CreateQuizChoice failed", err)
+					if strings.Contains(err.Error(), "Error 1062") {
+						klog.Warn("Duplicate entry", err)
+						message.Ack(false)
+						continue
 					}
+					klog.Error("CreateQuizChoice failed, ", err)
+					if retryCount < 3 {
+						retryCount++
+						goto retry
+					}
+					message.Nack(false, false)
 					continue
 				}
 			case base.InternalMessageType_QUIZ_JUDGE:
@@ -267,7 +246,12 @@ func (s *SubscriberManagerImpl) Consume(ctx context.Context, queue string, handl
 					Answer: Message.Payload.QuizJudge.Answer,
 				})
 				if err != nil {
-					klog.Error("CreateQuizJudge failed", err)
+					if strings.Contains(err.Error(), "Error 1062") {
+						klog.Warn("Duplicate entry", err)
+						message.Ack(false)
+						continue
+					}
+					klog.Error("CreateQuizJudge failed, ", err)
 					if retryCount < 3 {
 						retryCount++
 						goto retry
@@ -277,7 +261,7 @@ func (s *SubscriberManagerImpl) Consume(ctx context.Context, queue string, handl
 			default:
 				klog.Error("Unknown message type", base.InternalMessageType(Message.Type))
 			}
-			err = ch.Ack(message.DeliveryTag, false)
+			message.Ack(false)
 			if err != nil {
 				klog.Error("Ack failed", err)
 				continue
@@ -324,20 +308,20 @@ func (d *DLQConsumerManagerImpl) Consume(ctx context.Context, _ string, h *Consu
 		return fmt.Errorf("NewChannel failed")
 	}
 	defer ch.Close()
-
+	// 声明队列，使用空字符串，每次都会得到不同的 name
 	queue, err := ch.QueueDeclare(
-		"",    // 队列名称
-		false, // 是否持久化
-		false, // 是否排他
-		false, // 是否自动删除
-		false, // 是否阻塞
-		nil,   // 附加参数
+		d.DeadLetterExchange, // 队列名称
+		false,                // 是否持久化
+		false,                // 是否排他
+		false,                // 是否自动删除
+		false,                // 是否阻塞
+		nil,                  // 附加参数
 	)
 	if err != nil {
 		klog.Fatal("QueueDeclare failed", err)
 		return fmt.Errorf("QueueDeclare failed")
 	}
-
+	// 将我们获取的队列绑定到死信交换机
 	err = ch.QueueBind(
 		queue.Name, // 队列名称
 		"",
@@ -349,7 +333,7 @@ func (d *DLQConsumerManagerImpl) Consume(ctx context.Context, _ string, h *Consu
 		klog.Fatal("QueueBind failed", err)
 		return fmt.Errorf("QueueBind failed")
 	}
-
+	// 这里是进行消费队列，获取消息
 	msgs, err := ch.Consume(
 		queue.Name, // 队列名称
 		"",         // 用来区分多个消费者的标识符
@@ -380,7 +364,7 @@ func (d *DLQConsumerManagerImpl) Consume(ctx context.Context, _ string, h *Consu
 				},
 			)
 		case <-ticker.C:
-			klog.Debug("DLQ Consumer heartbeat, Current DLQ number: ", len(msgs))
+			klog.Info("DLQ Consumer heartbeat, Current DLQ number: ", len(msgs))
 		case <-ctx.Done():
 			klog.Info("DLQ Consumer stopped")
 			return nil

@@ -37,7 +37,7 @@ func main() {
 	defer p.Shutdown(ctx)
 	subscriber := mq.NewSubscriberManager(conn, config.GlobalServerConfig.RabbitMQ.Exchange, config.GlobalServerConfig.RabbitMQ.DeadLetterExchange)
 	publisher := mq.NewPublisherManager(conn, config.GlobalServerConfig.RabbitMQ.Exchange, config.GlobalServerConfig.RabbitMQ.DeadLetterExchange)
-	DLQsubscriber := mq.NewDLQsubscriberManager(conn, config.GlobalServerConfig.RabbitMQ.DeadLetterExchange, "")
+	DLQsubscriber := mq.NewDLQsubscriberManager(conn, config.GlobalServerConfig.RabbitMQ.Exchange, config.GlobalServerConfig.RabbitMQ.DeadLetterExchange)
 	go func() {
 		err := subscriber.Consume(ctx, config.GlobalServerConfig.RabbitMQ.Exchange, handler)
 		if err != nil {

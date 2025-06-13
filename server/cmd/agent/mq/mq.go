@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	speech "cloud.google.com/go/speech/apiv1"
@@ -148,10 +149,7 @@ func (s *SubscriberManagerImpl) SubscribeCh() <-chan amqp.Delivery {
 		false,              // 是否自动删除
 		false,              // 是否排他交换机
 		false,              // 是否等待确认（即消息持久化）
-		amqp.Table{
-			"x-dead-letter-exchange":    s.DeadLetterExchange, // 死信交换机
-			"x-dead-letter-routing-key": s.DeadLetterExchange, // 死信路由键
-		},
+		nil,
 	)
 	if err != nil {
 		klog.Fatal("ExchangeDeclare failed", err)
@@ -163,7 +161,10 @@ func (s *SubscriberManagerImpl) SubscribeCh() <-chan amqp.Delivery {
 		false, // 是否排他
 		false, // 是否自动删除
 		false, // 是否阻塞
-		nil,   // 附加参数
+		amqp.Table{
+			"x-dead-letter-exchange":    s.DeadLetterExchange, // 死信交换机
+			"x-dead-letter-routing-key": "",                   // 死信路由键
+		},
 	)
 	if err != nil {
 		klog.Fatal("QueueDeclare failed", err)
@@ -208,8 +209,8 @@ func (s *SubscriberManagerImpl) Consume(ctx context.Context, _ string, h *Consum
 		RoomId, err := strconv.ParseInt(string(msg.Body), 10, 64)
 		if err != nil {
 			// 说明传递的消息格式错误，丢弃
-			klog.Error("RabbitMQConsumer:ParseInt failed", err)
-			msg.Nack(false, false)
+			klog.Warn("RabbitMQConsumer:ParseInt failed", err)
+			msg.Ack(false)
 			continue
 		}
 		klog.Info("RabbitMQ 消费", RoomId)
@@ -219,15 +220,16 @@ func (s *SubscriberManagerImpl) Consume(ctx context.Context, _ string, h *Consum
 			minio.GetObjectOptions{})
 		if err != nil {
 			// 说明获取对象失败，可能是对象不存在或者其他错误，丢弃
-			klog.Error("MinioGetObject failed", err)
-			msg.Nack(false, false)
+			klog.Warn("MinioGetObject failed", err)
+			msg.Ack(false)
 			continue
 		}
 
 		var audioBytes []byte
 		_, err = object.Read(audioBytes)
 		if err != nil {
-			klog.Error("ReadAll failed", err)
+			klog.Warn("ReadAll failed", err)
+			msg.Nack(false, false)
 			continue
 		}
 		// 此处凭证需要自行添加。
@@ -241,7 +243,7 @@ func (s *SubscriberManagerImpl) Consume(ctx context.Context, _ string, h *Consum
 				tryNum++
 				goto retry
 			}
-			klog.Error("tryNum > 3, SpeechNewClient failed", err)
+			klog.Warn("tryNum > 3, SpeechNewClient failed", err)
 			msg.Nack(false, false)
 			continue
 		}
@@ -263,7 +265,7 @@ func (s *SubscriberManagerImpl) Consume(ctx context.Context, _ string, h *Consum
 				tryNum++
 				goto retry
 			}
-			klog.Error("tryNum > 3, Recognize failed", err)
+			klog.Warn("tryNum > 3, Recognize failed", err)
 			msg.Nack(false, false)
 			continue
 		}
@@ -276,6 +278,11 @@ func (s *SubscriberManagerImpl) Consume(ctx context.Context, _ string, h *Consum
 		// 存储到 MySQL 数据库中
 		err = h.MysqlManager.SetSummary(ctx, RoomId, SummarizedText.Summary)
 		if err != nil {
+			if strings.Contains(err.Error(), "Error 1062") {
+				klog.Warn("Duplicate entry", err)
+				msg.Ack(false)
+				continue
+			}
 			klog.Error("MysqlSetSummary failed", err)
 			if tryNum < 3 {
 				tryNum++
