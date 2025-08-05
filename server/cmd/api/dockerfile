@@ -1,0 +1,26 @@
+# 解锁一阶段，构建
+FROM golang:1.24.3 AS build
+
+WORKDIR /app
+
+COPY . .
+
+RUN GOOS=linux go build -o api ./server/cmd/api/
+
+# 解锁二阶段，运行
+FROM ubuntu:latest
+
+WORKDIR /app
+
+COPY --from=build /app/api .
+
+COPY --from=build /app/server/cmd/api/config.yaml ./server/cmd/api/config.yaml
+
+COPY --from=build /app/server/shared/sensitive/word.txt ./server/shared/sensitive/word.txt
+
+RUN apt-get update && apt-get install -y tzdata && rm -rf /var/lib/apt/lists/*
+
+
+EXPOSE 10000
+
+CMD ["./api"]

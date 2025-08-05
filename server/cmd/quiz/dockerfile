@@ -1,0 +1,24 @@
+FROM golang:1.24.3 AS build
+
+WORKDIR /app
+
+COPY . .
+
+RUN GOOS=linux go build -o quiz ./server/cmd/quiz/
+
+
+FROM ubuntu:latest
+
+WORKDIR /app
+
+COPY --from=build /app/quiz .
+
+COPY --from=build /app/server/cmd/quiz/config.yaml ./server/cmd/quiz/config.yaml
+
+COPY --from=build /app/server/shared/sensitive/word.txt ./server/shared/sensitive/word.txt
+
+RUN apt-get update && apt-get install -y tzdata && rm -rf /var/lib/apt/lists/*
+
+EXPOSE 10005
+
+CMD ["./quiz"]

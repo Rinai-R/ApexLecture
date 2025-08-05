@@ -2,13 +2,13 @@ package consts
 
 // ServerConfig
 const (
-	ApiHost     = "0.0.0.0"
-	UserHost    = "0.0.0.0"
-	LectureHost = "0.0.0.0"
-	ChatHost    = "0.0.0.0"
-	PushHost    = "0.0.0.0"
-	QuizHost    = "0.0.0.0"
-	AgentHost   = "0.0.0.0"
+	ApiHost     = "api"
+	UserHost    = "user"
+	LectureHost = "lecture"
+	ChatHost    = "chat"
+	PushHost    = "push"
+	QuizHost    = "quiz"
+	AgentHost   = "agent"
 
 	ApiPort     = "10000"
 	UserPort    = "10001"
@@ -34,13 +34,13 @@ const (
 	QuizSrvPrefix    = "quiz"
 	AgentSrvPrefix   = "agent"
 
-	OtelEndpoint = "localhost:4317"
+	OtelEndpoint = "otel-collector:4317"
 )
 
 // MysqlConfig
 const (
 	MysqlDNS      = "%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Asia%%2FShanghai"
-	MysqlHost     = "localhost"
+	MysqlHost     = "mysql"
 	MysqlUser     = "root"
 	MysqlPassword = "123456"
 	MysqlDatabase = "apex_db"
@@ -49,7 +49,7 @@ const (
 
 // RedisConfig
 const (
-	RedisHost     = "localhost"
+	RedisHost     = "redis"
 	RedisPort     = "6379"
 	RedisPassword = "123456"
 	RedisDatabase = 0
@@ -57,7 +57,7 @@ const (
 
 // MinioConfig
 const (
-	MinioEndpoint  = "localhost:9000"
+	MinioEndpoint  = "minio:9000"
 	MinioAccessKey = "minio"
 	MinioSecretKey = "123456789"
 	MinioBucket    = "lecture"
@@ -68,9 +68,9 @@ const (
 const (
 	KafkaUsername     = "root"
 	KafkaPassword     = "123456"
-	KafkaBroker1      = "localhost:9094"
-	KafkaBroker2      = "localhost:9095"
-	KafkaBroker3      = "localhost:9096"
+	KafkaBroker1      = "kafka1:9092"
+	KafkaBroker2      = "kafka2:9092"
+	KafkaBroker3      = "kafka3:9092"
 	LectureKafkaTopic = "lecture"
 	LectureKafkaGroup = "lecture"
 	ChatKafkaTopic    = "chat"
@@ -83,7 +83,7 @@ const (
 
 const (
 	RabbitMqDNS               = "amqp://%s:%s@%s:%s/"
-	RabbitMqHost              = "localhost"
+	RabbitMqHost              = "rabbitmq"
 	RabbitMqUser              = "guest"
 	RabbitMqPassword          = "guest"
 	RabbitMqPort              = "5672"
@@ -155,4 +155,10 @@ const (
 // GoogleCredentials
 const (
 	GoogleCredentialsFile = "./path/to/your/credentials.json"
+)
+
+// etcd
+const (
+	EtcdHost = "localhost"
+	EtcdPort = "2379"
 )

@@ -1,0 +1,76 @@
+services:
+# ========================= APP ======================
+    api:
+        build:
+            context: .
+            dockerfile: ./server/cmd/api/dockerfile
+        image: api
+        container_name: api
+        ports:
+            - "10000:10000"
+        networks:
+            - app
+    user:
+        build:
+            context: .
+            dockerfile: ./server/cmd/user/dockerfile
+        image: user
+        container_name: user
+        ports:
+            - "10001:10001"
+        networks:
+            - app
+    lecture:
+        build:
+            context: .
+            dockerfile: ./server/cmd/lecture/dockerfile
+        image: lecture
+        container_name: lecture
+        ports:
+            - "10002:10002"
+        networks:
+            - app
+    chat:
+        build:
+            context: .
+            dockerfile: ./server/cmd/chat/dockerfile
+        image: chat
+        container_name: chat
+        ports:
+            - "10003:10003"
+        networks:
+            - app
+    push:
+        build:
+            context: .
+            dockerfile: ./server/cmd/push/dockerfile
+        image: push
+        container_name: push
+        ports:
+            - "10004:10004"
+        networks:
+            - app
+    quiz:
+        build:
+            context: .
+            dockerfile: ./server/cmd/quiz/dockerfile
+        image: quiz
+        container_name: quiz
+        ports:
+            - "10005:10005"
+        networks:
+            - app
+    agent:
+        build:
+            context: .
+            dockerfile: ./server/cmd/agent/dockerfile
+        image: agent
+        container_name: agent
+        ports:
+            - "10006:10006"
+        networks:
+            - app
+    
+networks:
+    app:
+        driver: bridge

@@ -1,0 +1,26 @@
+FROM golang:1.24.3 AS build
+
+WORKDIR /app
+
+COPY . .
+
+RUN GOOS=linux go build -o user ./server/cmd/user/
+
+
+FROM ubuntu:latest
+
+WORKDIR /app
+
+COPY --from=build /app/user .
+
+COPY --from=build /app/server/cmd/user/config.yaml ./server/cmd/user/config.yaml
+
+COPY --from=build /app/server/shared/sensitive/word.txt ./server/shared/sensitive/word.txt
+
+COPY --from=build /app/server/cmd/user/keys ./server/cmd/user/keys
+
+RUN apt-get update && apt-get install -y tzdata && rm -rf /var/lib/apt/lists/*
+
+EXPOSE 10001
+
+CMD ["./user"]

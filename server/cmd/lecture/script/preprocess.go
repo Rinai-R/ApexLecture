@@ -38,7 +38,7 @@ func main() {
 		panic("PreProcess failed: Unmarshal EtcdConfig failed" + err.Error())
 	}
 	Registry, err = clientv3.New(clientv3.Config{
-		Endpoints:   []string{net.JoinHostPort(EtcdConf.Host, EtcdConf.Port)},
+		Endpoints:   []string{net.JoinHostPort(consts.EtcdHost, consts.EtcdPort)},
 		DialTimeout: 5 * time.Second,
 	})
 	if err != nil {

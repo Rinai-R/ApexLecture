@@ -3,22 +3,25 @@ MODULE_NAME = github.com/Rinai-R/ApexLecture
 CMD_PATH = ./server/cmd
 KITEX_GEN = ./server/shared/kitex_gen
 
-# ============================== docker-compose =========================
+# ============================== docker compose =========================
 re:
 	make down
 	make up
 
 up:
-	docker-compose up -d
+	docker compose up -d
 	sleep 5
-	docker-compose down
+	docker compose down
 	sudo chmod -R 0777 ./data
 	sudo chmod 400 ./data/rabbitmq/.erlang.cookie
-	docker-compose up -d
+	docker compose up -d
 	make conf
+	sleep 3
+	docker compose -f app.yml up -d
 
 down:
-	docker-compose down
+	docker compose down
+	docker compose -f app.yml down
 
 clear:
 	sudo aa-remove-unknown
@@ -176,3 +179,37 @@ api-update:
 api-new:
 	cd 	./server/cmd/api && \
 	hz new -idl ../../idl/api/$(service).thrift \
+
+
+
+# ============================ docker build ======================
+
+agent-build:
+	docker buildx build -f server/cmd/agent/dockerfile -t agent .
+
+api-build:
+	docker buildx build -f server/cmd/api/dockerfile -t api .
+
+chat-build:
+	docker buildx build -f server/cmd/chat/dockerfile -t chat .
+
+lecture-build:
+	docker buildx build -f server/cmd/lecture/dockerfile -t lecture .
+
+push-build:
+	docker buildx build -f server/cmd/push/dockerfile -t push .
+
+quiz-build:
+	docker buildx build -f server/cmd/quiz/dockerfile -t quiz .
+
+user-build:
+	docker buildx build -f server/cmd/user/dockerfile -t user .
+
+build:
+	make agent-build
+	make api-build
+	make chat-build
+	make lecture-build
+	make push-build
+	make quiz-build
+	make user-build
