@@ -36,7 +36,7 @@
   - 限流：使用 `sentinel-golang` 实现限流
   - 一致性哈希：直播推流依赖于内存，故基于一致性哈希算法，确保同一个房间的请求落在同一个直播节点上。
   - 敏感词屏蔽：使用第三方库 [`sensitive`](https://github.com/importcjj/sensitive) 实现敏感词屏蔽
-  - 容器化部署：编写 `Dockerfile` 实现，当前基于 `docker compose` 实现容器化部署。
+  - 容器化部署：编写 `Dockerfile` 实现，当前基于 `docker compose` 实现容器化部署，也可以通过 kubernetes 部署，只需要按顺序 apply 项目目录下的 k8s 的 yaml 文件即可。
 
   ------
 
