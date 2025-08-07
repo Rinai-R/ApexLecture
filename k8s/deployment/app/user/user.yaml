@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      containers:
+        - name: user
+          image: r1na1/user:latest  # 先构建并推送到镜像仓库
+          ports:
+            - containerPort: 10001
+          volumeMounts:
+            - name: user-data
+              mountPath: /app/tmp
+      volumes:
+        - name: user-data
+          hostPath:
+            path: /home/minikube/k8s/tmp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-svc
+spec:
+  selector:
+    app: user
+  ports:
+    - name: user
+      port: 10001
+      targetPort: 10001
+      nodePort: 30001   # 如果要外部访问，指定 NodePort
+  type: NodePort

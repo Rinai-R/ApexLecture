@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: agent
+  template:
+    metadata:
+      labels:
+        app: agent
+    spec:
+      containers:
+        - name: agent
+          image: r1na1/agent:latest  # 先构建并推送到镜像仓库
+          ports:
+            - containerPort: 10006
+          volumeMounts:
+            - name: agent-data
+              mountPath: /app/tmp
+      volumes:
+        - name: agent-data
+          hostPath:
+            path: /home/minikube/k8s/tmp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-svc
+spec:
+  selector:
+    app: agent
+  ports:
+    - name: agent
+      port: 10006
+      targetPort: 10006
+      nodePort: 30006   # 如果要外部访问，指定 NodePort
+  type: NodePort

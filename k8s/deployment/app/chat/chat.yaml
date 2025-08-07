@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat
+  template:
+    metadata:
+      labels:
+        app: chat
+    spec:
+      containers:
+        - name: chat
+          image: r1na1/chat:latest  # 先构建并推送到镜像仓库
+          ports:
+            - containerPort: 10003
+          volumeMounts:
+            - name: chat-data
+              mountPath: /app/tmp
+      volumes:
+        - name: chat-data
+          hostPath:
+            path: /home/minikube/k8s/tmp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-svc
+spec:
+  selector:
+    app: chat
+  ports:
+    - name: chat
+      port: 10003
+      targetPort: 10003
+      nodePort: 30003   # 如果要外部访问，指定 NodePort
+  type: NodePort

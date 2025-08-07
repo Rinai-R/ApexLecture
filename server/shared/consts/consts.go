@@ -2,13 +2,13 @@ package consts
 
 // ServerConfig
 const (
-	ApiHost     = "api"
-	UserHost    = "user"
-	LectureHost = "lecture"
-	ChatHost    = "chat"
-	PushHost    = "push"
-	QuizHost    = "quiz"
-	AgentHost   = "agent"
+	ApiHost     = "0.0.0.0"
+	UserHost    = "0.0.0.0"
+	LectureHost = "0.0.0.0"
+	ChatHost    = "0.0.0.0"
+	PushHost    = "0.0.0.0"
+	QuizHost    = "0.0.0.0"
+	AgentHost   = "0.0.0.0"
 
 	ApiPort     = "10000"
 	UserPort    = "10001"
@@ -26,13 +26,13 @@ const (
 	QuizConfig    = "./server/cmd/quiz/config.yaml"
 	AgentConfig   = "./server/cmd/agent/config.yaml"
 
-	ApiSrvPrefix     = "api"
-	UserSrvPrefix    = "user"
-	LectureSrvPrefix = "lecture"
-	ChatSrvPrefix    = "chat"
-	PushSrvPrefix    = "push"
-	QuizSrvPrefix    = "quiz"
-	AgentSrvPrefix   = "agent"
+	ApiSrvPrefix     = "api-svc"
+	UserSrvPrefix    = "user-svc"
+	LectureSrvPrefix = "lecture-svc"
+	ChatSrvPrefix    = "chat-svc"
+	PushSrvPrefix    = "push-svc"
+	QuizSrvPrefix    = "quiz-svc"
+	AgentSrvPrefix   = "agent-svc"
 
 	OtelEndpoint = "otel-collector:4317"
 )

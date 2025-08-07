@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: push-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: push
+  template:
+    metadata:
+      labels:
+        app: push
+    spec:
+      containers:
+        - name: push
+          image: r1na1/push:latest  # 先构建并推送到镜像仓库
+          ports:
+            - containerPort: 10004
+          volumeMounts:
+            - name: push-data
+              mountPath: /app/tmp
+      volumes:
+        - name: push-data
+          hostPath:
+            path: /home/minikube/k8s/tmp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: push-svc
+spec:
+  selector:
+    app: push
+  ports:
+    - name: push
+      port: 10004
+      targetPort: 10004
+      nodePort: 30004   # 如果要外部访问，指定 NodePort
+  type: NodePort

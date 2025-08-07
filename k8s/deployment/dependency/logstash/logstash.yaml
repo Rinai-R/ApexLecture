@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logstash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logstash
+  template:
+    metadata:
+      labels:
+        app: logstash
+    spec:
+      containers:
+        - name: logstash
+          image: logstash:8.17.0
+          volumeMounts:
+            - name: klog
+              mountPath: /usr/share/logstash/logs/klog
+              readOnly: true
+            - name: hlog
+              mountPath: /usr/share/logstash/logs/hlog
+              readOnly: true
+            - name: logstash-pipeline
+              mountPath: /usr/share/logstash/pipeline
+      volumes:
+        - name: klog
+          hostPath:
+            path: /home/minikube/k8s/tmp/klog
+        - name: hlog
+          hostPath:
+            path: /home/minikube/k8s/tmp/hlog
+        - name: logstash-pipeline
+          configMap:
+            name: logstash-pipeline-config
+            items:
+              - key: logstash.conf
+                path: logstash.conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash
+spec:
+  selector:
+    app: logstash
+  ports:
+    - port: 5044
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-pipeline-config
+data:
+  logstash.conf: |
+    input {
+      file {
+        path => "/usr/share/logstash/logs/klog/*.log"
+        start_position => "beginning"  # 从文件开头读取
+        sincedb_path => "/dev/null"  # 不保存读取进度，重启容器时重新读取
+      }
+
+      file {
+        path => "/usr/share/logstash/logs/hlog/*.log"
+        start_position => "beginning"
+        sincedb_path => "/dev/null"
+      }
+    }
+
+    filter {
+      json {
+        source => "message"         # 来源字段
+        # target => "parsed"        # 如果想把解析结果放到 parsed 子对象里，可取消注释
+      }
+
+    #   （可选）删掉原始 message 字段，避免重复
+      mutate {
+        remove_field => [ "message" ]
+      }
+    }
+
+    output {
+      elasticsearch {
+        hosts => ["http://elasticsearch:9200"]
+        index => "logstash-%{+YYYY.MM.dd}"
+      }
+
+      stdout { codec => rubydebug }  # 打印日志到控制台
+    }

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quiz-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quiz
+  template:
+    metadata:
+      labels:
+        app: quiz
+    spec:
+      containers:
+        - name: quiz
+          image: r1na1/quiz:latest  # 先构建并推送到镜像仓库
+          ports:
+            - containerPort: 10005
+          volumeMounts:
+            - name: quiz-data
+              mountPath: /app/tmp
+      volumes:
+        - name: quiz-data
+          hostPath:
+            path: /home/minikube/k8s/tmp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quiz-svc
+spec:
+  selector:
+    app: quiz
+  ports:
+    - name: quiz
+      port: 10005
+      targetPort: 10005
+      nodePort: 30005   # 如果要外部访问，指定 NodePort
+  type: NodePort

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lecture-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lecture
+  template:
+    metadata:
+      labels:
+        app: lecture
+    spec:
+      containers:
+        - name: lecture
+          image: r1na1/lecture:latest  # 先构建并推送到镜像仓库
+          ports:
+            - containerPort: 10002
+          volumeMounts:
+            - name: lecture-data
+              mountPath: /app/tmp
+      volumes:
+        - name: lecture-data
+          hostPath:
+            path: /home/minikube/k8s/tmp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lecture-svc
+spec:
+  selector:
+    app: lecture
+  ports:
+    - name: lecture
+      port: 10002
+      targetPort: 10002
+      nodePort: 30002   # 如果要外部访问，指定 NodePort
+  type: NodePort

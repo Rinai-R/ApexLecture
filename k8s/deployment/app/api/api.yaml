@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: api
+          image: r1na1/api:latest  # 先构建并推送到镜像仓库
+          ports:
+            - containerPort: 10000
+          volumeMounts:
+            - name: api-data
+              mountPath: /app/tmp
+      volumes:
+        - name: api-data
+          hostPath:
+            path: /home/minikube/k8s/tmp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-svc
+spec:
+  selector:
+    app: api
+  ports:
+    - name: api
+      port: 10000
+      targetPort: 10000
+      nodePort: 30000   # 如果要外部访问，指定 NodePort
+  type: NodePort
